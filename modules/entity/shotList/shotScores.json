@@ -1,0 +1,74 @@
+[
+    {
+        "key": "content",
+        "title": "محتوا و مضمون",
+        "sectionKey": "shot-list-score",
+        "sectionTitle": "شات لیست کننده"
+    },
+    {
+        "key": "place",
+        "title": "خاص بودن مکان",
+        "sectionKey": "shot-list-score",
+        "sectionTitle": "شات لیست کننده"
+    },
+    {
+        "key": "rare",
+        "title": "کمیاب بودن",
+        "sectionKey": "shot-list-score",
+        "sectionTitle": "شات لیست کننده"
+    },
+    {
+        "key": "risk",
+        "title": "ریسک پذیری",
+        "sectionKey": "shot-list-score",
+        "sectionTitle": "شات لیست کننده"
+    },
+    {
+        "key": "risk",
+        "title": "ریسک پذیری",
+        "sectionKey": "shot-equalize-score",
+        "sectionTitle": "یکسان ساز کننده"
+    },
+    {
+        "key": "content",
+        "title": "محتوا و مضمون",
+        "sectionKey": "shot-equalize-score",
+        "sectionTitle": "یکسان ساز کننده"
+    },
+    {
+        "key": "rare",
+        "title": "کمیاب بودن",
+        "sectionKey": "shot-equalize-score",
+        "sectionTitle": "یکسان ساز کننده"
+    },
+    {
+        "key": "image-quality",
+        "title": "کیفیت وضوح تصویر",
+        "sectionKey": "shot-editing-score",
+        "sectionTitle": "تدوینگر"
+    },
+    {
+        "key": "sound",
+        "title": "صدابرداری",
+        "sectionKey": "shot-editing-score",
+        "sectionTitle": "تدوینگر"
+    },
+    {
+        "key": "usability",
+        "title": "استفاده پذیری و ارزش",
+        "sectionKey": "shot-editing-score",
+        "sectionTitle": "تدوینگر"
+    },
+    {
+        "key": "light",
+        "title": "نورپردازی",
+        "sectionKey": "shot-editing-score",
+        "sectionTitle": "تدوینگر"
+    },
+    {
+        "key": "popular",
+        "title": "محبوب ترین و ترند بودن",
+        "sectionKey": "shot-other-score",
+        "sectionTitle": "تدوینگر"
+    }
+]

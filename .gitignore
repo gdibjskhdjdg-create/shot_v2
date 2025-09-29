@@ -1,0 +1,8 @@
+node_modules
+.vscode
+.env
+.env.enc
+
+logs
+
+tmp

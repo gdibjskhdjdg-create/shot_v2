@@ -1,0 +1,37 @@
+const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
+const Language_DTO = require("../../dto//language/Language.dto");
+const LanguageService = require("../../services/language/Language.service");
+const LanguageValidation = require("../../validation/language/Language.validation");
+const { getDataFromReqQuery } = require("../../../helper/general.tool");
+const BaseController = require("../../_default/controller/Base.controller");
+
+class LanguageController extends SampleCRUD_Controller {
+    constructor(){
+        super({
+            validation: LanguageValidation,
+            service: LanguageService,
+            DTO: Language_DTO
+        })
+    }
+
+    async getList(req, res) {
+        const query = getDataFromReqQuery(req);
+        const list = await LanguageService.getList(query)
+        return BaseController.ok(res, list)
+    }
+
+    async getShots(req, res) {
+        const { id } = req.params
+        const query = getDataFromReqQuery(req);
+        const shots = await LanguageService.getShotsOfLanguage(id, query)
+        return BaseController.ok(res, shots)
+    }
+
+    async detachShot(req, res) {
+        const { id, shotId } = req.params
+        await LanguageService.detachShotFromLanguage(id, shotId)
+        return BaseController.ok(res)
+    }
+}
+
+module.exports = new LanguageController();

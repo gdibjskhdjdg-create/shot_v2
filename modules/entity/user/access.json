@@ -1,0 +1,265 @@
+[
+    {
+        "section": "user",
+        "title": "کاربر",
+        "access": [
+            {
+                "key": "users-list",
+                "title": "لیست کاربران",
+                "description": "نمایش لیست کاربران"
+            },
+            {
+                "key": "user-manage",
+                "title": "مدیریت کاربران",
+                "description": "مدیریت کاربران"
+            }
+        ]
+    },
+    {
+        "section": "role",
+        "title": "سطح دسترسی",
+        "access": [
+            {
+                "key": "roles-list",
+                "title": "لیست نقش ها",
+                "description": "نمایش لیست نقش ها"
+            },
+            {
+                "key": "role-manage",
+                "title": "مدیریت نقش ها",
+                "description": "مدیریت نقش ها "
+            }
+        ]
+    },
+    {
+        "section": "project",
+        "title": "پروژه",
+        "access": [
+            {
+                "key": "projects-list",
+                "title": "لیست پروژه ها",
+                "description": "نمایش لیست پروژه ها"
+            },
+            {
+                "key": "project-manage",
+                "title": "مدیریت پروژه",
+                "description": "مدیریت پروژه"
+            }
+        ]
+    },
+    {
+        "section": "videoFile",
+        "title": "ویدئو فایل",
+        "access": [
+            {
+                "key": "video-list",
+                "title": "مشاهده ویدیوها",
+                "description": "مشاهده ویدیوها"
+            },
+            {
+                "key": "videos-full-access",
+                "title": "مدیریت تمام ویدیوها",
+                "description": "مدیریت تمام ویدیوها"
+            },
+            {
+                "key": "video-edit",
+                "title": "ویرایش ویدیوها",
+                "description": "ویرایش ویدیوها"
+            },
+            {
+                "key": "video-init",
+                "title": "نیاز به بررسی ویدیوها",
+                "description": "نیاز به بررسی ویدیوها"
+            },
+            {
+                "key": "video-cleaning",
+                "title": "پاک سازی ویدیوها",
+                "description": "پاک سازی ویدیوها"
+            },
+            {
+                "key": "video-import-excel",
+                "title": "آپلود فایل اکسل ",
+                "description": "آپلود فایل اکسل"
+            },
+            {
+                "key": "video-upload",
+                "title": "آپلود ویدئو ",
+                "description": "آپلود ویدئو"
+            },
+            {
+                "key": "video-to-user",
+                "title": "ارجاع",
+                "description": "ارجاع به کاربر"
+            },
+            {
+                "key": "video-score",
+                "title": "امتیاز دهنده",
+                "description": "امتیاز دهنده ویدئو"
+            }
+        ]
+    },
+    {
+        "section": "source",
+        "title": "سورس",
+        "access": [
+            {
+                "key": "source-full-access",
+                "title": "مدیریت تمام سورس ها",
+                "description": "مدیریت تمام سورس ها"
+            }
+        ]
+    },
+    {
+        "section": "shot",
+        "title": "شات",
+        "access": [
+            {
+                "key": "shot-list",
+                "title": "مشاهده شات ها",
+                "description": "مشاهده شات ها"
+            },
+            {
+                "key": "shot-full-access",
+                "title": "مدیریت تمام شات ها",
+                "description": "مدیریت تمام شات ها"
+            },
+            {
+                "key": "shot-manage",
+                "title": "مدیریت شات",
+                "description": "مدیریت شات"
+            },
+            {
+                "key": "shot-import-excel",
+                "title": "آپلود فایل اکسل ",
+                "description": "آپلود فایل اکسل"
+            },
+            {
+                "key" : "shot-list-access",
+                "title": "شات لیست کننده",
+                "description" : "شات لیست کننده"
+            },
+            {
+                "key" : "shot-list-editor",
+                "title" : "تدوینگر",
+                "description": "تدوینگر"
+            },
+            {
+                "key" : "shot-list-equalize",
+                "title" : "یکسان ساز",
+                "description": "یکسان ساز"
+            }
+        ]
+    },
+    {
+        "section": "score",
+        "title": "امتیازدهی",
+        "access": [
+            {
+                "key": "shot-list-score",
+                "title": "امتیاز دهنده شات لیست",
+                "description": "امتیاز دهنده شات لیست"
+            },
+            {
+                "key": "shot-equalize-score",
+                "title": "امتیاز دهنده یکسان ساز کننده",
+                "description": "امتیاز دهنده یکسان ساز کننده"
+            },
+            {
+                "key": "shot-editing-score",
+                "title": "امتیاز دهنده تدوینگر",
+                "description": "امتیاز دهنده تدوینگر"
+            },
+            {
+                "key": "shot-main-score",
+                "title": "امتیاز دهنده اصلی",
+                "description": "امتیاز دهنده اصلی"
+            }
+        ]
+    },
+    {
+        "section": "studio",
+        "title": "استودیو",
+        "access": [
+            {
+                "key": "studio-list",
+                "title": "مشاهده استودیو ها",
+                "description": "مشاهده استودیو ها"
+            },
+            {
+                "key": "studio-manage",
+                "title": "مدیریت استودیو ها",
+                "description": "مدیریت استودیو ها"
+            }
+        ]
+    },
+    {
+        "section": "template",
+        "title": "تمپلیت",
+        "access": [
+            {
+                "key": "template-manage",
+                "title": "مدیریت تمپلیت ها",
+                "description": "مدیریت تمپلیت ها"
+            }
+        ]
+    },
+    {
+        "section": "tag",
+        "title": "تگ",
+        "access": [
+            {
+                "key": "tag-manage",
+                "title": "مدیریت تگ",
+                "description": "مدیریت تگ"
+            }
+        ]
+    },
+    {
+        "section": "tagCategory",
+        "title": "دسته بندی تگ",
+        "access": [
+            {
+                "key": "tag-category-manage",
+                "title": "ایجاد دسته بندی تگ",
+                "description": "ایجاد دسته بندی تگ"
+            }
+        ]
+    },
+    {
+        "section": "report",
+        "title": "گزارش",
+        "access": [
+            {
+                "key": "report-chart",
+                "title": "گزارش نمودار",
+                "description": "گزارش نمودار"
+            },
+            {
+                "key": "report-daily",
+                "title": "گزارش روزانه.",
+                "description": "گزارش روزانه"
+            },
+            {
+                "key": "report-project-user",
+                "title": "گزارش پروژه کاربر",
+                "description": "گزارش پروژه کاربر"
+            },
+            {
+                "key": "report-per-project",
+                "title": "گزارش پروژه پروژه",
+                "description": "گزارش پروژه پروژه"
+            }
+        ]
+    },
+    {
+        "section": "manageData",
+        "title": "مدیریت داده",
+        "access": [
+            {
+                "key": "manage-data",
+                "title": "مدیریت داده",
+                "description": "مدیریت داده"
+            }
+        ]
+    }
+]

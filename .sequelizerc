@@ -1,0 +1,16 @@
+const path = require('path');
+
+const getConfig = () => {
+
+    const modulePath = path.join(__dirname, 'modules');
+
+    return {
+        'config': path.resolve('configs', 'sequelize.config.js'),
+        'models-path': path.resolve(modulePath, 'models'),
+        'seeders-path': path.resolve(modulePath, 'seeders'),
+        'migrations-path': modulePath + "/**/migrations"
+        // 'migrations-path': path.resolve('db', 'migrations')
+    }
+}
+
+module.exports = getConfig()
