@@ -7,8 +7,7 @@ const Sequelize = require('sequelize');
 const { FFmpegExecute } = require('../FFmpeg/FFmpeg.service');
 const { generateRandomCode } = require('../../../helper/general.tool');
 const emitter = require('../../_default/eventEmitter');
-const ShotExportService = require('../shotList/ShotExport.service');
-const ShotScoreService = require('../shotList/ShotScore.service')
+const { exportShots } = require('../shotList/ShotExport.service');
 
 
 const resolutions = {
@@ -56,7 +55,6 @@ class VideoEditor_Service extends Service {
         this.videoFileService = videoFileService;
         this.videoTemplateService = videoTemplateService;
         this.shotService = shotService
-        this.shotExport = new ShotExportService(this.shotService, new ShotScoreService());
     }
 
     async init(file) {
@@ -378,14 +376,14 @@ class VideoEditor_Service extends Service {
 
     async MakeZipShots(exportId) {
         const exportShotsData = await this.exportVideoService.findAllDetailByExportId(exportId)
-        const exportShots = exportShotsData.map(item => item.toJSON())
-        if (!exportShots?.[0]) return exportId
-        const { isProduct, code: exportCode } = exportShots[0].export;
+        const exportShotsResult = exportShotsData.map(item => item.toJSON())
+        if (!exportShotsResult?.[0]) return exportId
+        const { isProduct, code: exportCode } = exportShotsResult[0].export;
         const folderExport = this.exportVideoService.getPathOfFolder(exportCode)
 
         let shotsId = []
         const videosId = []
-        for (const eShot of exportShots) {
+        for (const eShot of exportShotsResult) {
             const { shotId, videoId } = eShot
             if (shotId) shotsId.push(shotId)
             else if (videoId) videosId.push(videoId)
@@ -402,7 +400,7 @@ class VideoEditor_Service extends Service {
         for (const shot of shots) {
 
             // export excel
-            const { path: excelPath, fileName: excelName } = (await this.shotExport.exportShot('excel', [shot.id]))
+            const { path: excelPath, fileName: excelName } = (await exportShots('excel', [shot.id]))
             if (fs.existsSync(excelPath)) {
                 fs.copyFileSync(excelPath, path.join(folderExport, excelName));
             }

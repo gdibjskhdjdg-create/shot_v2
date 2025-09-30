@@ -6,7 +6,7 @@ const categoryRoute = require("../category/category.routes");
 const shotDefaultValueRoute = require("./shotDefaultValue.routes");
 const shotLogRoute = require("./shotLog.routes");
 const shotScoreRoute = require("./shotScore.routes");
-const ShotController = require("../../controllers/shotList/Shot.controller");
+const shotController = require("../../controllers/shotList/Shot.controller");
 const AccessToShotMiddleware = require("../../middleware/shotList/AccessToShot.middleware");
 const OnlyAdminMiddleware = require("../../middleware/user/OnlyAdmin.middleware");
 const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
@@ -16,7 +16,7 @@ const ShotCanBeEditMiddleware = require("../../middleware/shotList/ShotCanBeEdit
 
 async function shotRoutes(fastify, opts) {
 
-    fastify.get("/basicInfo", AsyncHandler(ShotController.getBasicInfo));
+    fastify.get("/basicInfo", AsyncHandler(shotController.getShotBasicInfo));
 
     fastify.register(async (fastifyProtected, opts) => {
 
@@ -28,110 +28,105 @@ async function shotRoutes(fastify, opts) {
         fastify.register(shotLogRoute, { prefix: '/log' });
         fastify.register(shotScoreRoute, { prefix: '/score' });
 
-        fastifyProtected.get("/exportInfo", AsyncHandler(ShotController.getExportInfoShots));
+        fastifyProtected.get("/exportInfo", AsyncHandler(shotController.getShotExportInfo));
 
         fastifyProtected.get("/",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getShotList));
+            }, AsyncHandler(shotController.listShots));
 
         fastifyProtected.get("/list/equalize_need_meeting",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getMeetingShotList));
+            }, AsyncHandler(shotController.listMeetingShots));
 
         fastifyProtected.get("/list/:status",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getShotList));
+            }, AsyncHandler(shotController.listShots));
 
         fastifyProtected.get("/specialSearch",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getShotListSpecial));
+            }, AsyncHandler(shotController.listSpecialShots));
 
         fastifyProtected.get("/specialSearch/getShotsId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getExportShotsId));
+            }, AsyncHandler(shotController.getExportableShotIds));
 
         fastifyProtected.get("/specialSearch/export/:exportType",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.exportShotListSpecial));
+            }, AsyncHandler(shotController.exportSpecialShots));
 
         fastifyProtected.get("/export/:exportType",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.exportShots));
+            }, AsyncHandler(shotController.exportShotsByIds));
 
         fastifyProtected.get("/export/:exportType/video/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.exportShotsOfVideo));
+            }, AsyncHandler(shotController.exportShotsByVideoId));
 
         fastifyProtected.get("/export/:exportType/project/:projectId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.exportShotsOfProject));
+            }, AsyncHandler(shotController.exportShotsByProjectId));
 
         fastifyProtected.get("/export/:exportType/:shotId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.exportExcel));
-        // fastifyProtected.get("/reports", AsyncHandler(ShotController.getReports));
+            }, AsyncHandler(shotController.exportSingleShotAsExcel));
 
         fastifyProtected.get("/:id",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getShotDetail));
+            }, AsyncHandler(shotController.getShotDetails));
 
         // shots of video detail list
         fastifyProtected.get("/videoFile/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access'])
-            }, AsyncHandler(ShotController.getShotOfVideoFile));
+            }, AsyncHandler(shotController.listShotsByVideoFile));
 
         fastifyProtected.get("/videoFile/init-check/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.getInitShotOfVideoFile));
+            }, AsyncHandler(shotController.listInitShotsByVideoFile));
 
         fastifyProtected.get("/videoFile/editor/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-editor'])
-            }, AsyncHandler(ShotController.getEditorShotOfVideoFile));
+            }, AsyncHandler(shotController.listEditorShotsByVideoFile));
 
         fastifyProtected.get("/videoFile/equalizing/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-            }, AsyncHandler(ShotController.getEqualizingShotOfVideoFile));
+            }, AsyncHandler(shotController.listEqualizingShotsByVideoFile));
 
-        fastifyProtected.get("/videoFile/equalized/:videoFileId",
-            {
-                preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-            }, AsyncHandler(ShotController.getEqualizedShotOfVideoFile));
         // =========================
 
         fastifyProtected.post("/uploadExcel",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-import-excel', 'shot-full-access'])
-            }, AsyncHandler(ShotController.uploadExcel));
+            }, AsyncHandler(shotController.importShotsFromExcel));
 
         fastifyProtected.post("/init-check/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware([])
-            }, AsyncHandler(ShotController.createInitShot));
+            }, AsyncHandler(shotController.createInitShot));
 
         fastifyProtected.post("/editor/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-editor'])
-            }, AsyncHandler(ShotController.createEditorShot));
+            }, AsyncHandler(shotController.createEditorShot));
 
         fastifyProtected.post("/equalizing/:videoFileId",
             {
                 preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-            }, AsyncHandler(ShotController.createEqualizingShot));
+            }, AsyncHandler(shotController.createEqualizingShot));
 
 
         fastifyProtected.patch("/init-check/:id",
@@ -142,7 +137,7 @@ async function shotRoutes(fastify, opts) {
                     ShotCanBeEditMiddleware(['init-check', 'editor'])
                 ]
             },
-            AsyncHandler(ShotController.updateInitShot)
+            AsyncHandler(shotController.updateInitShot)
         );
         fastifyProtected.patch("/editor/:id", {
             preHandler: [
@@ -150,7 +145,7 @@ async function shotRoutes(fastify, opts) {
                 ShotCanBeEditMiddleware(['editor', 'equalizing']),
             ]
         },
-            AsyncHandler(ShotController.updateEditorShot)
+            AsyncHandler(shotController.updateEditorShot)
         );
         fastifyProtected.patch("/equalizing/:id", {
             preHandler: [
@@ -158,7 +153,7 @@ async function shotRoutes(fastify, opts) {
                 ShotCanBeEditMiddleware(['equalizing', 'equalize_confirm', 'equalize_confirm_edit', 'equalize_need_meeting']),
             ]
         },
-            AsyncHandler(ShotController.updateEqualizingShot)
+            AsyncHandler(shotController.updateEqualizingShot)
         );
         fastifyProtected.patch("/equalize_need_meeting/:id", {
             preHandler: [
@@ -166,15 +161,15 @@ async function shotRoutes(fastify, opts) {
                 AccessToShotMiddleware,
                 ShotCanBeEditMiddleware(['equalize_need_meeting'])]
         },
-            AsyncHandler(ShotController.updateNeedMeetingShot)
+            AsyncHandler(shotController.updateMeetingShot)
         );
 
-        fastifyProtected.patch("/source/:id", { preHandler: [CheckUserHaveValidAccessMiddleware(['shot-full-access']), AccessToShotMiddleware] }, AsyncHandler(ShotController.updateShot));
-        fastifyProtected.put('/status/:id', { preHandler: OnlyAdminMiddleware }, AsyncHandler(ShotController.updateShotStatus));
+        fastifyProtected.patch("/source/:id", { preHandler: [CheckUserHaveValidAccessMiddleware(['shot-full-access']), AccessToShotMiddleware] }, AsyncHandler(shotController.updateShot));
+        fastifyProtected.put('/status/:id', { preHandler: OnlyAdminMiddleware }, AsyncHandler(shotController.updateShotStatus));
 
-        fastifyProtected.delete("/:id", { preHandler: [CheckUserHaveValidAccessMiddleware(['shot-manage', 'shot-full-access']), AccessToShotMiddleware] }, AsyncHandler(ShotController.deleteShot));
-        fastifyProtected.delete("/allOfVideoFile/:videoFileId", { preHandler: OnlyAdminMiddleware }, AsyncHandler(ShotController.deleteShotsOfVideoFile));
-        fastifyProtected.delete("/allOfProject/:projectId", { preHandler: OnlyAdminMiddleware }, AsyncHandler(ShotController.deleteShotOfProject));
+        fastifyProtected.delete("/:id", { preHandler: [CheckUserHaveValidAccessMiddleware(['shot-manage', 'shot-full-access']), AccessToShotMiddleware] }, AsyncHandler(shotController.deleteShot));
+        fastifyProtected.delete("/allOfVideoFile/:videoFileId", { preHandler: OnlyAdminMiddleware }, AsyncHandler(shotController.deleteShotsByVideoFileId));
+        fastifyProtected.delete("/allOfProject/:projectId", { preHandler: OnlyAdminMiddleware }, AsyncHandler(shotController.deleteShotsByProjectId));
     })
 }
 module.exports = shotRoutes;

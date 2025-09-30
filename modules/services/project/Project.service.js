@@ -13,7 +13,7 @@ const UserService = require("../../services/user/User.service");
 const { secondToTimeFormat, sizeToFormat, generateRandomCode } = require('../../../helper/general.tool');
 const { VideoDetailStatus_Enum } = require('../../models/videoDetail/enum/VideoDetail.enum');
 const { shotService } = require('../shotList');
-const shotLogService = require('../shotList/ShotLog.service');
+const { getTotalLogReport, createTotalLogSummary } = require('../shotList/ShotLog.service');
 const { decryptFile } = require('../../../helper/fileEncryption.tool');
 
 const FOLDER_TO_STORE = "excel";
@@ -85,11 +85,11 @@ const updateProjectStatus = async (projectId) => {
     if (findShotZeroCount) {
         status = 'shotting';
     } else {
-        const shotRows = await shotService.getByAttribute("projectId", projectId);
-        if (shotRows.length === 0) {
+        const shotRows = await shotService.listShots({ projectId, page: 1, take: null });
+        if (shotRows.count === 0) {
             status = 'shotting';
         } else {
-            const shots = shotRows.map(x => x.toJSON());
+            const shots = shotRows.shots.map(x => x.toJSON());
             const findShotHasNotEqualize = shots.find(x => !x.lastEqualizeLogId);
             status = findShotHasNotEqualize ? 'equalizing' : 'equalized';
         }
@@ -136,7 +136,7 @@ const getProjectReport = async (query) => {
     for (const project of projects) {
         const { totalLog } = await getUserReportForProject(project.id, { fromTime, toTime });
         const { videoFiles } = await videoFileService.getVideoFileList({ projectId: project.id });
-        const { shots } = await shotService.shotList({ projectId: project.id });
+        const { shots } = await shotService.listShots({ projectId: project.id, page: 1, take: null });
 
         const videoItems = { durations: 0, size: 0, cleaningCount: 0, initCount: 0, acceptCount: 0, rejectCount: 0 };
         const shotStatusCounts = { initCheck: 0, editor: 0, equalizing: 0, equalized: 0 };
@@ -196,11 +196,11 @@ const exportUserReportAsExcel = async (projectId, query) => {
 };
 
 const getUserReportForProject = async (projectId, query) => {
-    const { totalLog, logDetailObj, videoFileAsObject } = await shotLogService.getTotalLogReport({ ...query, projectId });
+    const { totalLog, logDetailObj, videoFileAsObject } = await getTotalLogReport({ ...query, projectId });
     let groupArr = [];
 
     const countOfVideo = await videoFileService.getCountOfVideoFile({ projectId });
-    const countOfShotVideoDistinct = await shotService.countOfUniqueVideoFile({ projectId });
+    const countOfShotVideoDistinct = await shotService.countUniqueVideoFilesByProjectId({ projectId });
     const project = await getProjectById(projectId);
 
     const userIds = [...new Set(logDetailObj.map(item => item.userId))];
@@ -219,7 +219,7 @@ const getUserReportForProject = async (projectId, query) => {
 
         for (const userId in group) {
             let index = groupArr.push({
-                ...shotLogService.createTotalLogObject(group[userId], videoFileAsObject),
+                ...createTotalLogSummary(group[userId], videoFileAsObject),
                 user: { userId, fullName: (users.find(item => item.id == userId)).fullName }
             });
             groupArr[index - 1].workTimeEstimate = project.workTimeRatio * groupArr[index - 1].videoDuration;
@@ -271,7 +271,7 @@ const deleteProject = async (projectId) => {
         await file.destroy();
     }
 
-    await shotService.deleteByProjectId(projectId);
+    await shotService.deleteShotsByProjectId(projectId);
     await project.destroy();
     return true;
 };

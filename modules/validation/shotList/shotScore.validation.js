@@ -1,39 +1,31 @@
 const Validation = require("../../_default/validation");
 const ShotScoreEntity = require("../../entity/shotList/ShotScore.entity");
 
+const validateShotScores = async (isMain, scores = []) => {
+    const validation = new Validation();
+    const scoreKeys = scores.map(x => x.key);
 
-class ShotScoreValidation extends Validation {
-
-    async store(isMain, scores = []) {
-        this.setEmpty()
-
-        const scoreKeys = scores.map(x => x.key)
-
-        if (isMain) {
-            
-            if (!ShotScoreEntity.checkKeysAreValid(scoreKeys)) {
-                this.setError("score Keys are Invalid")
-            }
-
-        } else {
-            const validScores = []
-            for (const score of scores) {
-                const getScore = ShotScoreEntity.getByKeyAndSection(score.section, score.key)
-                if (getScore) {
-                    validScores.push(score)
-                }
-            }
-
-            if (validScores.length != scoreKeys.length) {
-                this.setError("score Keys are Invalid")
-            }
-
+    if (isMain) {
+        if (!ShotScoreEntity.checkKeysAreValid(scoreKeys)) {
+            validation.setError("score Keys are Invalid");
         }
+    } else {
+        const validScores = scores.filter(score => 
+            ShotScoreEntity.getByKeyAndSection(score.section, score.key)
+        );
 
-        this.setValidData('scores', scores)
-
-        return this.getResult()
+        if (validScores.length !== scores.length) {
+            validation.setError("score Keys are Invalid");
+        }
     }
-}
 
-module.exports = new ShotScoreValidation();
+    if (!validation.isError) {
+        validation.setValidData('scores', scores);
+    }
+
+    return validation.getResult();
+};
+
+module.exports = {
+    store: validateShotScores,
+};

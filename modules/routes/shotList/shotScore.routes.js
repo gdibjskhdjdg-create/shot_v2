@@ -1,6 +1,10 @@
 const AsyncHandler = require("../../../helper/asyncHandler.tool");
 
-const ShotScoreController = require("../../controllers/shotList/ShotScore.controller");
+const {
+    listScoresBySection,
+    getShotScores,
+    saveShotScores
+} = require("../../controllers/shotList/ShotScore.controller");
 
 /* ------------------------------ prefix: /api/shotList/score ------------------------------ */
 // router.use(OnlyLoginUserMiddleware())
@@ -8,9 +12,9 @@ const ShotScoreController = require("../../controllers/shotList/ShotScore.contro
 async function shotScoreROutes(fastify, opts) {
 
 
-    fastify.get("/", AsyncHandler(ShotScoreController.listBySection))
-    fastify.get("/:shotId", AsyncHandler(ShotScoreController.fetchItems));
-    fastify.post("/:shotId", AsyncHandler(ShotScoreController.store));
+    fastify.get("/", AsyncHandler(listScoresBySection))
+    fastify.get("/:shotId", AsyncHandler(getShotScores));
+    fastify.post("/:shotId", AsyncHandler(saveShotScores));
 
 }
 

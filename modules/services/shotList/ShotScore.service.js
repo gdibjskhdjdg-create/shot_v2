@@ -1,137 +1,92 @@
 const { Op } = require("sequelize");
-const Service = require("../../_default/service");
 const ShotScoreEntity = require("../../entity/shotList/ShotScore.entity");
 const { ShotScore, User } = require("../../_default/model");
 const RoleService = require("../../services/user/Role.service");
 
-class ShotScoreService extends Service {
+const getUserScoreSections = async (user) => {
+    const userAccess = await RoleService.getUserAccessList(user);
+    const isMain = user.permission === 'admin' || userAccess.includes('shot-main-score');
 
-    constructor() {
-        super(ShotScore)
+    let sectionKeys = [];
+    if (isMain) {
+        sectionKeys = [...ShotScoreEntity.getAllSectionKeys(), 'shot-main-score'];
+    } else {
+        if (userAccess.includes('shot-list-score')) sectionKeys.push('shot-list-score');
+        if (userAccess.includes('shot-equalize-score')) sectionKeys.push('shot-equalize-score');
+        if (userAccess.includes('shot-editing-score')) sectionKeys.push('shot-editing-score');
     }
 
-    async checkUserIsMainAndGetSectionKeys(user) {
+    return { userSections: sectionKeys, isMain };
+};
 
-        const userAccess = await RoleService.getUserAccessList(user)
+const getScoresBySection = async ({ shotId, section = 'shot-main-score' }) => {
+    return ShotScore.findAll({ where: { section, shotId } });
+};
 
-        let sectionKeys = []
+const getAvailableScoreItems = async (user) => {
+    const { userSections, isMain } = await getUserScoreSections(user);
+    const allScores = ShotScoreEntity.getShotScoreList();
 
-        const isMain = user.permission == 'admin' || userAccess.includes('shot-main-score')
-
-        if (isMain) {
-            sectionKeys = [...ShotScoreEntity.getAllSectionKeys(), 'shot-main-score']
-        } else {
-            if (userAccess.includes('shot-list-score')) {
-                sectionKeys.push('shot-list-score')
-            }
-            if (userAccess.includes('shot-equalize-score')) {
-                sectionKeys.push('shot-equalize-score')
-            }
-            if (userAccess.includes('shot-editing-score')) {
-                sectionKeys.push('shot-editing-score')
-            }
-        }
-
-        return { userSections: sectionKeys, isMain }
+    if (isMain) {
+        return allScores.map(score => ({ ...score, isMain }));
     }
 
-    async getBySection({ shotId, section = 'shot-main-score' }) {
-        return await ShotScore.findAll({ where: { section, shotId } });
-    }
+    return allScores.filter(score => userSections.includes(score.sectionKey));
+};
 
-    async getItemsOfScore(user) {
-        const { userSections, isMain } = await this.checkUserIsMainAndGetSectionKeys(user)
-
-        const allScores = ShotScoreEntity.getShotScoreList()
-        const result = []
-
-        for (const score of allScores) {
-            const { key, title, sectionKey } = score
-
-            if (isMain) {
-                result.push({ ...score, isMain })
-
-            } else
-                if (userSections.includes(sectionKey)) {
-                    result.push(score)
-                }
-        }
-
-        return result;
-    }
-
-
-    async getAllList(user, shotId) {
-        const { userSections, isMain } = await this.checkUserIsMainAndGetSectionKeys(user)
-
-        const sqlQuery = {
-            where: {
-                shotId, section: userSections
-            }
-        }
-
-        if (!isMain) {
-            sqlQuery.where.userId = user.id
-        }
-
-        const scores = await ShotScore.findAll({
-            ...sqlQuery,
-            include: [{ model: User, as: 'user' }],
-
+const listScoresForShot = async (user, shotId) => {
+    const { userSections, isMain } = await getUserScoreSections(user);
+    const query = {
+        where: {
+            shotId,
+            section: userSections,
         },
-        )
+        include: [{ model: User, as: 'user' }],
+    };
 
-        return scores
+    if (!isMain) {
+        query.where.userId = user.id;
     }
 
-    async storeMain({ user, shotId, scores }) {
-        const userId = user.id
+    return ShotScore.findAll(query);
+};
 
-        for (const score of scores) {
+const storeMainScores = async ({ user, shotId, scores }) => {
+    const userId = user.id;
+    const section = 'shot-main-score';
 
-            const section = 'shot-main-score'
-            const findScore = await ShotScore.findOne({
-                where: { shotId, scoreKey: score.key, section }, // Search for existing record by this value
-            });
-
-            if (!findScore) {
-                await ShotScore.create({ shotId, userId, scoreKey: score.key, score: score.score, section })
-            } else {
-                await ShotScore.update({ score: score.score }, { where: { shotId, scoreKey: score.key, section } })
-            }
-        }
-
+    for (const score of scores) {
+        await ShotScore.upsert(
+            { shotId, userId, scoreKey: score.key, score: score.score, section },
+            { where: { shotId, scoreKey: score.key, section } }
+        );
     }
+};
 
-    async storeBySection({ user, shotId, scores }) {
-        const userId = user.id
+const storeSectionalScores = async ({ user, shotId, scores }) => {
+    const userId = user.id;
 
-        for (const score of scores) {
-
-            const findScore = await ShotScore.findOne({
-                where: { shotId, userId, scoreKey: score.key, section: score.section }, // Search for existing record by this value
-            });
-
-            if (!findScore) {
-                await ShotScore.create({ shotId, userId, scoreKey: score.key, score: score.score, section: score.section })
-            } else {
-                await ShotScore.update({ score: score.score }, { where: { shotId, userId, scoreKey: score.key, section: score.section } })
-            }
-        }
+    for (const score of scores) {
+        await ShotScore.upsert(
+            { shotId, userId, scoreKey: score.key, score: score.score, section: score.section },
+            { where: { shotId, userId, scoreKey: score.key, section: score.section } }
+        );
     }
+};
 
-    /**
-     * body  [{key , score , section}]
-     * @param {*} body 
-     */
-    async storeScore({ user, shotId, scores }) {
-        const { isMain } = await this.checkUserIsMainAndGetSectionKeys(user)
-        if (isMain) {
-            await this.storeMain({ user, shotId, scores })
-        } else {
-            await this.storeBySection({ user, shotId, scores })
-        }
+const saveShotScores = async ({ user, shotId, scores }) => {
+    const { isMain } = await getUserScoreSections(user);
+    if (isMain) {
+        await storeMainScores({ user, shotId, scores });
+    } else {
+        await storeSectionalScores({ user, shotId, scores });
     }
-}
+};
 
-module.exports = ShotScoreService;
+module.exports = {
+    getUserScoreSections,
+    getScoresBySection,
+    getAvailableScoreItems,
+    listScoresForShot,
+    saveShotScores,
+};

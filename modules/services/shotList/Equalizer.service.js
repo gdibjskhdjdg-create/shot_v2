@@ -1,369 +1,217 @@
-const Service = require("../../_default/service");
 const moment = require("jalali-moment");
+const { Op, Sequelize, sequelize } = require('sequelize');
 
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
-
-const {
-    EqualizerLog,
-    User,
-    Shot,
-    Project,
-    sequelize
-} = require("../../_default/model");
+const { EqualizerLog, User, Shot, Project } = require("../../_default/model");
 const ErrorResult = require('../../../helper/error.tool');
 const { createPaginationQuery } = require("../../../helper/SqlHelper.tool");
-const TagService = require("../tag/Tag.service");
+const { getTagsByIds } = require("../tag/Tag.service");
+const { getDetailOfFolder, getVideoFileURL } = require('../videoFile/VideoFile.service');
+const { setEqualizingResultInShot, getById: getShotById } = require('./Shot.service');
 const emitter = require("../../_default/eventEmitter");
 
-class EqualizerService extends Service {
-    constructor(
-        videoFileService = () => { },
-        shotService = () => { }
-    ) {
-        super(EqualizerLog);
-        this.videoFileService = videoFileService;
-        this.shotService = shotService;
+const listProjectVideoFilesForEqualizing = async (filters = {}) => {
+    const { projectId, reqPath = "" } = filters;
 
-        // this.getEqualizeByShotsId = this.getEqualizeByShotsId.bind(this);
-    }
+    let videoFiles = await getDetailOfFolder({
+        projectId,
+        reqPath,
+        shotDetail: true,
+    });
 
-    async getVideoFilesOfProjectPath(filters = {}) {
-        const {
-            projectId,
-            reqPath = "",
-        } = filters;
+    return videoFiles.map(item => {
+        if (item.isFile) {
+            const detail = item.detail.toJSON();
+            detail.shotNotEqualize = detail.shots.filter(shot => !shot.lastEqualizeLogId).length;
+            item.detail = detail;
+        }
+        return item;
+    });
+};
 
-        let videoFiles = await this.videoFileService.getDetailOfFolder({
-            projectId,
-            reqPath,
-            shotDetail: true,
-        });
+const listEqualizerLogs = async (filters = {}) => {
+    const { page = null, take = null, userId, status, projectId, videoFileId } = filters;
 
-        videoFiles = videoFiles.map(item => {
-            if (item.isFile) {
-                const detail = item.detail.toJSON();
-                detail.shotNotEqualize = detail.shots.filter(shot => !shot.lastEqualizeLogId).length;
-                item.detail = detail;
-            }
-            return item;
-        })
-
-        return videoFiles;
-    }
-
-    async getEqualizeList(filters = {}) {
-        const {
-            page = null,
-            take = null,
-            userId,
-            status,
-            projectId,
-            videoFileId,
-        } = filters;
-
-        let sqlQuery = {
-            where: { endTime: { [Op.not]: null } },
-            include: [{
+    let sqlQuery = {
+        where: { endTime: { [Op.not]: null } },
+        include: [
+            {
                 model: User,
                 attributes: ['id', 'fullName'],
                 as: 'user'
-            }],
-            attributes: ["id", "status", "description", "endTime", "startTime"],
-            order: [['endTime', 'DESC'], ['id', 'DESC']],
-        };
-
-        const relationWithShot = {
-            model: Shot,
-            required: true,
-            attributes: ["id", "title", "videoFileId", "userId", "projectId"],
-            as: "shot",
-            include: [
-                {
-                    model: Project,
-                    attributes: ['id', 'title'],
-                    as: 'project'
-                },
-                {
-                    model: User,
-                    attributes: ['id', 'fullName'],
-                    as: 'user'
-                }
-            ]
-        }
-
-        if (userId) sqlQuery.where.userId = userId
-        if (status) sqlQuery.where.status = status;
-
-        if (projectId) {
-            if (!relationWithShot.where) {
-                relationWithShot.where = {};
-            }
-            relationWithShot.where.projectId = projectId;
-        }
-        if (videoFileId) {
-            if (!relationWithShot.where) {
-                relationWithShot.where = {};
-            }
-            relationWithShot.where.videoFileId = videoFileId;
-        }
-
-        sqlQuery.include.push(relationWithShot);
-
-        sqlQuery = createPaginationQuery(sqlQuery, page, take);
-
-        const response = await EqualizerLog.findAndCountAll({
-            distinct: "shotId",
-            ...sqlQuery
-        });
-
-        response.rows = response.rows.map(item => item.toJSON()).map(item => {
-            item.videoFileUrl = this.videoFileService.getVideoFileURL(item.shot.videoFileId);
-            return item;
-        });
-
-        return {
-            result: response.rows,
-            count: response.count
-        };
-    }
-
-    async getEqualizeByShotsId({ shotsId = [], fromTime = null, toTime = null, lastOneRequired = false }) {
-        const response = await EqualizerLog.findAll({
-            where: {
-                endTime: { [Op.not]: null },
-                shotId: shotsId
             },
-            raw: true,
-        });
-
-        return response
-    }
-
-    async getCompare(equalizeId) {
-        const equalize = await this.getById(equalizeId);
-
-        let newData = equalize.newData ? JSON.parse(equalize.newData) : {};
-        let oldData = equalize.oldData ? JSON.parse(equalize.oldData) : {};
-
-        let tagIds = [];
-        newData?.tagInput?.forEach(item => {
-            tagIds = tagIds.concat(item.tagIds.filter(tag => typeof tag === "number"));
-        });
-        oldData?.tagInput?.forEach(item => {
-            tagIds = tagIds.concat(item.tagIds.filter(tag => typeof tag === "number"));
-        });
-
-        newData?.tagInVideo?.forEach(item => tagIds.push(item.tagId));
-        oldData?.tagInVideo?.forEach(item => tagIds.push(item.tagId));
-
-        tagIds = [...new Set(tagIds)];
-
-        let existTags = await TagService.getTagsByIds(tagIds);
-        existTags = existTags.map(item => item.toJSON());
-
-        const funcSetNewValuesOfTagInput = (tagInput = []) => {
-            return tagInput?.map(item => {
-                item.tagIds = item.tagIds.map(tag => {
-                    if (typeof tag === "number") {
-                        let selectedTag = existTags.find(it => it.id === tag);
-                        tag = selectedTag?.tag ?? "";
-                    }
-                    return tag;
-                })
-                return item;
-            });
-        }
-        newData.tagInput = funcSetNewValuesOfTagInput(newData?.tagInput);
-        oldData.tagInput = funcSetNewValuesOfTagInput(oldData?.tagInput);
-
-        const funcSetNewValuesOfTagInVideo = (tagInVideos = []) => {
-            return tagInVideos.map(item => {
-                if (typeof item.tagId === "number") {
-                    let selectedTag = existTags.find(it => it.id === item.tagId);
-                    item.tagId = selectedTag?.tag ?? "";
-                }
-                return item;
-            })
-        }
-        newData.tagInVideo = funcSetNewValuesOfTagInVideo(newData?.tagInVideo);
-        oldData.tagInVideo = funcSetNewValuesOfTagInVideo(oldData?.tagInVideo);
-
-        return { newData, oldData }
-    }
-
-    async startEqualize(shotId, userId) {
-        let equalizerLog = await EqualizerLog.findOne({
-            where: {
-                userId,
-                shotId,
-                endTime: null
-            }
-        });
-
-        if (!equalizerLog) {
-            try {
-                equalizerLog = await EqualizerLog.create({
-                    userId,
-                    shotId,
-                    startTime: Date.now()
-                });
-
-            }
-            catch (err) {
-                throw ErrorResult.badRequest("invalid shotId");
-            }
-
-
-        }
-        else {
-            equalizerLog.startTime = Date.now();
-            await equalizerLog.save();
-        }
-
-        return;
-    }
-
-    async submitStatusEqualizeShot(shotId, userId, body = {}) {
-        const {
-            status,
-            description,
-            newData = {},
-            oldData = {}
-        } = body;
-
-        const equalizerLog = await EqualizerLog.findOne({
-            where: {
-                userId,
-                shotId,
-                endTime: null,
-            }
-        });
-
-        if (!equalizerLog) {
-            throw ErrorResult.badRequest("invalid Equalize Shot");
-        }
-
-        equalizerLog.endTime = Date.now();
-        equalizerLog.status = status;
-        equalizerLog.description = description;
-        equalizerLog.newData = JSON.stringify(newData);
-        equalizerLog.oldData = JSON.stringify(oldData);
-
-        await equalizerLog.save();
-
-        await this.shotService.setEqualizingResultInShot(equalizerLog.shotId, { equalizingId: equalizerLog.id, status: equalizerLog.status });
-
-        const shot = (await this.shotService.getById(shotId))
-        emitter.emit('equalizeSubmit', { ...equalizerLog.toJSON(), videoFileId: shot.videoFileId, projectId: shot.projectId })
-
-        return;
-    }
-
-    async getEqualizeReport(filters = {}) {
-        let {
-            shots = [],
-            fromTime = null,
-            toTime = null
-        } = filters;
-
-        const millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000;
-        if (fromTime === null && toTime === null) {
-            toTime = Date.now();
-            fromTime = toTime - millisecondsPerWeek;
-        }
-        else if (fromTime === null) {
-            fromTime = toTime - millisecondsPerWeek;
-        }
-        else if (toTime === null) {
-            toTime = fromTime + millisecondsPerWeek;
-        }
-
-
-        const query = {
-            where: {
-                endTime: { [Op.not]: null },
-                [Op.and]: [
-                    sequelize.where(
-                        sequelize.cast(sequelize.col('startTime'), 'FLOAT'),
-                        { [Op.gte]: fromTime }
-                    ),
-                    sequelize.where(
-                        sequelize.cast(sequelize.col('startTime'), 'FLOAT'),
-                        { [Op.lte]: toTime }
-                    )
+            {
+                model: Shot,
+                required: true,
+                attributes: ["id", "title", "videoFileId", "userId", "projectId"],
+                as: "shot",
+                include: [
+                    { model: Project, attributes: ['id', 'title'], as: 'project' },
+                    { model: User, attributes: ['id', 'fullName'], as: 'user' }
                 ]
-            },
-            include: [{
-                model: User,
-                attributes: ['id', 'fullName'],
-                as: 'user'
-            }],
-            attributes: ["id", "status", "startTime", "endTime"],
-        }
-
-        // if (userId !== null) {
-        //     query.where.userId = userId
-        // }
-
-        if (shots.length) {
-            query.where.shotId = { [Op.in]: shots }
-        }
-
-        console.log(999999999, query)
-
-        let dbResponse = await EqualizerLog.findAll(query);
-
-        if (dbResponse.length === 0) {
-            return [];
-        }
-
-        let minDate = parseInt(dbResponse[0]?.startTime);
-        let maxDate = parseInt(dbResponse[0]?.startTime);
-
-        let equalizeObj = {};
-        dbResponse.forEach(item => {
-            if (item.startTime < minDate) minDate = parseInt(item.startTime);
-            if (item.startTime > maxDate) maxDate = parseInt(item.startTime);
-
-            let date = moment(parseInt(item.startTime)).format("jYYYY/jMM/jDD");
-            if (!equalizeObj[date]) {
-                equalizeObj[date] = {
-                    confirm: 0,
-                    confirm_edit: 0,
-                    need_meeting: 0,
-                    spentTime: 0
-                }
             }
+        ],
+        attributes: ["id", "status", "description", "endTime", "startTime"],
+        order: [['endTime', 'DESC'], ['id', 'DESC']],
+    };
 
-            equalizeObj[date].timestamp = item.startTime;
-            equalizeObj[date].spentTime += parseInt((item.endTime - item.startTime) / (1000 * 60));
+    if (userId) sqlQuery.where.userId = userId;
+    if (status) sqlQuery.where.status = status;
+    if (projectId) sqlQuery.include[1].where = { ...sqlQuery.include[1].where, projectId };
+    if (videoFileId) sqlQuery.include[1].where = { ...sqlQuery.include[1].where, videoFileId };
 
-            equalizeObj[date][item.status]++;
-        });
+    sqlQuery = createPaginationQuery(sqlQuery, page, take);
 
-        while (1) {
-            let date = moment(minDate).format("jYYYY/jMM/jDD");
-            if (!equalizeObj[date]) {
-                equalizeObj[date] = {
-                    confirm: 0,
-                    confirm_edit: 0,
-                    need_meeting: 0,
-                    spentTime: 0
-                }
-            }
-            equalizeObj[date].timestamp = minDate;
+    const response = await EqualizerLog.findAndCountAll({ distinct: "shotId", ...sqlQuery });
 
-            minDate += 24 * 60 * 60 * 1000;
-            if (minDate > maxDate) {
-                break;
-            }
+    response.rows = response.rows.map(item => {
+        const plainItem = item.toJSON();
+        plainItem.videoFileUrl = getVideoFileURL(plainItem.shot.videoFileId);
+        return plainItem;
+    });
+
+    return {
+        result: response.rows,
+        count: response.count
+    };
+};
+
+const getEqualizerLogsForShots = async ({ shotsId = [], fromTime = null, toTime = null, lastOneRequired = false }) => {
+    return EqualizerLog.findAll({
+        where: {
+            endTime: { [Op.not]: null },
+            shotId: shotsId
+        },
+        raw: true,
+    });
+};
+
+const getEqualizerComparisonData = async (equalizeId) => {
+    const equalize = await EqualizerLog.findByPk(equalizeId);
+    if (!equalize) throw ErrorResult.notFound("Equalizer log not found");
+
+    let newData = equalize.newData ? JSON.parse(equalize.newData) : {};
+    let oldData = equalize.oldData ? JSON.parse(equalize.oldData) : {};
+
+    const extractTagIds = (data) => [
+        ...(data?.tagInput?.flatMap(item => item.tagIds.filter(tag => typeof tag === "number")) || []),
+        ...(data?.tagInVideo?.map(item => item.tagId).filter(id => typeof id === 'number') || []),
+    ];
+
+    const tagIds = [...new Set([...extractTagIds(newData), ...extractTagIds(oldData)])];
+    const existTags = (await getTagsByIds(tagIds)).map(item => item.toJSON());
+    const tagMap = Object.fromEntries(existTags.map(tag => [tag.id, tag.tag]));
+
+    const mapTags = (items = [], key = 'tagIds', isArray = true) => items.map(item => {
+        if (isArray) {
+            item[key] = item[key].map(tagId => (typeof tagId === 'number' ? tagMap[tagId] || "" : tagId));
+        } else {
+            if(typeof item[key] === 'number') item[key] = tagMap[item[key]] || "";
         }
+        return item;
+    });
 
-        let equalize = Object.keys(equalizeObj).map(key => ({ time: key, ...equalizeObj[key] })).sort((a, b) => a.timestamp - b.timestamp);
+    newData.tagInput = mapTags(newData.tagInput, 'tagIds', true);
+    oldData.tagInput = mapTags(oldData.tagInput, 'tagIds', true);
+    newData.tagInVideo = mapTags(newData.tagInVideo, 'tagId', false);
+    oldData.tagInVideo = mapTags(oldData.tagInVideo, 'tagId', false);
 
-        return equalize;
+    return { newData, oldData };
+};
+
+const startEqualizing = async (shotId, userId) => {
+    const [equalizerLog, created] = await EqualizerLog.findOrCreate({
+        where: { userId, shotId, endTime: null },
+        defaults: { startTime: Date.now() }
+    });
+
+    if (!created) {
+        equalizerLog.startTime = Date.now();
+        await equalizerLog.save();
     }
-}
 
-module.exports = EqualizerService;
+    return equalizerLog;
+};
+
+const submitEqualizerResult = async (shotId, userId, body = {}) => {
+    const { status, description, newData = {}, oldData = {} } = body;
+
+    const equalizerLog = await EqualizerLog.findOne({ where: { userId, shotId, endTime: null } });
+    if (!equalizerLog) throw ErrorResult.badRequest("Invalid Equalize Shot session");
+
+    Object.assign(equalizerLog, {
+        endTime: Date.now(),
+        status,
+        description,
+        newData: JSON.stringify(newData),
+        oldData: JSON.stringify(oldData),
+    });
+
+    await equalizerLog.save();
+    await setEqualizingResultInShot(equalizerLog.shotId, { equalizingId: equalizerLog.id, status: equalizerLog.status });
+
+    const shot = await getShotById(shotId);
+    emitter.emit('equalizeSubmit', { ...equalizerLog.toJSON(), videoFileId: shot.videoFileId, projectId: shot.projectId });
+
+    return equalizerLog;
+};
+
+const getEqualizerActivityReport = async (filters = {}) => {
+    let { shots = [], fromTime, toTime } = filters;
+    const now = Date.now();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+    fromTime = fromTime ?? (toTime ? toTime - oneWeek : now - oneWeek);
+    toTime = toTime ?? (fromTime ? fromTime + oneWeek : now);
+
+    const query = {
+        where: {
+            endTime: { [Op.not]: null },
+            startTime: { [Op.between]: [fromTime, toTime] }
+        },
+        include: [{ model: User, attributes: ['id', 'fullName'], as: 'user' }],
+        attributes: ["id", "status", "startTime", "endTime"],
+    };
+
+    if (shots.length) {
+        query.where.shotId = { [Op.in]: shots };
+    }
+
+    const dbResponse = await EqualizerLog.findAll(query);
+    if (!dbResponse.length) return [];
+
+    const report = {};
+    let minDate = Infinity, maxDate = -Infinity;
+
+    dbResponse.forEach(item => {
+        const startTime = parseInt(item.startTime);
+        minDate = Math.min(minDate, startTime);
+        maxDate = Math.max(maxDate, startTime);
+
+        const date = moment(startTime).format("jYYYY/jMM/jDD");
+        if (!report[date]) {
+            report[date] = { confirm: 0, confirm_edit: 0, need_meeting: 0, spentTime: 0, timestamp: startTime };
+        }
+
+        report[date].spentTime += (item.endTime - item.startTime) / (1000 * 60); // in minutes
+        report[date][item.status]++;
+    });
+
+    for (let d = moment(minDate); d.isSameOrBefore(moment(maxDate)); d.add(1, 'days')) {
+        const date = d.format("jYYYY/jMM/jDD");
+        if (!report[date]) {
+            report[date] = { confirm: 0, confirm_edit: 0, need_meeting: 0, spentTime: 0, timestamp: d.valueOf() };
+        }
+    }
+
+    return Object.keys(report).map(key => ({ time: key, ...report[key] })).sort((a, b) => a.timestamp - b.timestamp);
+};
+
+module.exports = {
+    listProjectVideoFilesForEqualizing,
+    listEqualizerLogs,
+    getEqualizerLogsForShots,
+    getEqualizerComparisonData,
+    startEqualizing,
+    submitEqualizerResult,
+    getEqualizerActivityReport,
+};

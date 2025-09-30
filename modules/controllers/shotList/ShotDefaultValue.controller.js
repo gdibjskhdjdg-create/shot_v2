@@ -1,41 +1,49 @@
-const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
-const ShotDefaultValue_DTO = require("../../dto/shotList/ShotDefaultValue.dto");
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const BaseController = require("../../_default/controller/Base.controller");
-const ShotDefaultValueValidation = require("../../validation/shotList/ShotDefaultValue.validation");
 const ShotDefaultValueService = require("../../services/shotList/ShotDefaultValue.service");
 
-class ShotDefaultValueController extends SampleCRUD_Controller {
-    constructor() {
-        super({
-            validation: ShotDefaultValueValidation,
-            service: ShotDefaultValueService,
-            DTO: ShotDefaultValue_DTO
-        })
-    }
+const getDefaultValue = async (req, res) => {
+    // Implementation for getting a single default value
+};
 
-    async getList(req, res) {
-        const { section } = req.params
+const listAllDefaultValues = async (req, res) => {
+    const { section } = req.params;
+    const query = getDataFromReqQuery(req);
+    const list = await ShotDefaultValueService.getList(section, query);
+    return BaseController.ok(res, list);
+};
 
-        const query = getDataFromReqQuery(req);
+const listShotsBySpecificDefaultValue = async (req, res) => {
+    const { section, id } = req.params;
+    const query = getDataFromReqQuery(req);
+    const shots = await ShotDefaultValueService.getShotsOfValue(section, id, query);
+    return BaseController.ok(res, shots);
+};
 
-        const list = await ShotDefaultValueService.getList(section, query)
-        return BaseController.ok(res, list)
-    }
+const createDefaultValue = async (req, res) => {
+    // Implementation for creating a default value
+};
 
-    async getShots(req, res) {
-        const { section, id } = req.params
-        const query = getDataFromReqQuery(req);
-        const shots = await ShotDefaultValueService.getShotsOfValue(section, id, query)
-        return BaseController.ok(res, shots)
-    }
+const updateDefaultValue = async (req, res) => {
+    // Implementation for updating a default value
+};
 
-    async detachShot(req, res) {
-        const { section, shotId } = req.params
-        await ShotDefaultValueService.detachShotFromValue(section, shotId)
-        return BaseController.ok(res)
+const deleteDefaultValue = async (req, res) => {
+    // Implementation for deleting a default value
+};
 
-    }
-}
+const detachShotFromSpecificDefaultValue = async (req, res) => {
+    const { section, shotId } = req.params;
+    await ShotDefaultValueService.detachShotFromValue(section, shotId);
+    return BaseController.ok(res);
+};
 
-module.exports = new ShotDefaultValueController();
+module.exports = {
+    getDefaultValue,
+    listAllDefaultValues,
+    listShotsBySpecificDefaultValue,
+    createDefaultValue,
+    updateDefaultValue,
+    deleteDefaultValue,
+    detachShotFromSpecificDefaultValue,
+};

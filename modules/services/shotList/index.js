@@ -1,22 +1,9 @@
-const VideoFileService = require("../videoFile/VideoFile.service");
-const ProjectService = require("../project/Project.service");
-const ShotService = require("../shotList/Shot.service");
-const ShotScoreService = require("./ShotScore.service");
-const ShotLogService = require("./ShotLog.service");
-const EqualizerService = require("./Equalizer.service");
-const ShotExportService = require("./ShotExport.service");
-const VideoDetailLogService = require("../videoDetail/VideoDetailLog.service")
-
-const shotLogService = new ShotLogService(ProjectService, new VideoDetailLogService());
-const shotScoreService = new ShotScoreService()
-const shotService = new ShotService(new VideoFileService());
-const shotExportService = new ShotExportService(new ShotService(new VideoFileService()), new ShotScoreService());
-const equalizerService = new EqualizerService(new VideoFileService(), new ShotService());
+const shotService = require("./Shot.service");
+const shotExportService = require("./ShotExport.service");
+const equalizerService = require("./Equalizer.service");
 
 module.exports = {
     shotService,
-    shotScoreService,
+    shotExportService,
     equalizerService,
-    shotLogService,
-    shotExportService
-}
+};

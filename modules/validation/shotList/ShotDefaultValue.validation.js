@@ -1,46 +1,32 @@
 const TypeTool = require("../../../helper/type.tool");
 const Validation = require("../../_default/validation");
 
-class ShotDefaultValueValidation extends Validation {
-    constructor() {
-        super();
+const validateShotDefaultValue = async (data = {}) => {
+    const validation = new Validation();
+    const { section = "", value = "", key = "" } = data;
+
+    if (!TypeTool.boolean(section) || section.trim().length < 2) {
+        validation.setError("section is required");
+    } else {
+        validation.setValidData("section", section);
     }
 
-    async create(data = {}) {
-        return await this.shotDefaultValueValidation(data);
+    if (!TypeTool.boolean(value) || value.trim().length < 2) {
+        validation.setError("value is required");
+    } else {
+        validation.setValidData("value", value);
     }
 
-    async update(id, data = {}) {
-        return await this.shotDefaultValueValidation(data, id);
+    if (!TypeTool.boolean(key) || key.trim().length < 2) {
+        validation.setError("key is required");
+    } else {
+        validation.setValidData("key", key);
     }
 
-    async shotDefaultValueValidation(data){
-        this.setEmpty();
-        const { section = "", value = "", key = "" } = data;
+    return validation.getResult();
+};
 
-        if(!TypeTool.boolean(section) || section.trim().length < 2){
-            this.setError("section is required");
-        }
-        else{
-            this.setValidData("section", section)
-        }
-
-        if(!TypeTool.boolean(value) || value.trim().length < 2){
-            this.setError("value is required");
-        }
-        else{
-            this.setValidData("value", value)
-        }
-
-        if(!TypeTool.boolean(key) || key.trim().length < 2){
-            this.setError("key is required");
-        }
-        else{
-            this.setValidData("key", key)
-        }
-
-        return this.getResult();
-    }
-}
-
-module.exports = new ShotDefaultValueValidation();
+module.exports = {
+    create: validateShotDefaultValue,
+    update: validateShotDefaultValue,
+};

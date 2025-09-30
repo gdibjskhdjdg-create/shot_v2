@@ -1,19 +1,19 @@
-const ExportImportService = require("./ExportImport.service")
-const { shotLogService } = require("../../services/shotList")
-const ShotService = require("../../services/shotList/Shot.service")
-const EqualizerService = require("../../services/shotList/Equalizer.service")
-const VideoDetailLogService = require("../../services/videoDetail/VideoDetailLog.service")
-const VideoDetailService = require("../../services/videoDetail/VideoDetail.service")
-const VideoFileService = require("../../services/videoFile/VideoFile.service")
+const exportImportService = require("./ExportImport.service");
+const shotLogService = require("../shotList/ShotLog.service");
+const shotService = require("../shotList/Shot.service");
+const equalizerService = require("../shotList/Equalizer.service");
+const videoDetailLogService = require("../videoDetail/VideoDetailLog.service");
+const videoDetailService = require("../videoDetail/VideoDetail.service");
 
-const exportImportService = new ExportImportService(
+// Since services are now function modules, we pass the modules directly.
+const instantiatedExportImportService = exportImportService(
     shotLogService, 
-    new ShotService(), 
-    new EqualizerService(), 
-    new VideoDetailLogService(),
-    new VideoDetailService(new VideoFileService(), new ShotService()),
+    shotService, 
+    equalizerService, 
+    videoDetailLogService,
+    videoDetailService,
 );
 
 module.exports = {
-    exportImportService,
-}
+    exportImportService: instantiatedExportImportService,
+};
