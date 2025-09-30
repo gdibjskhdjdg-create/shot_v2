@@ -1,86 +1,93 @@
 const TypeTool = require("../../../helper/type.tool");
-const Validation = require("../../_default/validation");
+const ErrorResult = require("../../../helper/error.tool");
 
-class VideoTemplateValidation extends Validation {
-    constructor() {
-        super();
+// A helper function to process validation logic, removing the need for a base class.
+const processValidation = (data, validationLogic) => {
+    const errors = [];
+    const validData = {};
+
+    const setError = (message) => errors.push(message);
+    const setValidData = (key, value) => {
+        // Ensure undefined values are not set in the clean data object.
+        if (value !== undefined && value !== null) {
+            validData[key] = value;
+        }
+    };
+
+    // Execute the specific validation rules for the function.
+    validationLogic(data, setValidData, setError);
+
+    // If any errors were collected, throw a structured error.
+    if (errors.length > 0) {
+        throw ErrorResult.badRequest(null, errors);
     }
+    
+    // Otherwise, return the sanitized and validated data.
+    return validData;
+};
 
-    createTemplate(data = {}) {
-        this.setEmpty()
-
+const validateCreateTemplate = (data = {}) => {
+    return processValidation(data, (rawData, setValidData, setError) => {
         const {
             quality = '480',
             isMute = 'false',
-            bitrate = null,
-            gifTime = null,
-            title = null,
-            logo = null,
-            text = null,
-        } = data;
+            bitrate,
+            gifTime,
+            title,
+            logo,
+            text,
+        } = rawData;
 
-
-        if (title?.value?.length >= 3) {
-            this.setValidData("title", title.value);
+        if (title?.value && title.value.length >= 3) {
+            setValidData("title", title.value);
         } else {
-            this.setError("title is required");
+            setError("Title is required and must be at least 3 characters long.");
         }
 
-        this.setValidData("quality", quality.value);
-        this.setValidData("isMute", isMute?.value);
-        this.setValidData("bitrate", bitrate?.value);
-        this.setValidData("gifTime", gifTime?.value);
-        this.setValidData("logo", logo?.value ? JSON.parse(logo?.value) : null);
-        this.setValidData("text", text?.value ? JSON.parse(text.value) : null);
+        setValidData("quality", quality?.value);
+        setValidData("isMute", isMute?.value);
+        setValidData("bitrate", bitrate?.value);
+        setValidData("gifTime", gifTime?.value);
+        
+        try {
+            if (logo?.value) setValidData("logo", JSON.parse(logo.value));
+            if (text?.value) setValidData("text", JSON.parse(text.value));
+        } catch (e) {
+            setError("Invalid JSON format for 'logo' or 'text' parameters.");
+        }
+    });
+};
 
-        return this.getResult();
-    }
-
-    updateTemplate(data = {}) {
-        this.setEmpty()
-
-        const title = data.title
-        const quality = data.quality
-        const isMute = data.isMute
-        const bitrate = data.bitrate
-        const logo = data.logo
-        const text = data.text
-        const gifTime = data.gifTime
+const validateUpdateTemplate = (data = {}) => {
+    return processValidation(data, (rawData, setValidData, setError) => {
+        const { title, quality, isMute, bitrate, logo, text, gifTime } = rawData;
 
         if (title?.value) {
             if (title.value.length < 3) {
-                this.setError("title is required");
+                setError("Title must be at least 3 characters long.");
             } else {
-                this.setValidData("title", title.value);
+                setValidData("title", title.value);
             }
         }
 
-        if (quality?.value) {
-            this.setValidData("quality", +quality.value);
-        }
-
-        if (gifTime?.value) {
-            this.setValidData("gifTime", gifTime.value);
-        }
+        if (quality?.value) setValidData("quality", +quality.value);
+        if (gifTime?.value) setValidData("gifTime", gifTime.value);
+        if (bitrate?.value) setValidData("bitrate", bitrate.value);
 
         if (!TypeTool.isNullUndefined(isMute?.value)) {
-            this.setValidData("isMute", isMute.value);
+            setValidData("isMute", isMute.value);
         }
-
-        if (bitrate?.value) {
-            this.setValidData("bitrate", bitrate.value);
+        
+        try {
+            if (logo?.value) setValidData("logo", JSON.parse(logo.value));
+            if (text?.value) setValidData("text", JSON.parse(text.value));
+        } catch (e) {
+            setError("Invalid JSON format for 'logo' or 'text' parameters.");
         }
+    });
+};
 
-        if (logo?.value) {
-            this.setValidData("logo", JSON.parse(logo.value));
-        }
-
-        if (text?.value) {
-            this.setValidData("text", JSON.parse(text.value));
-        }
-
-        return this.getResult();
-    }
-}
-
-module.exports = new VideoTemplateValidation();
+module.exports = {
+    createTemplate: validateCreateTemplate,
+    updateTemplate: validateUpdateTemplate,
+};

@@ -1,32 +1,21 @@
 const Validation = require("../../_default/validation");
 
-class ExportValidation extends Validation {
-    constructor() {
-        super();
+const validateCreateRush = async (body) => {
+    const validation = new Validation();
+    const { fileId } = body;
+    if (!fileId) {
+        validation.setError('fileId is required');
     }
 
-    createExport(data = {}) {
-        this.setEmpty()
-
-        const { title, sources, templateId } = data
+    if(validation.isError) {
+        return validation.getResult();
+    }
     
-        if (title?.length < 3) {
-            this.setError("title is required");
-        } else {
-            this.setValidData("title", title);
-        }
+    validation.setValidData('fileId', fileId);
 
-        if (!sources) {
-            this.setError("source is required");
-        }
-        else {
-            this.setValidData("sources", sources);
-        }
-
-        this.setValidData("templateId", templateId);
-
-        return this.getResult();
-    }
+    return validation.getResult();
 }
 
-module.exports = new ExportValidation();
+module.exports = {
+    createRush: validateCreateRush
+};

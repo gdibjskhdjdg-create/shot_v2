@@ -1,123 +1,178 @@
 const path = require('path');
-
-const Service = require("../../_default/service");
-const { ExportVideoFile, ExportVideoDetail, ExportRushLog } = require("../../_default/model");
-const fs = require('fs')
 const Sequelize = require('sequelize');
-const VideoFileService = require('./VideoFile.service');
-const VideoDetailService = require('../videoDetail/VideoDetail.service');
-const VideoTemplateService = require('./VideoTemplate.service')
-const { listShots, getByIds, getByAttribute } = require('../shotList/Shot.service')
-const { listScoresForShot } = require('../shotList/ShotScore.service')
-const { exportShots, getSpecialShotList } = require('../shotList/ShotExport.service');
+const Op = Sequelize.Op;
+const fs = require('fs');
 const ErrorResult = require('../../../helper/error.tool');
-const treeKill = require('tree-kill');
 const { generateRandomCode } = require('../../../helper/general.tool');
 const emitter = require('../../_default/eventEmitter');
-const { logError } = require('../../../helper/log.tool');
-const TypeTool = require('../../../helper/type.tool');
-const Op = Sequelize.Op;
-const Redis = require("../../../db/redis");
-const { resolutions } = require('./VideoEditor.service');
-const { errorLog } = require('../../../helper/showLog');
+const { ExportVideoFile, ExportVideoDetail, ExportRushLog } = require("../../_default/model");
 
-class ExportVideoService extends Service {
+// Import functional services directly
+const videoFileService = require('./VideoFile.service');
+const videoTemplateService = require('./VideoTemplate.service');
+const shotService = require('../shotList/Shot.service');
+const shotExportService = require('../shotList/ShotExport.service');
 
-    constructor(
-        videoEditorService = () => { }
-    ) {
-        super(ExportVideoFile)
-        this.videoEditorService = videoEditorService;
-        this.videoFileService = new VideoFileService();
-        this.videoTemplateService = new VideoTemplateService()
-        // No longer instantiating classes
-        this.videoDetailService = new VideoDetailService()
-    }
+// --- Helper Functions ---
 
-    // ... other methods
+const findDetailsByExportId = (exportId) => {
+    return ExportVideoDetail.findAll({ 
+        where: { exportId },
+        include: [{ model: ExportVideoFile, as: 'export' }]
+    });
+};
 
-    async createExportShots(userId, body, query) {
-        const { templateId, shotsId, isProduct, isExcludeMode } = body
-
-        const template = await this.videoTemplateService.getById(templateId)
-
-        let shotsItems = null
-        if (isExcludeMode) {
-            ({ shots: shotsItems } = (await getSpecialShotList({ excludesId: shotsId, ...query, page: 1, take: null })))
-        } else {
-            shotsItems = await getByIds(shotsId)
-        }
-
-        for (const shot of shotsItems) {
-            const code = await this.generateExportCode();
-            const exportFile = await ExportVideoFile.create({
-                title: shot.title.slice(0, 255),
-                userId,
-                isProduct,
-                qualityExport: template.quality,
-                isMute: template.isMute,
-                code,
-                bitrate: template.bitrate,
-                logoParams: template.logoParams,
-                textParams: template.textParams,
-                gifTime: template.gifTime,
-                status: 'queue',
-            });
-
-            const {
-                id: shotId,
-                videoFileId: videoId,
-                startTime: startCutTime,
-                endTime: endCutTime
-            } = shot
-            await ExportVideoDetail.create({ videoId, shotId, startCutTime, endCutTime, exportId: exportFile.id, status: 'queue' })
+const generateUniqueExportCode = async () => {
+    let code;
+    let isUnique = false;
+    while (!isUnique) {
+        code = generateRandomCode(7);
+        const existing = await ExportVideoFile.findOne({ where: { code } });
+        if (!existing) {
+            isUnique = true;
         }
     }
+    return code;
+};
 
-    async getShotsOfExport(exportId, filters = {}) {
-        const exportShotsData = await this.findAllDetailByExportId(exportId)
-        const exportShots = exportShotsData.map(item => item.toJSON())
-        let shotsId = []
-        for (const eShot of exportShots) {
-            const { shotId } = eShot
-            if (shotId) shotsId.push(shotId)
-        }
-        return await listShots({ ...filters, id: shotsId })
-    }
-
-    async modifyFile(exportId, reSend = true) {
-        const detailsData = await this.findAllDetailByExportId(exportId)
-        const exportDetails = detailsData.map(item => item.toJSON());
-        const { isProduct } = exportDetails[0].export;
-        const shotsId = exportDetails.filter(x => !!x.shotId).map(x => x.shotId)
-
-        const shots = (await getByIds(shotsId)).map(x => x.toJSON())
-
-        for (const detail of detailsData) {
-            const findShot = shots.find(x => x.id == detail.shotId)
-            if (findShot) {
-                detail.startCutTime = findShot.startTime
-                detail.endCutTime = findShot.endTime
-                await detail.save()
-            }
-        }
-
-        const sqlQuery = { status: 'queue' }
-        if (isProduct == 1 && reSend) {
-            sqlQuery.productStatus = 'queue'
-        }
-
-        await ExportVideoFile.update(
-            { ...sqlQuery }, // New values to set
-            { where: { id: exportId } } // Conditions (e.g., based on `id`)
-        );
-
-        if (!reSend) {
-            await this.setOnlyReBuild(exportId);
-        }
-    }
-
-    // ... other methods, no changes needed for them as they don't use the refactored services directly
+const getPathForExport = (exportCode) => {
+    const storePath = path.join(__dirname, '..', '..', '..', process.env.Content_PATH);
+    return path.join(storePath, 'exports', exportCode);
 }
 
-module.exports = ExportVideoService;
+const getRootDir = () => {
+    return path.join(__dirname, '..', '..', '..');
+}
+
+// --- Public API ---
+
+const listExports = async (filters = {}) => {
+    const { page = 1, take = 10, ...where } = filters;
+    const query = { where, order: [['createdAt', 'DESC']] };
+    const [count, rows] = await Promise.all([
+        ExportVideoFile.count(query),
+        ExportVideoFile.findAll({ ...query, limit: take, offset: (page - 1) * take })
+    ]);
+    return { count, rows };
+};
+
+const createExportsForShots = async (userId, body, query) => {
+    const { templateId, shotsId, isProduct, isExcludeMode } = body;
+    const template = await videoTemplateService.getById(templateId);
+    if (!template) throw ErrorResult.notFound('Template not found');
+
+    let shotsToExport;
+    if (isExcludeMode) {
+        const { shots } = await shotExportService.getSpecialShotList({ ...query, excludesId: shotsId, page: 1, take: null });
+        shotsToExport = shots;
+    } else {
+        shotsToExport = await shotService.getShotsByIds(shotsId);
+    }
+
+    if (!shotsToExport || shotsToExport.length === 0) {
+        throw ErrorResult.badRequest("No shots found to export.");
+    }
+
+    for (const shot of shotsToExport) {
+        const code = await generateUniqueExportCode();
+        const exportFile = await ExportVideoFile.create({
+            title: shot.title.slice(0, 255),
+            userId,
+            isProduct: isProduct || false,
+            qualityExport: template.quality,
+            isMute: template.isMute,
+            code,
+            bitrate: template.bitrate,
+            logoParams: template.logoParams,
+            textParams: template.textParams,
+            gifTime: template.gifTime,
+            status: 'queue',
+        });
+
+        await ExportVideoDetail.create({
+            videoId: shot.videoFileId,
+            shotId: shot.id,
+            startCutTime: shot.startTime,
+            endCutTime: shot.endTime,
+            exportId: exportFile.id,
+            status: 'queue'
+        });
+    }
+};
+
+const getShotsForExport = async (exportId, filters = {}) => {
+    const exportDetails = await findDetailsByExportId(exportId);
+    const shotIds = exportDetails.map(detail => detail.shotId).filter(id => id);
+
+    if (shotIds.length === 0) {
+        return { shots: [], count: 0 };
+    }
+
+    return await shotService.listShots({ ...filters, id: shotIds });
+};
+
+const rebuildExportFile = async (exportId, resendToQueue = true) => {
+    const details = await findDetailsByExportId(exportId);
+    if (details.length === 0) throw ErrorResult.notFound("Export details not found.");
+
+    const shotIds = details.map(d => d.shotId).filter(Boolean);
+    const shots = await shotService.getShotsByIds(shotIds);
+    const shotsMap = new Map(shots.map(s => [s.id, s.toJSON()]));
+
+    for (const detail of details) {
+        const shot = shotsMap.get(detail.shotId);
+        if (shot) {
+            detail.startCutTime = shot.startTime;
+            detail.endCutTime = shot.endTime;
+            await detail.save();
+        }
+    }
+
+    const { isProduct } = (details[0].export?.toJSON()) || {};
+    const updatePayload = { status: 'queue' };
+    if (isProduct && resendToQueue) {
+        updatePayload.productStatus = 'queue';
+    }
+
+    await ExportVideoFile.update(updatePayload, { where: { id: exportId } });
+
+    if (!resendToQueue) {
+        emitter.emit('exportVideo_reBuild', exportId);
+    }
+};
+
+// Exporting log and status functions
+const setPendingExportFile = (exportId) => ExportVideoFile.update({ status: 'pending' }, { where: { id: exportId } });
+const setCompleteExportFile = (exportId) => ExportVideoFile.update({ status: 'complete' }, { where: { id: exportId } });
+const setErrorExportFile = (exportId) => ExportVideoFile.update({ status: 'error' }, { where: { id: exportId } });
+const setPendingDetail = (detailId) => ExportVideoDetail.update({ status: 'pending' }, { where: { id: detailId } });
+const setCompleteDetail = (detailId) => ExportVideoDetail.update({ status: 'complete' }, { where: { id: detailId } });
+const setErrorDetail = (detailId) => ExportVideoDetail.update({ status: 'error' }, { where: { id: detailId } });
+
+const setLastCommandExportFile = (id, lastCommand, startTime, endTime, pid) => {
+    return ExportVideoFile.update({ lastCommand, lastCommandRunAt: startTime, lastCommandEndAt: endTime, lastPid: pid }, { where: { id } });
+};
+
+const setLastCommandDetailFile = (id, lastCommand, startTime, endTime, pid) => {
+    return ExportVideoDetail.update({ lastCommand, lastCommandRunAt: startTime, lastCommandEndAt: endTime, lastPid: pid }, { where: { id } });
+};
+
+
+module.exports = {
+    listExports,
+    createExportsForShots,
+    getShotsForExport,
+    rebuildExportFile,
+    findDetailsByExportId,
+    getPathForExport,
+    getRootDir,
+    // Status and logging
+    setPendingExportFile,
+    setCompleteExportFile,
+    setErrorExportFile,
+    setPendingDetail,
+    setCompleteDetail,
+    setErrorDetail,
+    setLastCommandExportFile,
+    setLastCommandDetailFile
+};

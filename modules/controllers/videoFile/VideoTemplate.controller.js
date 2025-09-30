@@ -1,62 +1,60 @@
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const BaseController = require("../../_default/controller/Base.controller");
-const { videoTemplateService } = require("../../services/videoFile/index");
+const videoTemplateService = require("../../services/videoFile/VideoTemplate.service");
 const VideoTemplateValidation = require("../../validation/videoFile/VideoTemplate.validation");
 const VideoTemplate_DTO = require("../../dto/videoFile/VideoTemplate.dto");
 
-class VideoTemplateController {
-    async getVideoTemplateList(req, res) {
-        const query = getDataFromReqQuery(req);
-        const templates = await videoTemplateService.getList(query);
+const listVideoTemplates = async (req, res) => {
+    const query = getDataFromReqQuery(req);
+    const { count, rows } = await videoTemplateService.listTemplates(query);
+    const templates = VideoTemplate_DTO.create(rows);
+    return BaseController.ok(res, { count, rows: templates });
+};
 
-        return BaseController.ok(res, {
-            count: templates.count,
-            rows: VideoTemplate_DTO.create(templates.rows)
-        })
+const showVideoTemplate = async (req, res) => {
+    const { templateId } = req.params;
+    const template = await videoTemplateService.getById(templateId);
+    if (!template) {
+        return BaseController.notFound(res, "Template not found");
     }
+    const templateDto = VideoTemplate_DTO.create(template);
+    return BaseController.ok(res, templateDto);
+};
 
-    async showVideoTemplate(req, res) {
-        const { templateId } = req.params;
-        const template = await videoTemplateService.show(templateId);
+const createVideoTemplate = async (req, res) => {
+    const { logoFile, ...fields } = req.body;
+    const fileStream = logoFile ? logoFile.toBuffer() : null;
+    const fileName = logoFile ? logoFile.filename : null;
+    
+    const validData = VideoTemplateValidation.createTemplate(fields);
+    
+    await videoTemplateService.createTemplate(validData, fileStream, fileName);
+    return BaseController.created(res, { message: "Template created successfully." });
+};
 
-        return BaseController.ok(res, VideoTemplate_DTO.create(template));
-    }
+const updateVideoTemplate = async (req, res) => {
+    const { templateId } = req.params;
+    const { logoFile, ...fields } = req.body;
 
-    async createVideoTemplate(req, res) {
+    const fileStream = logoFile ? logoFile.toBuffer() : null;
+    const fileName = logoFile ? logoFile.filename : null;
 
-        const { logoFile, ...fields } = req.body
+    const validData = VideoTemplateValidation.updateTemplate(fields);
 
-        const file = logoFile?.toBuffer()
-        const fileName = logoFile?.filename
+    await videoTemplateService.updateTemplate(+templateId, validData, fileStream, fileName);
+    return BaseController.ok(res, { message: "Template updated successfully." });
+};
 
-        let validData = VideoTemplateValidation.createTemplate(fields)
+const deleteVideoTemplate = async (req, res) => {
+    const { templateId } = req.params;
+    await videoTemplateService.deleteTemplate(templateId);
+    return BaseController.ok(res, { message: "Template deleted successfully." });
+};
 
-        await videoTemplateService.create(validData, file, fileName)
-        return BaseController.ok(res);
-    }
-
-    async updateVideoTemplate(req, res) {
-
-        const { templateId } = req.params
-
-        const { logoFile, ...fields } = req.body
-
-        const file = logoFile?.toBuffer()
-        const fileName = logoFile?.filename
-
-        let validData = VideoTemplateValidation.updateTemplate(fields)
-
-
-        await videoTemplateService.update(+templateId, validData, file, fileName)
-        return BaseController.ok(res)
-    }
-
-    async deleteVideoTemplate(req, res) {
-        const { templateId } = req.params
-        await videoTemplateService.delete(templateId)
-        return BaseController.ok(res)
-    }
-
-}
-
-module.exports = new VideoTemplateController();
+module.exports = {
+    listVideoTemplates,
+    showVideoTemplate,
+    createVideoTemplate,
+    updateVideoTemplate,
+    deleteVideoTemplate,
+};
