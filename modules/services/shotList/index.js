@@ -7,7 +7,7 @@ const EqualizerService = require("./Equalizer.service");
 const ShotExportService = require("./ShotExport.service");
 const VideoDetailLogService = require("../videoDetail/VideoDetailLog.service")
 
-const shotLogService = new ShotLogService(new ProjectService(), new VideoDetailLogService());
+const shotLogService = new ShotLogService(ProjectService, new VideoDetailLogService());
 const shotScoreService = new ShotScoreService()
 const shotService = new ShotService(new VideoFileService());
 const shotExportService = new ShotExportService(new ShotService(new VideoFileService()), new ShotScoreService());

@@ -1,35 +1,29 @@
 const TypeTool = require("../../../helper/type.tool");
 const Validation = require("../../_default/validation");
 
+const validateProjectData = (data = {}) => {
+    const validation = new Validation();
+    const reqKey = ["title"];
+    const optionalKey = ["titleEn", "code", "workTimeRatio", "equalizeRatio", "template", "structure", "type", "producer", "director", "duration", "productionYear"];
 
-class ProjectValidation extends Validation {
-    constructor() {
-        super();
-    }
+    validation.setEmpty();
 
-    reqKey = ["title"];
-    optionalKey = ["titleEn", "code", "workTimeRatio", "equalizeRatio", "template", "structure", "type", "producer", "director", "duration", "productionYear"];
+    reqKey.forEach(item => {
+        if (!TypeTool.boolean(data[item])) {
+            validation.setError(`${item} is required`);
+        }
+        validation.setValidData(item, data[item]);
+    });
 
-    createProject(data = {}) {
-        this.setEmpty()
+    optionalKey.forEach(item => {
+        if (!TypeTool.isNullUndefined(data[item])) {
+            validation.setValidData(item, data[item]);
+        }
+    });
 
-        this.reqKey.forEach(item => {
-            if (!TypeTool.boolean(data[item])) {
-                this.setError(`${item} is required`)
-            }
-            this.setValidData(item, data[item])
-        });
-
-
-        this.optionalKey.forEach(item => {
-
-            if (!TypeTool.isNullUndefined(data[item])) {
-                this.setValidData(item, data[item])
-            }
-        });
-
-        return this.getResult()
-    }
+    return validation.getResult();
 }
 
-module.exports = new ProjectValidation();
+module.exports = {
+    validateProjectData
+};

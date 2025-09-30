@@ -1,5 +1,5 @@
-const fs = require("fs")
-const path = require("path")
+const fs = require("fs");
+const path = require("path");
 require("../../../configs");
 require("app-module-path").addPath(path.join(__dirname, "..", ".."));
 const DBConnection = require("../../../db/DBConnection");
@@ -8,7 +8,7 @@ const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
 const { Project } = require("../../../modules/_default/model");
-const { projectService } = require("../../../modules/services/project");
+const { updateProjectStatus } = require("../../../modules/services/project");
 
 (async () => {
     try {
@@ -18,7 +18,7 @@ const { projectService } = require("../../../modules/services/project");
         // Define pagination parameters
         let pageIndex = 0; // Current page number
         const pageSize = 200; // Records per page
-        let countUpdated = 0
+        let countUpdated = 0;
 
         while (1) {
             const data = await Project.findAndCountAll({
@@ -27,31 +27,30 @@ const { projectService } = require("../../../modules/services/project");
                 },
                 limit: pageSize,
                 offset: pageIndex * pageSize, // Calculate offset
-            })
+            });
 
-            const rows = data.rows
-            const total = data.count
+            const rows = data.rows;
+            const total = data.count;
 
-            countUpdated += rows.length
+            countUpdated += rows.length;
 
             if (rows.length == 0) {
-                break
+                break;
             }
-
 
             for (const myProject of rows) {
-                await projectService.updateProjectStatus(myProject.id)
+                await updateProjectStatus(myProject.id);
             }
 
-            console.log(111111111, 'shotStatus fields ', `${countUpdated} of ${total} is updated`)
+            console.log(111111111, 'shotStatus fields ', `${countUpdated} of ${total} is updated`);
 
-            pageIndex++
+            pageIndex++;
         }
 
     }
     catch (err) {
-        console.log(err)
+        console.log(err);
     }
 
     process.exit();
-})()
+})();

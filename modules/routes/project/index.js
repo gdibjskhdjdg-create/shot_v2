@@ -14,38 +14,38 @@ async function projectRoutes(fastify, opts) {
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['report-project-user'])
         },
-        AsyncHandler(ProjectController.userReportProject));
+        AsyncHandler(ProjectController.listProjects));
 
 
     fastify.get('/report/user/:projectId/export/:exportType',
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['report-project-user'])
         },
-        AsyncHandler(ProjectController.exportUserReportProject));
+        AsyncHandler(ProjectController.exportUserReport));
 
     fastify.get('/report/perProject', {
         preHandler: CheckUserHaveValidAccessMiddleware(['report-per-project'])
     },
-        AsyncHandler(ProjectController.reportPerProject));
+        AsyncHandler(ProjectController.getProjectsReport));
 
     fastify.get('/report/perProject/export/:exportType', {
         preHandler: CheckUserHaveValidAccessMiddleware(['report-per-project'])
-    }, AsyncHandler(ProjectController.exportReportPerProject));
+    }, AsyncHandler(ProjectController.exportProjectsReport));
 
     fastify.get("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(["projects-list", "project-manage"])
-    }, AsyncHandler(ProjectController.getProjects));
+    }, AsyncHandler(ProjectController.listProjects));
 
     fastify.post("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.createProjects));
+    }, AsyncHandler(ProjectController.createProject));
 
     fastify.patch("/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.updateProjects));
+    }, AsyncHandler(ProjectController.updateProject));
 
     fastify.delete("/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.deleteProjects));
+    }, AsyncHandler(ProjectController.deleteProject));
 }
 module.exports = projectRoutes;

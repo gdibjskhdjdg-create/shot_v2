@@ -3,92 +3,109 @@ const BaseController = require("../../_default/controller/Base.controller");
 
 const Project_DTO = require("../../dto/project/Project.dto");
 const ProjectQuery_DTO = require("../../dto/project/ProjectQuery");
-const ProjectValidation = require("../../validation/project/Project.validation");
-const { projectService } = require("../../services/project/index");
+const { validateProjectData } = require("../../validation/project/Project.validation");
+const { 
+    listProjects: listProjectsService, 
+    exportUserReportAsExcel, 
+    getUserReportForProject, 
+    exportProjectReportAsExcel, 
+    getProjectReport, 
+    createProject: createProjectService, 
+    updateProject: updateProjectService, 
+    deleteProject: deleteProjectService, 
+    deleteMainFileOfProject 
+} = require("../../services/project");
 
-class ProjectController {
+const listProjects = async (req, res) => {
+    const query = getDataFromReqQuery(req);
+    const filters = ProjectQuery_DTO.create({
+        page: 1, take: 10, ...query
+    });
 
-    async getProjects(req, res) {
-        const query = getDataFromReqQuery(req);
-        const filters = ProjectQuery_DTO.create({
-            page: 1, take: 10, ...query
-        });
+    let userId = null;
+    // if(user.permission !== 'admin'){
+    //     userId = req.user.id;
+    // }
 
-        let userId = null;
-        // if(user.permission !== 'admin'){
-        //     userId = req.user.id;
-        // }
+    const { projects, count } = await listProjectsService({ ...filters, userId });
 
-        const { projects, count } = await projectService.getProjects({ ...filters, userId });
-
-        return BaseController.ok(res, { projects: Project_DTO.create(projects), count });
-    }
-
-    async exportUserReportProject(req, res) {
-        const { exportType, projectId } = req.params
-        const query = getDataFromReqQuery(req);
-        let result = {}
-        if (exportType == 'excel') {
-            result = await projectService.exportExcelUserReportProject(projectId , query)
-        }
-        return BaseController.ok(res, result)
-    }
-
-    async userReportProject(req, res) {
-        const { projectId } = req.params;
-        const query = getDataFromReqQuery(req);
-        const report = await projectService.userReportProject(projectId, query)
-        return BaseController.ok(res, report)
-    }
-
-    async exportReportPerProject(req, res) {
-        const { exportType } = req.params
-        const query = getDataFromReqQuery(req);
-        let result = {}
-        if (exportType == 'excel') {
-            result = await projectService.exportExcelReportPerProject(query)
-        }
-        return BaseController.ok(res, result)
-    }
-
-    async reportPerProject(req, res) {
-        const query = getDataFromReqQuery(req);
-        const report = await projectService.reportPerProject(query)
-        return BaseController.ok(res, report)
-    }
-
-    async createProjects(req, res) {
-        const validData = ProjectValidation.createProject(req.body);
-        const project = await projectService.createProject(validData);
-
-        return BaseController.ok(res, { project: Project_DTO.create(project) });
-    }
-
-    async updateProjects(req, res) {
-        const { projectId } = req.params;
-        const validData = ProjectValidation.createProject(req.body);
-        const project = await projectService.updateProject(projectId, validData);
-
-        return BaseController.ok(res, { project: Project_DTO.create(project) });
-    }
-
-    async assignVideoFilesOfProjectToUser(req , res){
-        const { projectId , userId } = req.params;
-        return BaseController.ok(res);
-    }
-
-    async deleteProjects(req, res) {
-        const { projectId } = req.params;
-        await projectService.deleteProject(projectId);
-        return BaseController.ok(res);
-    }
-
-    
-    async deleteMainFileOfProject(req, res) {
-        const { projectId } = req.params;
-        await projectService.deleteMainFileOfProject(projectId);
-        return BaseController.ok(res);
-    }
+    return BaseController.ok(res, { projects: Project_DTO.create(projects), count });
 }
 
-module.exports = new ProjectController();
+const exportUserReport = async (req, res) => {
+    const { exportType, projectId } = req.params;
+    const query = getDataFromReqQuery(req);
+    let result = {};
+    if (exportType == 'excel') {
+        result = await exportUserReportAsExcel(projectId , query);
+    }
+    return BaseController.ok(res, result);
+}
+
+const getUserReport = async (req, res) => {
+    const { projectId } = req.params;
+    const query = getDataFromReqQuery(req);
+    const report = await getUserReportForProject(projectId, query);
+    return BaseController.ok(res, report);
+}
+
+const exportProjectsReport = async (req, res) => {
+    const { exportType } = req.params;
+    const query = getDataFromReqQuery(req);
+    let result = {};
+    if (exportType == 'excel') {
+        result = await exportProjectReportAsExcel(query);
+    }
+    return BaseController.ok(res, result);
+}
+
+const getProjectsReport = async (req, res) => {
+    const query = getDataFromReqQuery(req);
+    const reportData = await getProjectReport(query);
+    return BaseController.ok(res, reportData);
+}
+
+const createProject = async (req, res) => {
+    const validData = validateProjectData(req.body);
+    const project = await createProjectService(validData);
+
+    return BaseController.ok(res, { project: Project_DTO.create(project) });
+}
+
+const updateProject = async (req, res) => {
+    const { projectId } = req.params;
+    const validData = validateProjectData(req.body);
+    const project = await updateProjectService(projectId, validData);
+
+    return BaseController.ok(res, { project: Project_DTO.create(project) });
+}
+
+const assignVideosToUser = (req , res) => {
+    const { projectId , userId } = req.params;
+    return BaseController.ok(res);
+}
+
+const deleteProject = async (req, res) => {
+    const { projectId } = req.params;
+    await deleteProjectService(projectId);
+    return BaseController.ok(res);
+}
+
+const deleteProjectMainFile = async (req, res) => {
+    const { projectId } = req.params;
+    await deleteMainFileOfProject(projectId);
+    return BaseController.ok(res);
+}
+
+module.exports = {
+    listProjects,
+    exportUserReport,
+    getUserReport,
+    exportProjectsReport,
+    getProjectsReport,
+    createProject,
+    updateProject,
+    assignVideosToUser,
+    deleteProject,
+    deleteProjectMainFile
+};
