@@ -1,48 +1,37 @@
+
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
-const TagInVideo_DTO = require("../../dto/tag/TagInVideo.dto");
-const TagInVideoService = require("../../services/tag/TagInVideo.service")
+const { ok } = require("../../_default/controller/Base.controller");
+const TagInVideoDTO = require("../../dto/tag/TagInVideo.dto");
+const TagInVideoService = require("../../services/tag/TagInVideo.service");
 
+const listTagsInVideo = async (req, res) => {
+    const query = getDataFromReqQuery(req);
+    const tags = await TagInVideoService.get({ ...query, shotUsageCount: true });
+    return ok(res, { tags: TagInVideoDTO.create(tags.rows), count: tags.count });
+};
 
-class TagInVideoController {
+const getShotsForTagInVideo = async (req, res) => {
+    const { tagId } = req.params;
+    const query = getDataFromReqQuery(req);
+    const tag = await TagInVideoService.getShots(tagId, query);
+    return ok(res, tag);
+};
 
-    async getTagsInVideo(req, res) {
-        const {
-            categoryId = null,
-            search,
-            type = null,
-            page = 1,
-            take = 10
-        } = getDataFromReqQuery(req);
+const removeShotFromTagInVideo = async (req, res) => {
+    const { tagId, shotId } = req.params;
+    await TagInVideoService.detachShot(tagId, shotId);
+    return ok(res);
+};
 
-        const tags = await TagInVideoService.getTags({ search, categoryId, type, page, take, shotUsageCount: true });
+const permanentlyDeleteTagInVideo = async (req, res) => {
+    const { tagId } = req.params;
+    await TagInVideoService.deleteOne(tagId);
+    return ok(res);
+};
 
-        return BaseController.ok(res, { tags: TagInVideo_DTO.create(tags.rows), count: tags.count });
-    }
-
-    async getShots(req , res){
-        const {tagId} = req.params
-
-        const query = getDataFromReqQuery(req);
-        const tag = await TagInVideoService.getShotsOfTag(tagId, query);
-        return BaseController.ok(res, tag);
-
-    }
-
-
-    async detachShotFromTag(req, res) {
-        const { tagId, shotId } = req.params
-        await TagInVideoService.detachShotFromTag(tagId, shotId, { inVideo: 1 })
-        return BaseController.ok(res);
-    }
-
-    async deleteTag(req, res) {
-        const { tagId } = req.params
-        await TagInVideoService.deleteTag(tagId)
-        return BaseController.ok(res);
-    }
-
-}
-
-
-module.exports = new TagInVideoController();
+module.exports = {
+    listTagsInVideo,
+    getShotsForTagInVideo,
+    removeShotFromTagInVideo,
+    permanentlyDeleteTagInVideo,
+};

@@ -1,36 +1,30 @@
+
 const TypeTool = require("../../../helper/type.tool");
-const Validation = require("../../_default/validation");
+const ErrorResult = require('../../../helper/error.tool');
 
-class TagCategoryValidation extends Validation {
-    constructor(){
-        super();
+const createTagCategory = (data = {}) => {
+    const {
+        name,
+        tagIds = []
+    } = data;
+
+    if (!TypeTool.boolean(name)) {
+        throw ErrorResult.badRequest("name is required");
+    }
+    if (name.trim().length < 2) {
+        throw ErrorResult.badRequest("min tag name is 2 characters");
     }
 
-    createTagCategory(data = {}){
-        this.setEmpty()
-
-        const {
-            name, tagIds = []
-        } = data;
-
-        if(!TypeTool.boolean(name)){
-            this.setError("name is required");
-        }
-        else if(name.trim().length < 2){
-            this.setError("min tag name is 2 characters");
-        }
-        else{
-            this.setValidData("name", name.trim());
-        }
-
-        if(!Array.isArray(tagIds)){
-            this.setError("tagIds must be an array")
-        }
-
-        this.setValidData("tagIds", tagIds.filter(item => item))
-
-        return this.getResult();
+    if (!Array.isArray(tagIds)) {
+        throw ErrorResult.badRequest("tagIds must be an array");
     }
-}
 
-module.exports = new TagCategoryValidation();
+    return {
+        name: name.trim(),
+        tagIds: tagIds.filter(item => item),
+    };
+};
+
+module.exports = {
+    createTagCategory
+};

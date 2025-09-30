@@ -1,5 +1,12 @@
+
 const AsyncHandler = require("../../../helper/asyncHandler.tool");
-const TagCategoryController = require("../../controllers/tag/TagCategory.controller");
+const { 
+    listTagCategories,
+    getTagCategoryDetails,
+    createNewTagCategory,
+    updateTagCategoryInfo,
+    permanentlyDeleteTagCategory
+} = require("../../controllers/tag/TagCategory.controller");
 const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
 const CheckUserHaveValidAccessMiddleware = require("../../middleware/user//CheckUserHaveValidAccess.middleware");
 
@@ -7,23 +14,23 @@ const CheckUserHaveValidAccessMiddleware = require("../../middleware/user//Check
 async function tagCategoryRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/", AsyncHandler(TagCategoryController.getList));
-    fastify.get("/detail/:tagCategoryId", AsyncHandler(TagCategoryController.getDetail));
-    fastify.get("/show/:tagCategoryId", AsyncHandler(TagCategoryController.showCategory));
+    fastify.get("/", AsyncHandler(listTagCategories));
+    fastify.get("/detail/:tagCategoryId", AsyncHandler(getTagCategoryDetails));
+    fastify.get("/show/:tagCategoryId", AsyncHandler(getTagCategoryDetails));
     fastify.post("/",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
-        }, AsyncHandler(TagCategoryController.createTagCategory));
+        }, AsyncHandler(createNewTagCategory));
 
     fastify.patch("/:tagCategoryId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
-        }, AsyncHandler(TagCategoryController.editTagCategory));
+        }, AsyncHandler(updateTagCategoryInfo));
 
     fastify.delete("/:tagCategoryId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
-        }, AsyncHandler(TagCategoryController.deleteTagCategory));
+        }, AsyncHandler(permanentlyDeleteTagCategory));
 }
 
 module.exports = tagCategoryRoutes;

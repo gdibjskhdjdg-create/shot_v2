@@ -1,72 +1,74 @@
-const TypeTool = require("../../../helper/type.tool");
-const Validation = require("../../_default/validation");
 
-class TagValidation extends Validation {
-    constructor(){
-        super();
+const ErrorResult = require("../../../helper/error.tool");
+const TypeTool = require("../../../helper/type.tool");
+
+const validateNewTag = (data = {}) => {
+    const errors = [];
+    const validData = {};
+    const { tag, type, event = null, location = null } = data;
+
+    if(!TypeTool.boolean(tag)){
+        errors.push("tag is required");
+    }
+    else if(tag.trim().length < 2){
+        errors.push("tag 2 min characters");
+    }
+    else{
+        validData.tag = tag.trim();
     }
 
-    createTag(data = {}){
-        this.setEmpty();
-        const { tag, type, event = null, location = null } = data;
+    if(!TypeTool.boolean(type)){
+        errors.push("tag type is required");
+    }
+    else if(!(["normal", "event", "location"].includes(type))){
+        errors.push("invalid tag type");
+    }
+    else{
+        validData.type = type;
+    }
 
-        if(!TypeTool.boolean(tag)){
-            this.setError("tag is required");
-        }
-        else if(tag.trim().length < 2){
-            this.setError("tag 2 min characters");
-        }
-        else{
-            this.setValidData("tag", tag.trim());
-        }
+    if(type === "event"){
+        let {
+            day = null,
+            month = null,
+            year = null,
+            type = null
+        } = event;
 
-        if(!TypeTool.boolean(type)){
-            this.setError("tag type is required");
-        }
-        else if(!(["normal", "event", "location"].includes(type))){
-            this.setError("invalid tag type");
-        }
-        else{
-            this.setValidData("type", type);
-        }
-
-        if(type === "event"){
-            let {
-                day = null,
-                month = null,
-                year = null,
-                type = null
-            } = event;
-
-            const validEventData = {};
-            if(!TypeTool.isNullUndefined(day) && !TypeTool.isNullUndefined(month)){
-                if(typeof day !== 'number'){
-                    this.setError("day Must be Number")
-                }
-                if(typeof month !== 'number'){
-                    this.setError("month Must Number")
-                }
-                if(!TypeTool.isNullUndefined(year) && typeof year !== 'number'){
-                    year = null;
-                }
-
-                if(!['jalali', 'hijri', 'gregorian'].includes(type)){
-                    this.setError("event tag type is invalid")
-                }
-                
-                validEventData.day = day;
-                validEventData.month = month;
-                validEventData.year = year;
-                validEventData.type = type;
+        const validEventData = {};
+        if(!TypeTool.isNullUndefined(day) && !TypeTool.isNullUndefined(month)){
+            if(typeof day !== 'number'){
+                errors.push("day Must be Number");
+            }
+            if(typeof month !== 'number'){
+                errors.push("month Must Number");
+            }
+            if(!TypeTool.isNullUndefined(year) && typeof year !== 'number'){
+                year = null;
             }
 
-            this.setValidData("event", validEventData);
+            if(!['jalali', 'hijri', 'gregorian'].includes(type)){
+                errors.push("event tag type is invalid");
+            }
+            
+            validEventData.day = day;
+            validEventData.month = month;
+            validEventData.year = year;
+            validEventData.type = type;
         }
 
-        this.setValidData("location", location);
-
-        return this.getResult();
+        validData.event = validEventData;
     }
+
+    validData.location = location;
+
+    if (errors.length > 0) {
+        throw ErrorResult.badRequest(errors.join(', '));
+    }
+
+    return validData;
 }
 
-module.exports = new TagValidation();
+module.exports = {
+    createTag: validateNewTag
+};
