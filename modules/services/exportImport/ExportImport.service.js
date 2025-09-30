@@ -59,7 +59,7 @@ class ExportImportService extends Service {
         const data = await fsPromise.readFile(output, 'utf8').then(data => JSON.parse(data));
 
         const projects = await checkAndUpdateWithUUID(data.projects);
-        const tags = await TagService.checkAndUpdateWithUUID(data.tags);
+        const tags = await TagService.syncWithUUID(data.tags);
         const categories = await CategoryService.checkAndUpdateWithUUID(data.categories);
         const languages = await LanguageService.checkAndUpdateWithUUID(data.languages);
 
