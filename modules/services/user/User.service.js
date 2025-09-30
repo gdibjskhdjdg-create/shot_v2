@@ -112,6 +112,11 @@ const changePassword = async (userId, password) => {
     return true;
 };
 
+const getAdmin = async () => {
+    return await User.findOne({ where: { permission: "admin" } });
+}
+
+
 module.exports = {
     getUsers,
     findUserByPhone,
@@ -121,4 +126,5 @@ module.exports = {
     toggleUserActiveStatus,
     changePassword,
     getById,
+    getAdmin
 };
