@@ -7,7 +7,7 @@ const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckU
 async function roleRoutes(fastify, opts) {
     fastify.get("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(['roles-list', "role-manage", "user-manage"])
-    }, AsyncHandler(RoleController.getRolesList));
+    }, AsyncHandler(RoleController.getRoles));
     fastify.get("/access", AsyncHandler(RoleController.accessList));
     fastify.post("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(["role-manage"])

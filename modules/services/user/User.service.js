@@ -1,124 +1,124 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 
-const Service = require("../../_default/service");
 const TypeTool = require("../../../helper/type.tool");
 const { generatePassword } = require("./Password.service");
 const { createPaginationQuery } = require("../../../helper/SqlHelper.tool");
 
 const { User, Role } = require("../../_default/model");
 
-class UserService extends Service {
+const getUsers = async (filters = {}) => {
+    const {
+        page = null,
+        take = null,
+        fullName = null
+    } = filters;
 
-    constructor() {
-        super(User)
+    let sqlQuery = {
+        where: { permission: { [Op.not]: "admin" } },
+        include: [{
+            model: Role,
+            attributes: ['id', 'name'],
+            as: 'role'
+        }],
+    };
+
+    if (TypeTool.isnotEmpty(fullName)) {
+        sqlQuery.where.fullName = { [Op.like]: `%${String(fullName).trim()}%` };
     }
 
-    async getUsers(filters = {}) {
-        const {
-            page = null,
-            take = null,
-            fullName = null
-        } = filters;
+    sqlQuery = createPaginationQuery(sqlQuery, page, take);
+    sqlQuery.order = [['createdAt', 'DESC']];
 
-        let sqlQuery = {
-            where: { permission: { [Op.not]: "admin" } },
-            include: [{
-                model: Role,
-                attributes: ['id', 'name'],
-                as: 'role'
-            }],
-        };
+    const { rows, count } = await User.findAndCountAll({
+        distinct: true,
+        attributes: { exclude: ["fullInfo"] },
+        ...sqlQuery,
+    });
 
-        if (TypeTool.boolean(fullName)) {
-            sqlQuery.where.fullName = { [Op.like]: `%${TypeTool.string(fullName).trim()}%` }
-        }
+    return { users: rows, count };
+};
 
-        sqlQuery = createPaginationQuery(sqlQuery, page, take);
-        sqlQuery.order = [['createdAt', 'DESC']];
+const findUserByPhone = async (phone) => {
+    return await User.findOne({ where: { phone } });
+};
 
-        const response = await User.findAndCountAll({
-            distinct: true,
-            attributes: { exclude: ["fullInfo"] },
-            ...sqlQuery,
-        });
+const findAdminUser = async () => {
+    return await User.findOne({ where: { permission: "admin" } });
+};
 
-        return {
-            users: response.rows,
-            count: response.count
-        };
+const getById = async (id) => {
+    const user = await User.findByPk(id);
+    if (!user) {
+        throw new Error("User not found");
     }
-
-    async findByPhone(phone) {
-        return await User.findOne({ where: { phone } });
-    }
-
-    async findAdmin() {
-        return await User.findOne({ where: { permission: "admin" } });
-    }
-
-    async createUser(data = {}, permission = "user") {
-        const {
-            phone,
-            firstName,
-            lastName,
-            password,
-        } = data;
-
-        let hashPassword = await generatePassword(password)
-
-        const user = await User.create({
-            phone,
-            firstName,
-            lastName,
-            fullName: `${firstName} ${lastName}`,
-            permission,
-            password: hashPassword
-        });
-
-        return user;
-    }
-
-    async updateUserInfo(userId, data = {}) {
-        const {
-            firstName,
-            lastName,
-            permission,
-        } = data;
-
-        const dataToUpdate = {
-            firstName,
-            lastName,
-            fullName: `${firstName} ${lastName}`,
-        }
-
-        if (permission) {
-            dataToUpdate.permission = permission;
-        }
-
-        await User.update(dataToUpdate, { where: { id: userId } });
-
-        return;
-    }
-
-    async changeIsActive(userId) {
-        const user = await this.getById(userId);
-        user.isActive = user.isActive == 1 ? 0 : 1;
-        await user.save();
-
-        return user.isActive;
-    }
-
-    async changePassword(userId, password) {
-        const user = await this.getById(userId);
-
-        user.password = await generatePassword(password);
-
-        await user.save();
-
-        return true;
-    }
-
+    return user;
 }
 
-module.exports = new UserService()
+const createUser = async (data = {}, permission = "user") => {
+    const {
+        phone,
+        firstName,
+        lastName,
+        password,
+    } = data;
+
+    const hashedPassword = await generatePassword(password);
+
+    const user = await User.create({
+        phone,
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        permission,
+        password: hashedPassword
+    });
+
+    return user;
+};
+
+const updateUserInfo = async (userId, data = {}) => {
+    const {
+        firstName,
+        lastName,
+        permission,
+    } = data;
+
+    const dataToUpdate = {
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+    };
+
+    if (permission) {
+        dataToUpdate.permission = permission;
+    }
+
+    await User.update(dataToUpdate, { where: { id: userId } });
+};
+
+const toggleUserActiveStatus = async (userId) => {
+    const user = await getById(userId);
+    user.isActive = !user.isActive;
+    await user.save();
+
+    return user.isActive;
+};
+
+const changePassword = async (userId, password) => {
+    const user = await getById(userId);
+    user.password = await generatePassword(password);
+    await user.save();
+    return true;
+};
+
+module.exports = {
+    getUsers,
+    findUserByPhone,
+    findAdminUser,
+    createUser,
+    updateUserInfo,
+    toggleUserActiveStatus,
+    changePassword,
+    getById,
+};

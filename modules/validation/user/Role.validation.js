@@ -2,142 +2,127 @@ const TypeTool = require("../../../helper/type.tool");
 const Validation = require("../../_default/validation");
 const AccessEntity = require("../../entity/user/Access.entity");
 const RoleService = require("../../services/user/Role.service");
-const UserService = require("../../services/user/User.service")
+const UserService = require("../../services/user/User.service");
 
-class RoleValidation extends Validation {
-    constructor() {
-        super();
+const createRoleValidation = async (data = {}) => {
+    const {
+        name, access
+    } = data;
+
+    const validation = new Validation();
+
+    if (TypeTool.isEmpty(name) || name.length < 2) {
+        validation.setError("name atleast 2 characters");
+    } else {
+        const findRoleByName = await RoleService.findRoleByName(name);
+        if (findRoleByName) {
+            validation.setError("name is already exists");
+        } else {
+            validation.setValidData("name", name);
+        }
     }
 
-    async createRole(data = {}) {
-
-        const {
-            name, access
-        } = data;
-
-        this.setEmpty()
-
-        if (TypeTool.isNullUndefined(name) || name.length < 2) {
-            this.setError("name atleast  2 characters")
+    if (access && access.length) {
+        const contains = AccessEntity.getAllAccessKeys().some(key => access.includes(key));
+        if (contains) {
+            validation.setValidData("access", access);
         } else {
-            const findRoleByName = await RoleService.findRoleByName(name)
-            if (findRoleByName) {
-                this.setError("name is already exists")
-            } else {
-                this.setValidData("name", name);
+            validation.setError("invalid access");
+        }
+    }
+
+    return validation.getResult();
+};
+
+const updateRoleValidation = async (roleId, data = {}) => {
+    const {
+        name, access
+    } = data;
+
+    const validation = new Validation();
+
+    if (name !== undefined) {
+        if (name.length < 2) {
+            validation.setError("name must be more than 2 characters");
+        } else {
+            const findRoleByName = await RoleService.findRoleByName(name);
+            if (findRoleByName && findRoleByName.id != roleId) {
+                validation.setError("name is exists");
             }
         }
+        validation.setValidData("name", name);
+    }
 
-        if (access.length) {
-            const contains = AccessEntity.getAllAccessKeys().some(key => {
-                return access.includes(key);
-            });
-
+    if (access !== undefined) {
+        if (access.length === 0) {
+            validation.setValidData("access", []);
+        } else {
+            const contains = AccessEntity.getAllAccessKeys().some(key => access.includes(key));
             if (contains) {
-                this.setValidData("access", access);
+                validation.setValidData("access", access);
             } else {
-                this.setError("invalid access")
+                validation.setError("invalid access");
             }
         }
-
-
-        return this.getResult();
     }
 
-    async updateRole(roleId, data = {}) {
+    return validation.getResult();
+};
 
-        const {
-            name,
-            access
-        } = data;
+const assignRolesToUserValidation = async (userId, rolesId = []) => {
+    const validation = new Validation();
 
-        this.setEmpty()
+    await UserService.getById(userId);
 
-        if (!TypeTool.isNullUndefined(name)) {
-            if (name.length < 2) {
-                this.setError("name must be more than 2 characters")
-            } else {
-                const findRoleByName = await RoleService.findRoleByName(name)
-                if (findRoleByName && findRoleByName.id != roleId) {
-                    this.setError("name is exists")
-                }
-            }
-
-            this.setValidData("name", name);
-        }
-
-        if (!TypeTool.isNullUndefined(access)) {
-            if (access.length == 0) {
-                this.setValidData("access", []);
-            } else {
-                const contains = AccessEntity.getAllAccessKeys().some(key => {
-                    return access.includes(key);
-                });
-
-                if (contains) {
-                    this.setValidData("access", access);
-                } else {
-                    this.setError("invalid access")
-                }
-            }
-        }
-
-        return this.getResult();
+    const roles = await RoleService.getByIds(rolesId);
+    if (rolesId.length !== roles.length) {
+        validation.setError("invalid roles");
     }
 
-    async assignRolesToUser(userId, rolesId = []) {
+    validation.setValidData("userId", userId);
+    validation.setValidData("roles", rolesId);
 
-        this.setEmpty()
+    return validation.getResult();
+};
 
-        const user = await UserService.getById(userId)
+const assignRole2UserValidation = async (roleId, userId) => {
+    const validation = new Validation();
 
-        const roles = await RoleService.getByIds(rolesId)
-        if (rolesId.length != roles.length) {
-            this.setError("invalid roles")
-        }
+    await RoleService.getById(roleId);
+    await UserService.getById(userId);
 
-        this.setValidData("userId", userId);
-        this.setValidData("roles", rolesId);
-
-        return this.getResult();
-
+    const userHasRole = await RoleService.userHasRole(roleId, userId);
+    if (!userHasRole) {
+        validation.setValidData("roleId", roleId);
+        validation.setValidData("userId", userId);
+    } else {
+        validation.setError("user has not role");
     }
 
-    async assignRole2User(roleId, userId) {
+    return validation.getResult();
+};
 
-        const role = await RoleService.getById(roleId)
-        const user = await UserService.getById(userId)
+const removeRoleFromUserValidation = async (roleId, userId) => {
+    const validation = new Validation();
 
-        const userHasRole = await RoleService.userHasRole(roleId, userId)
-        if (!userHasRole) {
-            this.setValidData("roleId", roleId);
-            this.setValidData("userId", userId);
-        } else {
-            this.setError("user has not role")
-        }
+    await RoleService.getById(roleId);
+    await UserService.getById(userId);
 
-
-        return this.getResult();
-
+    const userHasRole = await RoleService.userHasRole(roleId, userId);
+    if (userHasRole) {
+        validation.setValidData("roleId", roleId);
+        validation.setValidData("userId", userId);
+    } else {
+        validation.setError("user has not role");
     }
 
-    async removeRoleFromUser(roleId, userId) {
-        const role = await RoleService.getById(roleId)
-        const user = await UserService.getById(userId)
+    return validation.getResult();
+};
 
-        const userHasRole = await RoleService.userHasRole(roleId, userId)
-        if (userHasRole) {
-            this.setValidData("roleId", roleId);
-            this.setValidData("userId", userId);
-        } else {
-            this.setError("user has not role")
-        }
-
-
-        return this.getResult();
-
-    }
-
-}
-
-module.exports = new RoleValidation();
+module.exports = {
+    createRoleValidation,
+    updateRoleValidation,
+    assignRolesToUserValidation,
+    assignRole2UserValidation,
+    removeRoleFromUserValidation
+};

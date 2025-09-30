@@ -1,60 +1,52 @@
 const BaseController = require("../../_default/controller/Base.controller");
-const RoleDTO = require("../../dto/user/Role.dto");
-const AccessEntity = require("../../entity/user/Access.entity");
 const RoleService = require("../../services/user/Role.service");
-const RoleValidation = require("../../validation/user/Role.validation");
+const { createRoleValidation, updateRoleValidation, assignRolesToUserValidation } = require("../../validation/user/Role.validation");
+const AccessEntity = require("../../entity/user/Access.entity");
 
+const accessList = async (req, res) => {
+    const access = AccessEntity.getAccessList()
+    return BaseController.ok(res, access)
+};
 
-class RoleController {
+const getRoles = async (req, res) => {
+    const roles = await RoleService.getRoles(req.query);
+    return BaseController.ok(res, roles);
+};
 
-    async accessList(req, res) {
-        const access = AccessEntity.getAccessList()
-        return BaseController.ok(res, access)
-    }
+const getRole = async (req, res) => {
+    const role = await RoleService.getById(req.params.roleId);
+    return BaseController.ok(res, role);
+};
 
-    // async test(req, res) {
+const createRole = async (req, res) => {
+    const data = await createRoleValidation(req.body);
+    const role = await RoleService.createRole(data);
+    return BaseController.ok(res, role);
+};
 
-    //     const {userId} = req.params
+const updateRole = async (req, res) => {
+    const data = await updateRoleValidation(req.params.roleId, req.body);
+    await RoleService.updateRole(req.params.roleId, data);
+    return BaseController.ok(res);
+};
 
-    //     return BaseController.ok(res)
-    // }
+const deleteRole = async (req, res) => {
+    await RoleService.deleteRole(req.params.roleId);
+    return BaseController.ok(res);
+};
 
-    async getRolesList(req, res) {
+const assignRolesToUser = async (req, res) => {
+    const { userId, roles } = await assignRolesToUserValidation(req.body.userId, req.body.roles);
+    await RoleService.assignRolesToUser(userId, roles);
+    return BaseController.ok(res);
+};
 
-        const roles = await RoleService.getRoles()
-
-        return BaseController.ok(res, RoleDTO.create(roles))
-    }
-
-    async createRole(req, res) {
-
-        const validation = await RoleValidation.createRole(req.body)
-        await RoleService.createRole(validation)
-
-        return BaseController.ok(res)
-    }
-
-    async updateRole(req, res) {
-        const { roleId } = req.params
-
-        const validation = await RoleValidation.updateRole(roleId, req.body)
-        await RoleService.updateRole(roleId, validation)
-
-        return BaseController.ok(res)
-    }
-
-    async deleteRole(req, res) {
-        const { roleId } = req.params
-        await RoleService.deleteRole(roleId)
-        return BaseController.ok(res)
-    }
-
-    async assignRolesToUser(req, res) {
-        const { userId } = req.params
-        const { userId: validateUserId, roles } = await RoleValidation.assignRolesToUser(userId, req.body)
-        await RoleService.assignRolesToUser(validateUserId, roles)
-        return BaseController.ok(res)
-    }
-}
-
-module.exports = new RoleController();
+module.exports = {
+    accessList,
+    getRoles,
+    getRole,
+    createRole,
+    updateRole,
+    deleteRole,
+    assignRolesToUser
+};

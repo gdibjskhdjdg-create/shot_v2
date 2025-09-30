@@ -19,27 +19,29 @@ async function userRoutes(fastify, opts) {
     // const userRoutesWithAuth = async (fastify, opts) => {
     fastify.get('/', {
         preHandler: CheckUserHaveValidAccessMiddleware(['users-list', 'user-manage'])
-    }, AsyncHandler(UserController.getUserList));
+    }, AsyncHandler(UserController.listUsers));
 
     fastify.post("/register", {
         preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.userRegister));
+    }, AsyncHandler(UserController.createNewUser));
 
     fastify.patch("/updateInfo/:userId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.updateInfo));
+    }, AsyncHandler(UserController.updateUser));
 
     fastify.patch("/changeUserPassword/:userId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.changeUserPassword));
-
-    fastify.patch("/changeIsActive", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.changeUserIsActive));
+    }, AsyncHandler(UserController.updateUserPassword));
 
     fastify.patch("/changePassword", {
         preHandler: OnlyLoginUserMiddleware([])
-    }, AsyncHandler(UserController.changePassword));
+    }, AsyncHandler(UserController.updatePassword));
+    
+    fastify.patch("/changeIsActive", {
+        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
+    }, AsyncHandler(UserController.toggleUserStatus));
+
+
 
     //     // other routes similarly with preHandlers if needed
     // }
