@@ -1,5 +1,5 @@
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const UserListResponse = require("../../dto/user/UserList.response");
 const UserService = require("../../services/user/User.service");
 const UserValidation = require("../../validation/user/User.validation");
@@ -9,7 +9,7 @@ async function getUserList(req, res) {
     const query = getDataFromReqQuery(req);
     const users = await UserService.getUsers(query);
 
-    return BaseController.ok(res, { users: UserListResponse.create(users.users), count: users.count })
+    return ResponseDTO.success(res, { users: UserListResponse.create(users.users), count: users.count })
 }
 
 async function userRegister(req, res) {
@@ -18,7 +18,7 @@ async function userRegister(req, res) {
     const validData = await UserValidation.createUser(body);
     const user = await UserService.createUser(validData, validData.permission);
 
-    return BaseController.ok(res, { user });
+    return ResponseDTO.success(res, { user });
 }
 
 async function updateInfo(req, res) {
@@ -28,7 +28,7 @@ async function updateInfo(req, res) {
     const validData = await UserValidation.updateUserInfo(body);
     await UserService.updateUserInfo(userId, validData);
 
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 async function changeUserPassword(req, res) {
@@ -36,7 +36,7 @@ async function changeUserPassword(req, res) {
     const { userId } = req.params;
     const { password } = UserValidation.changePassword(body);
     await UserService.changePassword(userId, password);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 
 }
 
@@ -46,14 +46,14 @@ async function changePassword(req, res) {
 
     const { password } = UserValidation.changePassword(body);
     await UserService.changePassword(user.id, password);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 async function changeUserIsActive(req, res) {
     const { userId } = req.body;
 
     const isActive = await UserService.changeIsActive(userId);
-    return BaseController.ok(res, { isActive });
+    return ResponseDTO.success(res, { isActive });
 
 }
 

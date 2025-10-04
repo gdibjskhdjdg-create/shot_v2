@@ -9,8 +9,8 @@ async function categoryRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
     fastify.get("/", AsyncHandler(CategoryController.get));
-    fastify.get("/list", AsyncHandler(CategoryController.getList));
-    fastify.get("/shots/:id", AsyncHandler(CategoryController.getShots));
+    fastify.get("/list", AsyncHandler(CategoryController.list));
+    fastify.get("/shots/:id", AsyncHandler(CategoryController.shots));
     fastify.post("/", AsyncHandler(CategoryController.create));
     fastify.patch("/:id",
         {
@@ -20,11 +20,11 @@ async function categoryRoutes(fastify, opts) {
     fastify.delete("/:id",
         {
             preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(CategoryController.delete));
+        }, AsyncHandler(CategoryController.destroy));
 
     fastify.delete("/:id/:shotId",
         {
             preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(CategoryController.detachShot));
+        }, AsyncHandler(CategoryController.removeShot));
 }
 module.exports = categoryRoutes;

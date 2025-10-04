@@ -1,4 +1,4 @@
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const { equalizerService } = require("../../services/shotList/index");
@@ -16,7 +16,7 @@ async function getVideoFileOfPathForEqualizer(req, res) {
 
     const videoFiles = await equalizerService.getVideoFilesOfProjectPath(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 async function getEqualizeList(req, res) {
@@ -34,14 +34,14 @@ async function getEqualizeList(req, res) {
         ...filters
     });
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 async function getEqualizeCompare(req, res) {
     const { equalizeId } = req.params;
 
     const response = await equalizerService.getCompare(equalizeId);
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function startEqualizeProcess(req, res) {
@@ -49,7 +49,7 @@ async function startEqualizeProcess(req, res) {
     const { user } = req;
 
     await equalizerService.startEqualize(shotId, user.id);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 async function submitStatusEqualizerShot(req, res) {
@@ -58,7 +58,7 @@ async function submitStatusEqualizerShot(req, res) {
     const { status, description, newData, oldData } = req.body;
 
     await equalizerService.submitStatusEqualizeShot(shotId, user.id, { status, description, newData, oldData })
-    return BaseController.ok(res)
+    return ResponseDTO.success(res)
 }
 
 async function getReports(req, res) {
@@ -70,7 +70,7 @@ async function getReports(req, res) {
 
     let response = await equalizerService.getEqualizeReport(queries);
 
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 module.exports = {

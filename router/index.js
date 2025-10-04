@@ -1,4 +1,4 @@
-// const BaseController = require("../app/controllers/Base.controller");
+// const ResponseDTO.success = require("../app/controllers/Base.controller");
 const ErrorResult = require("../helper/error.tool");
 const SetUserInfoMiddleware = require("../modules/middleware/user/SetUserInfo.middleware");
 

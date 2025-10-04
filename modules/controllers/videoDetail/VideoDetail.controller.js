@@ -1,5 +1,5 @@
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const VideoDetailListResponse = require("../../dto/videoDetail/VideoDetailList.response");
 const { videoDetailService, videoDetailExportService, videoDetailImportService } = require("../../services/videoDetail/index");
 const videoDetailValidation = require("../../validation/videoDetail/videoDetail.validation");
@@ -33,7 +33,7 @@ async function getList(req, res) {
 
     const { videoDetails, count } = await videoDetailService.videoDetailList(filters);
 
-    return BaseController.ok(res, { videoDetails: VideoDetailListResponse.create(videoDetails), count });
+    return ResponseDTO.success(res, { videoDetails: VideoDetailListResponse.create(videoDetails), count });
 }
 
 async function getAllList(req, res) {
@@ -46,14 +46,14 @@ async function getAllList(req, res) {
 
     const { videoDetails, count } = await videoDetailService.videoDetailList(filters);
 
-    return BaseController.ok(res, { videoDetails: VideoDetailListResponse.create(videoDetails), count });
+    return ResponseDTO.success(res, { videoDetails: VideoDetailListResponse.create(videoDetails), count });
 }
 
 async function getDetail(req, res) {
     const { videoFileId } = req.params;
 
     const response = await videoDetailService.detail(videoFileId);
-    return BaseController.ok(res, response?.[0]);
+    return ResponseDTO.success(res, response?.[0]);
 }
 
 async function setOwner2FilesProject(req, res) {
@@ -61,13 +61,13 @@ async function setOwner2FilesProject(req, res) {
     const { ownerId } = req.body
 
     await videoDetailService.setOwner2VideosOfProject(projectId, ownerId);
-    return BaseController.ok(res, {})
+    return ResponseDTO.success(res, {})
 }
 
 async function getVideoDetailsOfVideoFile(req, res) {
     const videoFileId = req.params.videoFileId;
     const response = await videoDetailService.getSections_Service(videoFileId);
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function updateVideoDetail(req, res) {
@@ -80,7 +80,7 @@ async function updateVideoDetail(req, res) {
         req.user.id,
         validData
     );
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateInitVideoDetail(req, res) {
@@ -91,7 +91,7 @@ async function updateInitVideoDetail(req, res) {
     const validData = await videoDetailValidation.updateVideoDetail(body);
     const response = await videoDetailService.initToCleaningVideoDetail(videoFileId, userId, validData);
 
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateCleaningVideoDetail(req, res) {
@@ -105,20 +105,20 @@ async function updateCleaningVideoDetail(req, res) {
         ...validData,
         ...validStatus
     });
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateVideoDetailStatus(req, res) {
     const { changeToStatus, videoFileIds, isExcludeMode, ...filters } = req.body;
     const { status } = videoDetailValidation.checkStatus(changeToStatus);
     await videoDetailService.updateVideoDetailStatus_Service(videoFileIds, isExcludeMode, filters, status);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 async function updateVideoDetailScores(req, res) {
     const { scores, videoFileIds, isExcludeMode, ...filters } = req.body;
     await videoDetailService.updateVideoDetailScores_Service(req.user.id, videoFileIds, isExcludeMode, filters, scores);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 
@@ -126,7 +126,7 @@ async function getExportInfoVideos(req, res) {
     const query = getDataFromReqQuery(req);
     const { videos, isExcludeMode, ...filters } = query
     const info = await videoDetailService.getExportInfoVideos({ videos, isExcludeMode, filters })
-    return BaseController.ok(res, info)
+    return ResponseDTO.success(res, info)
 }
 
 async function getVideoDetailSpecial(req, res) {
@@ -149,14 +149,14 @@ async function getVideoDetailSpecial(req, res) {
 
     const { videoDetails, count } = await videoDetailService.specialVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoDetail: VideoDetailListResponse.create(videoDetails), count });
+    return ResponseDTO.success(res, { videoDetail: VideoDetailListResponse.create(videoDetails), count });
 }
 
 async function getExportVideoDetailIds(req, res) {
     const query = getDataFromReqQuery(req);
     const { videoDetails, isExcludeMode, ...filters } = query
     const videoIds = await videoDetailExportService.getExportVideoDetailsId(videoDetails, isExcludeMode, filters)
-    return BaseController.ok(res, videoIds)
+    return ResponseDTO.success(res, videoIds)
 }
 
 async function exportVideoDetailSpecial(req, res) {
@@ -176,7 +176,7 @@ async function exportVideoDetailSpecial(req, res) {
 
     const response = await videoDetailExportService.exportSpecialVideoDetail(exportType, filters)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function exportVideoDetails(req, res) {
@@ -186,30 +186,30 @@ async function exportVideoDetails(req, res) {
     const validData = videoDetailValidation.exportVideoDetails(query.videoDetailsId);
     const response = await videoDetailExportService.exportVideoDetail(exportType, validData.videoDetailsId)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function exportExcel(req, res) {
     const { exportType, videoDetailId } = req.params;
     const videoDetails = await videoDetailExportService.exportVideoDetail(exportType, [videoDetailId])
-    return BaseController.ok(res, videoDetails)
+    return ResponseDTO.success(res, videoDetails)
 }
 
 async function exportVideoDetailsPath(req, res) {
     const { exportType } = req.params;
     const filters = getDataFromReqQuery(req);
     const videoDetails = await videoDetailExportService.exportSpecialVideoDetailPath(exportType, filters)
-    return BaseController.ok(res, videoDetails)
+    return ResponseDTO.success(res, videoDetails)
 }
 
 async function uploadExcel(req, res) {
     await videoDetailImportService.storeExcelFile(req);
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 async function uploadRemovalExcel(req, res) {
     await videoDetailImportService.storeRemovalExcelFile(req)
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 
 }
 
@@ -217,7 +217,7 @@ async function aiTagsTotalReport(req, res) {
     const query = getDataFromReqQuery(req);
 
     let response = await videoDetailService.getVideoDetailTotalReport(query)
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 
@@ -225,31 +225,31 @@ async function aiTagsReport(req, res) {
     const query = getDataFromReqQuery(req);
 
     let { rows, count } = await videoDetailService.videoDetailAiTagsList(query)
-    return BaseController.ok(res, { rows, count });
+    return ResponseDTO.success(res, { rows, count });
 }
 
 async function aiTagsDetail(req, res) {
     const { videoFileId } = req.params;
     let { allTags, aiTags, videoUrl } = await videoDetailService.videoDetailAiTagsReport(+videoFileId)
-    return BaseController.ok(res, { videoUrl, allTags: TagResponse.create(allTags), aiTags: TagResponse.create(aiTags) });
+    return ResponseDTO.success(res, { videoUrl, allTags: TagResponse.create(allTags), aiTags: TagResponse.create(aiTags) });
 }
 
 async function generateListLink(req, res) {
     const link = await videoDetailService.generateFilterListLink(req.body)
-    return BaseController.ok(res, { link })
+    return ResponseDTO.success(res, { link })
 }
 
 async function getVideoListWithCode(req, res) {
     const { uuid } = req.params;
     const { page = 1, take = 10 } = getDataFromReqQuery(req);
     const { videoDetails, count } = await videoDetailService.getVideoListWithCode(uuid, { page, take })
-    return BaseController.ok(res, { videoDetail: VideoDetailListResponse.create(videoDetails), count });
+    return ResponseDTO.success(res, { videoDetail: VideoDetailListResponse.create(videoDetails), count });
 }
 
 async function getDetailWithUUID(req, res) {
     const { videoFileId, uuid } = req.params;
     const response = await videoDetailService.validateCodeWithVideoId(videoFileId, uuid);
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 

@@ -1,5 +1,5 @@
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const TagResponse = require("../../dto/tag/Tag.response");
 const TagCategoryService = require("../../services/tag/TagCategory.service");
 const TagCategoryValidation = require("../../validation/tag/TagCategory.validation");
@@ -20,7 +20,7 @@ async function getList(req, res) {
         getTags: true
     });
 
-    return BaseController.ok(res, { categories: categories.rows, count: categories.count });
+    return ResponseDTO.success(res, { categories: categories.rows, count: categories.count });
 }
 
 async function searchTag(req, res) {
@@ -33,7 +33,7 @@ async function searchTag(req, res) {
 
     const tags = await TagCategoryService.getTagCategories({ search, type, page, take });
 
-    return BaseController.ok(res, { tags: TagResponse.create(tags.rows), count: tags.count });
+    return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }
 
 async function showCategory(req, res) {
@@ -41,7 +41,7 @@ async function showCategory(req, res) {
 
     const category = await TagCategoryService.showCategory(tagCategoryId);
 
-    return BaseController.ok(res, category);
+    return ResponseDTO.success(res, category);
 }
 
 async function getDetail(req, res) {
@@ -49,7 +49,7 @@ async function getDetail(req, res) {
 
     const tag = await TagCategoryService.getTagDetail(tagId);
 
-    return BaseController.ok(res, tag);
+    return ResponseDTO.success(res, tag);
 }
 
 async function createTagCategory(req, res) {
@@ -57,7 +57,7 @@ async function createTagCategory(req, res) {
 
     const data = TagCategoryValidation.createTagCategory(body);
     const category = await TagCategoryService.createCategory(data)
-    return BaseController.ok(res, { tagCategoryId: category.id });
+    return ResponseDTO.success(res, { tagCategoryId: category.id });
 }
 
 async function editTagCategory(req, res) {
@@ -66,14 +66,14 @@ async function editTagCategory(req, res) {
 
     const data = TagCategoryValidation.createTagCategory(body);
     const tag = await TagCategoryService.editCategory(tagCategoryId, data);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 async function deleteTagCategory(req, res) {
     const { tagCategoryId } = req.params;
 
     await TagCategoryService.deleteCategory(tagCategoryId);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 

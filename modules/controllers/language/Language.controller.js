@@ -1,37 +1,64 @@
-const LanguageResponse = require("../../dto//language/Language.response");
 const LanguageService = require("../../services/language/Language.service");
 const LanguageValidation = require("../../validation/language/Language.validation");
+const LanguageResponse = require("../../dto/language/Language.response");
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
-const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 
-class LanguageController extends SampleCRUD_Controller {
-    constructor() {
-        super({
-            validation: LanguageValidation,
-            service: LanguageService,
-            Response: LanguageResponse
-        })
-    }
+async function get(req, res) {
+    const query = getDataFromReqQuery(req);
+    const response = await LanguageService.get(query);
 
-    async getList(req, res) {
-        const query = getDataFromReqQuery(req);
-        const list = await LanguageService.getList(query)
-        return BaseController.ok(res, list)
-    }
-
-    async getShots(req, res) {
-        const { id } = req.params
-        const query = getDataFromReqQuery(req);
-        const shots = await LanguageService.getShotsOfLanguage(id, query)
-        return BaseController.ok(res, shots)
-    }
-
-    async detachShot(req, res) {
-        const { id, shotId } = req.params
-        await LanguageService.detachShotFromLanguage(id, shotId)
-        return BaseController.ok(res)
-    }
+    return ResponseDTO.success(res, LanguageResponse.create(response));
 }
 
-module.exports = new LanguageController()
+async function create(req, res) {
+    const validData = await LanguageValidation.create(req.body);
+    const response = await LanguageService.create(validData);
+
+    return ResponseDTO.success(res, LanguageResponse.create(response));
+}
+
+async function update(req, res) {
+    const { id } = req.params;
+    const validData = await LanguageValidation.update(id, req.body);
+    const response = await LanguageService.update(id, validData);
+
+    return ResponseDTO.success(res, LanguageResponse.create(response));
+}
+
+async function destroy(req, res) {
+    const { id } = req.params;
+    await LanguageService.delete(id);
+    return ResponseDTO.success(res);
+}
+
+
+async function list(req, res) {
+    const query = getDataFromReqQuery(req);
+    const list = await LanguageService.getList(query)
+    return ResponseDTO.success(res, list)
+}
+
+async function shots(req, res) {
+    const { id } = req.params
+    const query = getDataFromReqQuery(req);
+    const shots = await LanguageService.getShotsOfLanguage(id, query)
+    return ResponseDTO.success(res, shots)
+}
+
+async function removeShot(req, res) {
+    const { id, shotId } = req.params
+    await LanguageService.detachShotFromLanguage(id, shotId)
+    return ResponseDTO.success(res)
+}
+
+
+module.exports = {
+    get,
+    list,
+    create,
+    update,
+    destroy,
+    shots,
+    removeShot
+}

@@ -1,5 +1,5 @@
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const ShotListResponse = require("../../dto/shotList/ShotList.response");
 const ShotListQuery = require("../../dto/shotList/ShotList.query");
 const { shotService, shotExportService } = require("../../services/shotList/index");
@@ -9,14 +9,14 @@ const ErrorResult = require('../../../helper/error.tool');
 
 async function getBasicInfo(req, res) {
     const response = await shotService.getBasicInfoForShot();
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function getExportInfoShots(req, res) {
     const query = getDataFromReqQuery(req);
     const { shots, isExcludeMode, ...filters } = query
     const info = await shotService.getExportInfoShots({ shots, isExcludeMode, filters })
-    return BaseController.ok(res, info)
+    return ResponseDTO.success(res, info)
 }
 
 async function getShotList(req, res) {
@@ -45,7 +45,7 @@ async function getShotList(req, res) {
 
     const { shots, count } = await shotService.shotList(filters);
 
-    return BaseController.ok(res, { shots: ShotListResponse.create(shots), count });
+    return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
 async function getMeetingShotList(req, res) {
@@ -63,7 +63,7 @@ async function getMeetingShotList(req, res) {
 
     const { shots, count } = await shotService.shotList(filters);
 
-    return BaseController.ok(res, { shots: ShotListResponse.create(shots), count });
+    return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
 async function getShotListSpecial(req, res) {
@@ -85,14 +85,14 @@ async function getShotListSpecial(req, res) {
 
     const { shots, count } = await shotService.specialShotList(filters);
 
-    return BaseController.ok(res, { shots: ShotListResponse.create(shots), count });
+    return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
 async function getShotDetail(req, res) {
     const { id } = req.params;
 
     const response = await shotService.detail(id);
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function updateInitShot(req, res) {
@@ -102,7 +102,7 @@ async function updateInitShot(req, res) {
 
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.updateInitShot(id, userId, validData);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateEditorShot(req, res) {
@@ -112,7 +112,7 @@ async function updateEditorShot(req, res) {
 
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.updateEditorShot(id, userId, validData);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateEqualizingShot(req, res) {
@@ -122,7 +122,7 @@ async function updateEqualizingShot(req, res) {
 
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.updateEqualizingShot(id, userId, validData);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateNeedMeetingShot(req, res) {
@@ -132,7 +132,7 @@ async function updateNeedMeetingShot(req, res) {
 
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.updateEqualizingShot(id, userId, validData);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateShot(req, res) {
@@ -142,7 +142,7 @@ async function updateShot(req, res) {
 
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.updateShot(id, userId, validData);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function updateShotStatus(req, res) {
@@ -155,7 +155,7 @@ async function updateShotStatus(req, res) {
     }
 
     await shotService.updateStatus(id, status)
-    return BaseController.ok(res)
+    return ResponseDTO.success(res)
 
 }
 
@@ -163,21 +163,21 @@ async function deleteShot(req, res) {
     const id = req.params.id;
 
     const response = await shotService.deleteShot(id);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function deleteShotOfProject(req, res) {
     const { projectId } = req.params;
 
     const response = await shotService.deleteShotsOfProject(projectId);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function deleteShotsOfVideoFile(req, res) {
     const { videoFileId } = req.params;
 
     const response = await shotService.deleteShotsOfVideoFile(videoFileId);
-    return BaseController.ok(res, response)
+    return ResponseDTO.success(res, response)
 }
 
 async function createInitShot(req, res) {
@@ -189,7 +189,7 @@ async function createInitShot(req, res) {
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.createInitShotForVideoFile(videoFileId, userId, validData);
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function createEditorShot(req, res) {
@@ -201,7 +201,7 @@ async function createEditorShot(req, res) {
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.createEditorShotForVideoFile(videoFileId, userId, validData);
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function createEqualizingShot(req, res) {
@@ -213,7 +213,7 @@ async function createEqualizingShot(req, res) {
     const validData = await shotValidation.updateShot(body);
     const response = await shotService.createEditorShotForVideoFile(videoFileId, userId, validData);
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 // ====shots of video =====================================
@@ -221,7 +221,7 @@ async function getShotOfVideoFile(req, res) {
     const { videoFileId } = req.params
     const query = getDataFromReqQuery(req);
     const response = await shotService.getSections_Service(videoFileId, query);
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function getInitShotOfVideoFile(req, res) {
@@ -232,7 +232,7 @@ async function getInitShotOfVideoFile(req, res) {
 
     const videoFiles = await shotService.getSections_Service(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 async function getEditorShotOfVideoFile(req, res) {
@@ -243,7 +243,7 @@ async function getEditorShotOfVideoFile(req, res) {
 
     const videoFiles = await shotService.getSections_Service(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 async function getEqualizingShotOfVideoFile(req, res) {
@@ -254,7 +254,7 @@ async function getEqualizingShotOfVideoFile(req, res) {
 
     const videoFiles = await shotService.getSections_Service(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 async function exportShotListSpecial(req, res) {
@@ -274,14 +274,14 @@ async function exportShotListSpecial(req, res) {
 
     const response = await shotExportService.exportSpecialShot(exportType, filters)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function getExportShotsId(req, res) {
     const query = getDataFromReqQuery(req);
     const { shots, isExcludeMode, ...filters } = query
     const shotsId = await shotExportService.getExportShotsId(shots, isExcludeMode, filters)
-    return BaseController.ok(res, shotsId)
+    return ResponseDTO.success(res, shotsId)
 }
 
 async function exportShots(req, res) {
@@ -291,7 +291,7 @@ async function exportShots(req, res) {
     const validData = shotValidation.exportShots(query.shotsId);
     const response = await shotExportService.exportShot(exportType, validData.shotsId)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function exportShotsOfProject(req, res) {
@@ -302,7 +302,7 @@ async function exportShotsOfProject(req, res) {
     // const validData = shotValidation.exportShots(query.shotsId);
     const response = await shotExportService.exportShotsOfProject(exportType, projectId)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function exportShotsOfVideo(req, res) {
@@ -313,18 +313,18 @@ async function exportShotsOfVideo(req, res) {
     // const validData = shotValidation.exportShots(query.shotsId);
     const response = await shotExportService.exportShotsOfVideo(exportType, videoFileId)
 
-    return BaseController.ok(res, response);
+    return ResponseDTO.success(res, response);
 }
 
 async function exportExcel(req, res) {
     const { exportType, shotId } = req.params;
     const shots = await shotExportService.exportShot(exportType, [shotId])
-    return BaseController.ok(res, shots)
+    return ResponseDTO.success(res, shots)
 }
 
 async function uploadExcel(req, res) {
     await ShotImportFileService.storeExcelFile(req);
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 

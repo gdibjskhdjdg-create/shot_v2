@@ -1,4 +1,4 @@
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const VideoDetailScoreResponse = require("../../dto/videoDetail/VideoDetailScore.response");
 
 const { videoDetailScoreService } = require("../../services/videoDetail/index");
@@ -6,13 +6,13 @@ const videoDetailScoreValidation = require("../../validation/videoDetail/videoDe
 
 const listBySection = async (req, res) => {
     const list = await videoDetailScoreService.getItemsOfScore(req.user)
-    return BaseController.ok(res, list)
+    return ResponseDTO.success(res, list)
 }
 
 const fetchItems = async (req, res) => {
     const { videoFileId } = req.params
     const list = await videoDetailScoreService.getAllList(req.user, videoFileId)
-    return BaseController.ok(res, VideoDetailScoreResponse.create(list))
+    return ResponseDTO.success(res, VideoDetailScoreResponse.create(list))
 }
 
 const store = async (req, res) => {
@@ -22,7 +22,7 @@ const store = async (req, res) => {
     const { scores } = validation
 
     await videoDetailScoreService.storeScore({ user: req.user, videoFileId, scores })
-    return BaseController.ok(res)
+    return ResponseDTO.success(res)
 }
 
 module.exports = {

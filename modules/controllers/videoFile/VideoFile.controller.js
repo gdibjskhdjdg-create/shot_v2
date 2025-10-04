@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
-const BaseController = require("../../_default/controller/Base.controller");
+const ResponseDTO = require("../../_default/Response.dto");
 const { videoFileService } = require("../../services/videoFile/index");
 const VideoFileResponse = require('../../dto/videoFile/VideoFile.response');
 const VideoFileListQuery = require('../../dto/videoFile/VideoFileList.query');
@@ -28,7 +28,7 @@ const getVideoFileList = async (req, res) => {
 
     const { videoFiles, count } = await videoFileService.getVideoFileList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoFileResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoFileResponse.create(videoFiles), count });
 }
 
 const getVideoFileListCanBeShot = async (req, res) => {
@@ -53,7 +53,7 @@ const getVideoFileListCanBeShot = async (req, res) => {
 
     const { videoFiles, count } = await videoFileService.getVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
 const getInitCheckVideoFileListCanBeShot = async (req, res) => {
@@ -76,7 +76,7 @@ const getInitCheckVideoFileListCanBeShot = async (req, res) => {
     }
     const { videoFiles, count } = await videoFileService.getInitVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
 const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
@@ -91,7 +91,7 @@ const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
 
     const { videoFiles, count } = await videoFileService.getEditorVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
 const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
@@ -106,7 +106,7 @@ const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
 
     const { videoFiles, count } = await videoFileService.getEqualizingVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
 const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
@@ -121,7 +121,7 @@ const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
 
     const { videoFiles, count } = await videoFileService.getEqualizedVideoDetailList(filters);
 
-    return BaseController.ok(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
 // get video file of path ******************
@@ -149,7 +149,7 @@ const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
 
 //     const videoFiles = await videoFileService.getDetailOfFolder(filters);
 
-//     return BaseController.ok(res, videoFiles);
+//     return ResponseDTO.success(res, videoFiles);
 // }
 
 const getInitCheckVideoFileOfPath = async (req, res) => {
@@ -173,7 +173,7 @@ const getInitCheckVideoFileOfPath = async (req, res) => {
     console.log(111111, filters)
     const videoFiles = await videoFileService.getInitCheckDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getEditorVideoFileOfPath = async (req, res) => {
@@ -188,7 +188,7 @@ const getEditorVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getEditorDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getEqualizingVideoFileOfPath = async (req, res) => {
@@ -203,7 +203,7 @@ const getEqualizingVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getEqualizingDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getEqualizedVideoFileOfPath = async (req, res) => {
@@ -218,7 +218,7 @@ const getEqualizedVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getEqualizedDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getInitVideoFileOfPath = async (req, res) => {
@@ -241,7 +241,7 @@ const getInitVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getInitVideoDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getCleaningVideoFileOfPath = async (req, res) => {
@@ -256,7 +256,7 @@ const getCleaningVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getCleaningVideoDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getCleanedVideoFileOfPath = async (req, res) => {
@@ -271,13 +271,13 @@ const getCleanedVideoFileOfPath = async (req, res) => {
 
     const videoFiles = await videoFileService.getCleaningVideoDetailFolder(filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getVideoFileDetail = async (req, res) => {
     const { videoFileId } = req.params;
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId);
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const getInitVideoFileDetail = async (req, res) => {
@@ -288,7 +288,7 @@ const getInitVideoFileDetail = async (req, res) => {
 
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const getEditorVideoFileDetail = async (req, res) => {
@@ -298,7 +298,7 @@ const getEditorVideoFileDetail = async (req, res) => {
 
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles);
+    return ResponseDTO.success(res, videoFiles);
 }
 
 const getEqualizingVideoFileDetail = async (req, res) => {
@@ -309,7 +309,7 @@ const getEqualizingVideoFileDetail = async (req, res) => {
 
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId, filters);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const getVideoFileLog = async (req, res) => {
@@ -317,14 +317,14 @@ const getVideoFileLog = async (req, res) => {
 
     const logs = await videoFileService.getVideoFileLog(videoFileId);
 
-    return BaseController.ok(res, logs)
+    return ResponseDTO.success(res, logs)
 }
 
 const setImportantEncodeVideo = async (req, res) => {
     const { videoFileId } = req.params;
     const { isImportant } = req.body
     await videoFileService.setImportantEncodeVideo(+videoFileId, isImportant)
-    return BaseController.ok(res)
+    return ResponseDTO.success(res)
 }
 
 // assign to user ***********************
@@ -333,7 +333,7 @@ const reassignProjectVideoFileBy = async (req, res) => {
 
     const videoFiles = await videoFileService.assignToUserByVideoFileIdProjectId(projectId, videoFileId, userId);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const reassignVideosByPath = async (req, res) => {
@@ -342,7 +342,7 @@ const reassignVideosByPath = async (req, res) => {
 
     const videoFiles = await videoFileService.assignVideosPath2User(userId, projectId, path);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const reassignVideosOfProject2User = async (req, res) => {
@@ -350,13 +350,13 @@ const reassignVideosOfProject2User = async (req, res) => {
 
     const videoFiles = await videoFileService.assignVideosOfProject2User(projectId, userId);
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const reassignVideo2User = async (req, res) => {
     const { videoFileId, userId } = req.params;
     const videoFiles = await videoFileService.assignVideoFile2User(videoFileId, userId);
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 
 const assignVideoToUser = async (req, res) => {
@@ -369,7 +369,7 @@ const assignVideoToUser = async (req, res) => {
 
     const videoFiles = await videoFileService.assignVideoFileByQuery(videoFileId, { userId, originalPath, projectId });
 
-    return BaseController.ok(res, videoFiles)
+    return ResponseDTO.success(res, videoFiles)
 }
 // **************************************
 
@@ -385,30 +385,30 @@ const setImportantVideosOfProject = async (req, res) => {
 
     await videoFileService.setImportantOfVideosOfProject(projectId, isImportant)
 
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 const deleteVideoFile = async (req, res) => {
     const { videoFileId } = req.params;
     await videoFileService.deleteVideoFile(videoFileId);
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 const deleteVideoMainFile = async (req, res) => {
     const { projectId } = req.params;
     await videoFileService.deleteMainFileOfProject(projectId);
-    return BaseController.ok(res);
+    return ResponseDTO.success(res);
 }
 
 const uploadVideoFile = async (req, res) => {
     await videoFileService.uploadVideoFile(req);
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 const reassignVideoFile = async (req, res) => {
     const { videoFileId } = req.params
     await videoFileService.uploadVideoFile(req, { videoId: videoFileId });
-    return BaseController.ok(res, {});
+    return ResponseDTO.success(res, {});
 }
 
 const showVideoFile = async (req, reply) => {
@@ -453,7 +453,7 @@ const updateFileInfo = async (req, res) => {
     const body = req.body;
 
     await videoFileService.updateFileInfo_Service(videoFileId, body)
-    return BaseController.ok(res)
+    return ResponseDTO.success(res)
 }
 
 module.exports = {

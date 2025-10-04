@@ -1,7 +1,7 @@
 const TypeTool = require("./type.tool");
-const BaseController = require("../modules/_default/controller/Base.controller");
 const ErrorResult = require("./error.tool");
 const { ValidationError } = require("sequelize");
+const ResponseDTO = require("../modules/_default/Response.dto");
 
 function AsyncHandler(fn) {
     return async function (request, reply) {
@@ -24,7 +24,7 @@ function AsyncHandler(fn) {
                 err = ErrorResult.badRequest(err.errors.map(item => item.message));
             }
 
-            return BaseController.fail(
+            return ResponseDTO.error(
                 reply,
                 ErrorResult.internal(err, null, functionName)
             );
