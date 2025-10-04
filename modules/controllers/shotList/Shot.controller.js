@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const ShotListResponse = require("../../dto/shotList/ShotList.response");
 const ShotListQuery = require("../../dto/shotList/ShotList.query");
@@ -13,8 +12,7 @@ async function getBasicInfo(req, res) {
 }
 
 async function getExportInfoShots(req, res) {
-    const query = getDataFromReqQuery(req);
-    const { shots, isExcludeMode, ...filters } = query
+    const { shots, isExcludeMode, ...filters } = req.query
     const info = await shotService.getExportInfoShots({ shots, isExcludeMode, filters })
     return ResponseDTO.success(res, info)
 }
@@ -27,9 +25,8 @@ async function getShotList(req, res) {
         throw ErrorResult.notFound()
     }
 
-    const query = getDataFromReqQuery(req);
     const filters = ShotListQuery.create({
-        page: 1, take: 10, ...query
+        page: 1, take: 10, ...req.query
     });
 
     filters.status = status == 'equalized' ? ['equalize_confirm', 'equalize_confirm_edit', 'equalize_need_meeting'] : status
@@ -49,9 +46,8 @@ async function getShotList(req, res) {
 }
 
 async function getMeetingShotList(req, res) {
-    const query = getDataFromReqQuery(req);
     const filters = ShotListQuery.create({
-        page: 1, take: 10, ...query
+        page: 1, take: 10, ...req.query
     });
 
     filters.status = 'equalize_need_meeting'
@@ -67,11 +63,10 @@ async function getMeetingShotList(req, res) {
 }
 
 async function getShotListSpecial(req, res) {
-    const query = getDataFromReqQuery(req);
     const filters = {
         page: 1,
         take: 10,
-        ...query
+        ...req.query
     };
 
     const user = req.user;
@@ -219,8 +214,7 @@ async function createEqualizingShot(req, res) {
 // ====shots of video =====================================
 async function getShotOfVideoFile(req, res) {
     const { videoFileId } = req.params
-    const query = getDataFromReqQuery(req);
-    const response = await shotService.getSections_Service(videoFileId, query);
+    const response = await shotService.getSections_Service(videoFileId, req.query);
     return ResponseDTO.success(res, response);
 }
 
@@ -260,11 +254,10 @@ async function getEqualizingShotOfVideoFile(req, res) {
 async function exportShotListSpecial(req, res) {
     const { exportType } = req.params;
 
-    const query = getDataFromReqQuery(req);
     const filters = {
         page: 1,
         excludesId: null,
-        ...query
+        ...req.query
     };
 
     const user = req.user;
@@ -278,17 +271,15 @@ async function exportShotListSpecial(req, res) {
 }
 
 async function getExportShotsId(req, res) {
-    const query = getDataFromReqQuery(req);
-    const { shots, isExcludeMode, ...filters } = query
+    const { shots, isExcludeMode, ...filters } = req.query
     const shotsId = await shotExportService.getExportShotsId(shots, isExcludeMode, filters)
     return ResponseDTO.success(res, shotsId)
 }
 
 async function exportShots(req, res) {
     const { exportType } = req.params;
-    const query = getDataFromReqQuery(req);
 
-    const validData = shotValidation.exportShots(query.shotsId);
+    const validData = shotValidation.exportShots(req.query.shotsId);
     const response = await shotExportService.exportShot(exportType, validData.shotsId)
 
     return ResponseDTO.success(res, response);
@@ -297,9 +288,6 @@ async function exportShots(req, res) {
 async function exportShotsOfProject(req, res) {
     const { exportType, projectId } = req.params;
 
-    // const query = getDataFromReqQuery(req);
-
-    // const validData = shotValidation.exportShots(query.shotsId);
     const response = await shotExportService.exportShotsOfProject(exportType, projectId)
 
     return ResponseDTO.success(res, response);
@@ -308,9 +296,6 @@ async function exportShotsOfProject(req, res) {
 async function exportShotsOfVideo(req, res) {
     const { exportType, videoFileId } = req.params;
 
-    // const query = getDataFromReqQuery(req);
-
-    // const validData = shotValidation.exportShots(query.shotsId);
     const response = await shotExportService.exportShotsOfVideo(exportType, videoFileId)
 
     return ResponseDTO.success(res, response);

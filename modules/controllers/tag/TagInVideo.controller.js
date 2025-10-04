@@ -1,19 +1,11 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const TagInVideoResponse = require("../../dto/tag/TagInVideo.response");
 const TagInVideoService = require("../../services/tag/TagInVideo.service")
 
 
 async function getTagsInVideo(req, res) {
-    const {
-        categoryId = null,
-        search,
-        type = null,
-        page = 1,
-        take = 10
-    } = getDataFromReqQuery(req);
 
-    const tags = await TagInVideoService.getTags({ search, categoryId, type, page, take, shotUsageCount: true });
+    const tags = await TagInVideoService.getTags({  shotUsageCount: true, ...req.query });
 
     return ResponseDTO.success(res, { tags: TagInVideoResponse.create(tags.rows), count: tags.count });
 }
@@ -21,8 +13,7 @@ async function getTagsInVideo(req, res) {
 async function getShots(req, res) {
     const { tagId } = req.params
 
-    const query = getDataFromReqQuery(req);
-    const tag = await TagInVideoService.getShotsOfTag(tagId, query);
+    const tag = await TagInVideoService.getShotsOfTag(tagId, req.query);
     return ResponseDTO.success(res, tag);
 
 }

@@ -1,12 +1,10 @@
 const ResponseDTO = require("../../_default/Response.dto");
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const OwnerResponse = require("../../dto/owner/Owner.response");
 const OwnerService = require("../../services/owner/Owner.service");
 const OwnerValidation = require("../../validation/owner/Owner.validation");
 
 async function get(req, res) {
-    const query = getDataFromReqQuery(req);
-    const response = await OwnerService.get(query);
+    const response = await OwnerService.get(req.query);
 
     return ResponseDTO.success(res, OwnerResponse.create(response));
 }
@@ -34,9 +32,7 @@ async function destroy(req, res) {
 
 
 async function list(req, res) {
-    const query = getDataFromReqQuery(req);
-
-    const { rows, count } = await OwnerService.getList(query)
+    const { rows, count } = await OwnerService.getList(req.query)
     return ResponseDTO.success(res, { rows: OwnerResponse.create(rows), count })
 }
 

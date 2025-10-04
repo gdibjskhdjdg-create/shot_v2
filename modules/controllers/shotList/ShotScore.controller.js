@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const ShotScoreResponse = require("../../dto/shotList/ShotScore.response");
 const { shotScoreService } = require("../../services/shotList/index");

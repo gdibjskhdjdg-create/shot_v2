@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const { shotLogService } = require("../../services/shotList/index");
 
@@ -16,43 +15,38 @@ async function report(req, res) {
 }
 
 async function getSpecificDayReport(req, res) {
-    const query = getDataFromReqQuery(req);
-    const report = await shotLogService.specificDayLogReport(query)
+    const report = await shotLogService.specificDayLogReport(req.query)
     return ResponseDTO.success(res, report)
 }
 
 async function exportUserProjectsReport(req, res) {
     const { exportType, userId } = req.params
-    const query = getDataFromReqQuery(req);
     let result = {}
     if (exportType == 'excel') {
-        result = await shotLogService.exportExcelUserProjectsReport(userId, query)
+        result = await shotLogService.exportExcelUserProjectsReport(userId, req.query)
     }
     return ResponseDTO.success(res, result)
 }
 
 async function geUserProjectsReport(req, res) {
     const { userId } = req.params
-    const query = getDataFromReqQuery(req);
-    const report = await shotLogService.getUserProjectsReport(userId, query)
+    const report = await shotLogService.getUserProjectsReport(userId, req.query)
     return ResponseDTO.success(res, report)
 }
 
 
 async function exportDailyReport(req, res) {
     const { exportType } = req.params
-    const query = getDataFromReqQuery(req);
     let result = {}
     if (exportType == 'excel') {
-        result = await shotLogService.exportExcelDailyReport(query)
+        result = await shotLogService.exportExcelDailyReport(req.query)
     }
     return ResponseDTO.success(res, result)
 }
 
 
 async function getDailyReport(req, res) {
-    const query = getDataFromReqQuery(req);
-    const report = await shotLogService.getDailyReport(query)
+    const report = await shotLogService.getDailyReport(req.query)
     return ResponseDTO.success(res, report)
 }
 

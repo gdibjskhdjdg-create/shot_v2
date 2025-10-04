@@ -1,22 +1,12 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const TagResponse = require("../../dto/tag/Tag.response");
 const TagCategoryService = require("../../services/tag/TagCategory.service");
 const TagCategoryValidation = require("../../validation/tag/TagCategory.validation");
 
 async function getList(req, res) {
-    const {
-        search,
-        type = null,
-        page = 1,
-        take = 10
-    } = getDataFromReqQuery(req);
-
+  
     const categories = await TagCategoryService.getTagCategories({
-        search,
-        type,
-        page,
-        take,
+        ...req.query,
         getTags: true
     });
 
@@ -24,14 +14,9 @@ async function getList(req, res) {
 }
 
 async function searchTag(req, res) {
-    const {
-        search,
-        type = null,
-        page = 1,
-        take = 10
-    } = getDataFromReqQuery(req);
+  
 
-    const tags = await TagCategoryService.getTagCategories({ search, type, page, take });
+    const tags = await TagCategoryService.getTagCategories(req.query);
 
     return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }

@@ -1,12 +1,11 @@
 const LanguageService = require("../../services/language/Language.service");
 const LanguageValidation = require("../../validation/language/Language.validation");
 const LanguageResponse = require("../../dto/language/Language.response");
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 
 async function get(req, res) {
-    const query = getDataFromReqQuery(req);
-    const response = await LanguageService.get(query);
+
+    const response = await LanguageService.get(req.query);
 
     return ResponseDTO.success(res, LanguageResponse.create(response));
 }
@@ -34,15 +33,13 @@ async function destroy(req, res) {
 
 
 async function list(req, res) {
-    const query = getDataFromReqQuery(req);
-    const list = await LanguageService.getList(query)
+    const list = await LanguageService.getList(req.query)
     return ResponseDTO.success(res, list)
 }
 
 async function shots(req, res) {
     const { id } = req.params
-    const query = getDataFromReqQuery(req);
-    const shots = await LanguageService.getShotsOfLanguage(id, query)
+    const shots = await LanguageService.getShotsOfLanguage(id, req.query)
     return ResponseDTO.success(res, shots)
 }
 

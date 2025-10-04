@@ -4,7 +4,6 @@ const ResponseDTO = require("../../_default/Response.dto");
 const { exportVideoService } = require("../../services/videoFile/index");
 const ExportValidation = require('../../validation/videoFile/Export.validation');
 const { rashService } = require('../../services/videoFile/index');
-const { getDataFromReqQuery } = require('../../../helper/general.tool');
 const ExportRushLogResponse = require('../../dto/videoFile/ExportRushLog.response');
 const ExportFileResponse = require('../../dto/videoFile/ExportFile.response');
 const ShotListResponse = require('../../dto/shotList/ShotList.response');
@@ -16,9 +15,8 @@ const fetchFiles = async (req, res) => {
 
 const shots = async (req, res) => {
     const { exportId } = req.params
-    const query = getDataFromReqQuery(req);
 
-    const { shots: items, count } = await exportVideoService.getShotsOfExport(exportId, query)
+    const { shots: items, count } = await exportVideoService.getShotsOfExport(exportId, req.query)
 
     return ResponseDTO.success(res, { shots: ShotListResponse.create(items), count });
 }
@@ -30,18 +28,14 @@ const detailFile = async (req, res) => {
 }
 
 const addShots = async (req, res) => {
-    const query = getDataFromReqQuery(req);
-
     const { templateId, shotsId, isProduct, isExcludeMode } = req.body;
-    await exportVideoService.createExportShots(req.user.id, { templateId, shotsId, isProduct, isExcludeMode }, query);
+    await exportVideoService.createExportShots(req.user.id, { templateId, shotsId, isProduct, isExcludeMode }, req.query);
     return ResponseDTO.success(res);
 }
 
 const addVideos = async (req, res) => {
-    const query = getDataFromReqQuery(req);
-
     const { templateId, videosId, isProduct, isExcludeMode } = req.body;
-    await exportVideoService.createExportVideos(req.user.id, { templateId, videosId, isProduct, isExcludeMode }, query);
+    await exportVideoService.createExportVideos(req.user.id, { templateId, videosId, isProduct, isExcludeMode }, req.query);
     return ResponseDTO.success(res);
 }
 

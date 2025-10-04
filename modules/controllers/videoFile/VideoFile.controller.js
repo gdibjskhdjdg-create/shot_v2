@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const { videoFileService } = require("../../services/videoFile/index");
 const VideoFileResponse = require('../../dto/videoFile/VideoFile.response');
@@ -9,13 +8,12 @@ const ErrorResult = require('../../../helper/error.tool');
 const VideoDetailResponse = require('../../dto/videoDetail/VideoDetail.response');
 
 const getVideoFileList = async (req, res) => {
-    const query = getDataFromReqQuery(req);
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         sortKey: "createdAt",
         sortACS: "DESC",
-        ...query
+        ...req.query
     });
 
     const user = req.user;
@@ -32,14 +30,13 @@ const getVideoFileList = async (req, res) => {
 }
 
 const getVideoFileListCanBeShot = async (req, res) => {
-    const query = getDataFromReqQuery(req);
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         sortKey: "createdAt",
         sortACS: "DESC",
         status: "accept",
-        ...query
+        ...req.query
     });
 
     const user = req.user;
@@ -57,14 +54,13 @@ const getVideoFileListCanBeShot = async (req, res) => {
 }
 
 const getInitCheckVideoFileListCanBeShot = async (req, res) => {
-    const query = getDataFromReqQuery(req);
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         shotStatus: "init-check",
         sortKey: "createdAt",
         sortACS: "DESC",
-        ...query
+        ...req.query
     });
 
     const user = req.user;
@@ -80,13 +76,13 @@ const getInitCheckVideoFileListCanBeShot = async (req, res) => {
 }
 
 const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
-    const query = getDataFromReqQuery(req);
+
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         sortKey: "createdAt",
         sortACS: "DESC",
-        ...query
+        ...req.query
     });
 
     const { videoFiles, count } = await videoFileService.getEditorVideoDetailList(filters);
@@ -95,13 +91,13 @@ const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
 }
 
 const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
-    const query = getDataFromReqQuery(req);
+
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         sortKey: "createdAt",
         sortACS: "DESC",
-        ...query
+        ...req.query
     });
 
     const { videoFiles, count } = await videoFileService.getEqualizingVideoDetailList(filters);
@@ -110,13 +106,13 @@ const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
 }
 
 const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
-    const query = getDataFromReqQuery(req);
+
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
         sortKey: "createdAt",
         sortACS: "DESC",
-        ...query
+        ...req.query
     });
 
     const { videoFiles, count } = await videoFileService.getEqualizedVideoDetailList(filters);

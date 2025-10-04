@@ -2,10 +2,14 @@ const TypeTool = require("./type.tool");
 const ErrorResult = require("./error.tool");
 const { ValidationError } = require("sequelize");
 const ResponseDTO = require("../modules/_default/Response.dto");
+const { getDataFromReqQuery } = require("./general.tool");
 
 function AsyncHandler(fn) {
     return async function (request, reply) {
         try {
+
+            const query = getDataFromReqQuery(request)
+            request.query = query
             await fn(request, reply);
         }
         catch (err) {

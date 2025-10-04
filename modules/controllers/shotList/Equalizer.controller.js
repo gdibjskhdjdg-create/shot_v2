@@ -62,13 +62,12 @@ async function submitStatusEqualizerShot(req, res) {
 }
 
 async function getReports(req, res) {
-    const queries = getDataFromReqQuery(req);
 
     if (!queries.userId) {
         throw ErrorResult.badRequest(null, "userId is required");
     }
 
-    let response = await equalizerService.getEqualizeReport(queries);
+    let response = await equalizerService.getEqualizeReport(req.query);
 
     return ResponseDTO.success(res, response)
 }

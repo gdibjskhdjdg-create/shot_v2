@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const ProjectResponse = require("../../dto/project/Project.response");
 const ProjectQuery = require("../../dto/project/Project.query");
@@ -6,9 +5,8 @@ const ProjectValidation = require("../../validation/project/Project.validation")
 const { projectService } = require("../../services/project/index");
 
 async function getProjects(req, res) {
-    const query = getDataFromReqQuery(req);
     const filters = ProjectQuery.create({
-        page: 1, take: 10, ...query
+        page: 1, take: 10, ...req.query
     });
 
     let userId = null;
@@ -23,34 +21,30 @@ async function getProjects(req, res) {
 
 async function exportUserReportProject(req, res) {
     const { exportType, projectId } = req.params
-    const query = getDataFromReqQuery(req);
     let result = {}
     if (exportType == 'excel') {
-        result = await projectService.exportExcelUserReportProject(projectId, query)
+        result = await projectService.exportExcelUserReportProject(projectId, req.query)
     }
     return ResponseDTO.success(res, result)
 }
 
 async function userReportProject(req, res) {
     const { projectId } = req.params;
-    const query = getDataFromReqQuery(req);
-    const report = await projectService.userReportProject(projectId, query)
+    const report = await projectService.userReportProject(projectId, req.query)
     return ResponseDTO.success(res, report)
 }
 
 async function exportReportPerProject(req, res) {
     const { exportType } = req.params
-    const query = getDataFromReqQuery(req);
     let result = {}
     if (exportType == 'excel') {
-        result = await projectService.exportExcelReportPerProject(query)
+        result = await projectService.exportExcelReportPerProject(req.query)
     }
     return ResponseDTO.success(res, result)
 }
 
 async function reportPerProject(req, res) {
-    const query = getDataFromReqQuery(req);
-    const report = await projectService.reportPerProject(query)
+    const report = await projectService.reportPerProject(req.query)
     return ResponseDTO.success(res, report)
 }
 

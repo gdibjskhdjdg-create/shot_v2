@@ -1,12 +1,11 @@
 const ShotDefaultValueResponse = require("../../dto/shotList/ShotDefaultValue.response");
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const ShotDefaultValueValidation = require("../../validation/shotList/ShotDefaultValue.validation");
 const ShotDefaultValueService = require("../../services/shotList/ShotDefaultValue.service");
 
 async function get(req, res) {
-    const query = getDataFromReqQuery(req);
-    const response = await CategoryService.get(query);
+
+    const response = await CategoryService.get(req.query);
 
     return ResponseDTO.success(res, CategoryResponse.create(response));
 }
@@ -35,16 +34,13 @@ async function destroy(req, res) {
 async function getList(req, res) {
     const { section } = req.params
 
-    const query = getDataFromReqQuery(req);
-
-    const list = await ShotDefaultValueService.getList(section, query)
+    const list = await ShotDefaultValueService.getList(section, req.query)
     return ResponseDTO.success(res, list)
 }
 
 async function getShots(req, res) {
     const { section, id } = req.params
-    const query = getDataFromReqQuery(req);
-    const shots = await ShotDefaultValueService.getShotsOfValue(section, id, query)
+    const shots = await ShotDefaultValueService.getShotsOfValue(section, id, req.query)
     return ResponseDTO.success(res, shots)
 }
 

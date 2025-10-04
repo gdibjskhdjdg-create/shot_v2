@@ -1,12 +1,10 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const { videoTemplateService } = require("../../services/videoFile/index");
 const VideoTemplateValidation = require("../../validation/videoFile/VideoTemplate.validation");
 const VideoTemplateResponse = require("../../dto/videoFile/VideoTemplate.response");
 
 const getVideoTemplateList = async (req, res) => {
-    const query = getDataFromReqQuery(req);
-    const templates = await videoTemplateService.getList(query);
+    const templates = await videoTemplateService.getList(req.query);
 
     return ResponseDTO.success(res, {
         count: templates.count,

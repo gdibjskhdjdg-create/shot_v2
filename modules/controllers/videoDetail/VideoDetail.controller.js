@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const VideoDetailListResponse = require("../../dto/videoDetail/VideoDetailList.response");
 const { videoDetailService, videoDetailExportService, videoDetailImportService } = require("../../services/videoDetail/index");
@@ -11,8 +10,7 @@ async function getList(req, res) {
 
     videoDetailValidation.checkStatus(sourceStatus);
 
-    const query = getDataFromReqQuery(req);
-
+    query = req.query
     const { status } = videoDetailValidation.checkQueryStatusIsBySourceStatus(sourceStatus, query.status)
 
     const filters = {
@@ -37,7 +35,7 @@ async function getList(req, res) {
 }
 
 async function getAllList(req, res) {
-    const query = getDataFromReqQuery(req);
+    const query = req.query
     const filters = {
         page: query.page || 1,
         take: query.take || 10,
@@ -123,14 +121,14 @@ async function updateVideoDetailScores(req, res) {
 
 
 async function getExportInfoVideos(req, res) {
-    const query = getDataFromReqQuery(req);
-    const { videos, isExcludeMode, ...filters } = query
+
+    const { videos, isExcludeMode, ...filters } = req.query
     const info = await videoDetailService.getExportInfoVideos({ videos, isExcludeMode, filters })
     return ResponseDTO.success(res, info)
 }
 
 async function getVideoDetailSpecial(req, res) {
-    const query = getDataFromReqQuery(req);
+    const query = req.query
     const filters = {
         page: 1,
         take: 10,
@@ -153,8 +151,7 @@ async function getVideoDetailSpecial(req, res) {
 }
 
 async function getExportVideoDetailIds(req, res) {
-    const query = getDataFromReqQuery(req);
-    const { videoDetails, isExcludeMode, ...filters } = query
+    const { videoDetails, isExcludeMode, ...filters } = req.query
     const videoIds = await videoDetailExportService.getExportVideoDetailsId(videoDetails, isExcludeMode, filters)
     return ResponseDTO.success(res, videoIds)
 }
@@ -162,7 +159,7 @@ async function getExportVideoDetailIds(req, res) {
 async function exportVideoDetailSpecial(req, res) {
     const { exportType } = req.params;
 
-    const query = getDataFromReqQuery(req);
+    const query = req.query;
     const filters = {
         page: 1,
         excludesId: null,
@@ -181,9 +178,8 @@ async function exportVideoDetailSpecial(req, res) {
 
 async function exportVideoDetails(req, res) {
     const { exportType } = req.params;
-    const query = getDataFromReqQuery(req);
 
-    const validData = videoDetailValidation.exportVideoDetails(query.videoDetailsId);
+    const validData = videoDetailValidation.exportVideoDetails(req.query.videoDetailsId);
     const response = await videoDetailExportService.exportVideoDetail(exportType, validData.videoDetailsId)
 
     return ResponseDTO.success(res, response);
@@ -197,7 +193,7 @@ async function exportExcel(req, res) {
 
 async function exportVideoDetailsPath(req, res) {
     const { exportType } = req.params;
-    const filters = getDataFromReqQuery(req);
+    const filters = req.query;
     const videoDetails = await videoDetailExportService.exportSpecialVideoDetailPath(exportType, filters)
     return ResponseDTO.success(res, videoDetails)
 }
@@ -214,17 +210,13 @@ async function uploadRemovalExcel(req, res) {
 }
 
 async function aiTagsTotalReport(req, res) {
-    const query = getDataFromReqQuery(req);
-
-    let response = await videoDetailService.getVideoDetailTotalReport(query)
+    let response = await videoDetailService.getVideoDetailTotalReport(req.query)
     return ResponseDTO.success(res, response);
 }
 
 
 async function aiTagsReport(req, res) {
-    const query = getDataFromReqQuery(req);
-
-    let { rows, count } = await videoDetailService.videoDetailAiTagsList(query)
+    let { rows, count } = await videoDetailService.videoDetailAiTagsList(req.query)
     return ResponseDTO.success(res, { rows, count });
 }
 
@@ -241,7 +233,7 @@ async function generateListLink(req, res) {
 
 async function getVideoListWithCode(req, res) {
     const { uuid } = req.params;
-    const { page = 1, take = 10 } = getDataFromReqQuery(req);
+    const { page = 1, take = 10 } = req.query;
     const { videoDetails, count } = await videoDetailService.getVideoListWithCode(uuid, { page, take })
     return ResponseDTO.success(res, { videoDetail: VideoDetailListResponse.create(videoDetails), count });
 }
@@ -253,7 +245,7 @@ async function getDetailWithUUID(req, res) {
 }
 
 
-module.exports ={
+module.exports = {
     getList,
     getAllList,
     getDetail,

@@ -1,4 +1,3 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const UserListResponse = require("../../dto/user/UserList.response");
 const UserService = require("../../services/user/User.service");
@@ -6,8 +5,7 @@ const UserValidation = require("../../validation/user/User.validation");
 
 
 async function getUserList(req, res) {
-    const query = getDataFromReqQuery(req);
-    const users = await UserService.getUsers(query);
+    const users = await UserService.getUsers(req.query);
 
     return ResponseDTO.success(res, { users: UserListResponse.create(users.users), count: users.count })
 }

@@ -1,19 +1,16 @@
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const ResponseDTO = require("../../_default/Response.dto");
 const TagResponse = require("../../dto/tag/Tag.response");
 const TagService = require("../../services/tag/Tag.service");
 const TagValidation = require("../../validation/tag/Tag.validation");
 
 async function listItems(req, res) {
-    const query = getDataFromReqQuery(req);
-    const tags = await TagService.getTags({ ...query , shotUsageCount: true});
+    const tags = await TagService.getTags({ ...req.query , shotUsageCount: true});
     return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }
 
 
 async function suggestions(req, res) {
-    const query = getDataFromReqQuery(req);
-    const tags = await TagService.getTags({ ...query });
+    const tags = await TagService.getTags({ ...req.query });
     return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }
 
@@ -25,8 +22,7 @@ async function show(req, res) {
 
 async function shots(req, res) {
     const { tagId } = req.params;
-    const query = getDataFromReqQuery(req);
-    const tag = await TagService.getShotsOfTag(tagId, query);
+    const tag = await TagService.getShotsOfTag(tagId, req.query);
     return ResponseDTO.success(res, tag);
 }
 

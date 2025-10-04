@@ -2,11 +2,9 @@ const ResponseDTO = require("../../_default/Response.dto");
 const CategoryResponse = require("../../dto/category/Category.response");
 const CategoryService = require("../../services/category/Category.service");
 const CategoryValidation = require("../../validation/category/Category.validation");
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
 
 async function get(req, res) {
-    const query = getDataFromReqQuery(req);
-    const response = await CategoryService.get(query);
+    const response = await CategoryService.get(req.query);
 
     return ResponseDTO.success(res, CategoryResponse.create(response));
 }
@@ -34,16 +32,13 @@ async function destroy(req, res) {
 
 
 async function list(req, res) {
-    const query = getDataFromReqQuery(req);
-
-    const list = await CategoryService.getList(query)
+    const list = await CategoryService.getList(req.query)
     return ResponseDTO.success(res, list)
 }
 
 async function shots(req, res) {
     const { id } = req.params
-    const query = getDataFromReqQuery(req);
-    const shots = await CategoryService.getShotsOfCategory(id, query)
+    const shots = await CategoryService.getShotsOfCategory(id, req.query)
     return ResponseDTO.success(res, shots)
 }
 
