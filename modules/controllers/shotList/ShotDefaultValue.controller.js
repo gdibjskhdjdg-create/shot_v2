@@ -1,19 +1,18 @@
-const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
-const ShotDefaultValue_DTO = require("../../dto/shotList/ShotDefaultValue.dto");
+const ShotDefaultValueResponse = require("../../dto/shotList/ShotDefaultValue.response");
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const BaseController = require("../../_default/controller/Base.controller");
 const ShotDefaultValueValidation = require("../../validation/shotList/ShotDefaultValue.validation");
 const ShotDefaultValueService = require("../../services/shotList/ShotDefaultValue.service");
+const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
 
 class ShotDefaultValueController extends SampleCRUD_Controller {
     constructor() {
         super({
             validation: ShotDefaultValueValidation,
             service: ShotDefaultValueService,
-            DTO: ShotDefaultValue_DTO
+            Response: ShotDefaultValueResponse
         })
     }
-
     async getList(req, res) {
         const { section } = req.params
 
@@ -38,4 +37,4 @@ class ShotDefaultValueController extends SampleCRUD_Controller {
     }
 }
 
-module.exports = new ShotDefaultValueController();
+module.exports = new ShotDefaultValueController()

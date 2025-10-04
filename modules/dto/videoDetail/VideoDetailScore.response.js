@@ -1,24 +1,24 @@
-const DTO = require("../../_default/DTO");
+const BaseResponse = require("../../_default/BaseResponse");
 const VideoDetailEntity = require("../../entity/videoDetail/VideoDetail.entity");
 
 
-class VideoDetailScore_DTO extends DTO {
+class VideoDetailScoreResponse extends BaseResponse {
 
     constructor(data) {
         super(data);
 
         const findScore = VideoDetailEntity.getByKey(data.scoreKey);
 
-        this.videoFileId = this.validate(["videoFileId", 'number']);
+        this.videoFileId = this.setValue(["videoFileId", 'number']);
         this.userId = data?.user?.id
         this.userFullName = data?.user?.fullName
-        this.score = this.validate(["score", 'string']);
-        this.section = this.validate(["section", 'string']);
+        this.score = this.setValue(["score", 'string']);
+        this.section = this.setValue(["section", 'string']);
         this.sectionTitle = data.section == 'shot-main-score' ? findScore?.sectionTitle : 'main';
-        this.scoreKey = this.validate(["scoreKey", 'string']);
+        this.scoreKey = this.setValue(["scoreKey", 'string']);
         this.scoreTitle = findScore?.title
         this.scoreDescription = findScore?.description
     }
 }
 
-module.exports = VideoDetailScore_DTO
+module.exports = VideoDetailScoreResponse

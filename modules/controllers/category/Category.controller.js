@@ -1,6 +1,6 @@
-const BaseController = require("../../_default/controller/Base.controller");
 const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
-const Category_DTO = require("../../dto/category/Category.dto");
+const BaseController = require("../../_default/controller/Base.controller");
+const CategoryResponse = require("../../dto/category/Category.response");
 const CategoryService = require("../../services/category/Category.service");
 const CategoryValidation = require("../../validation/category/Category.validation");
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
@@ -10,9 +10,10 @@ class CategoryController extends SampleCRUD_Controller {
         super({
             validation: CategoryValidation,
             service: CategoryService,
-            DTO: Category_DTO
+            Response: CategoryResponse
         })
     }
+
 
     async getList(req, res) {
         const query = getDataFromReqQuery(req);
@@ -36,5 +37,4 @@ class CategoryController extends SampleCRUD_Controller {
     }
 
 }
-
-module.exports = new CategoryController();
+module.exports = new CategoryController()

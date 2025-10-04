@@ -1,8 +1,8 @@
 const path = require("path");
-const DTO = require("../../_default/DTO");
+const BaseResponse = require("../../_default/BaseResponse");
 const Service = require("../../_default/service");
 
-class VideoTemplate_DTO extends DTO {
+class VideoTemplateResponse extends BaseResponse {
 
     constructor(data) {
         super(data);
@@ -11,11 +11,11 @@ class VideoTemplate_DTO extends DTO {
 
         this.id = data.id;
         this.title = data.title;
-        this.isMute = this.validate(["isMute"], "boolean");
-        this.quality = this.validate(["quality"], "number");
-        this.createdAt = data.createdAt;
+        this.isMute = this.setValue(["isMute"], "boolean");
+        this.quality = this.setValue(["quality"], "number");
+        this.createdAt = this.setValue(['data'], data.createdAt);
         this.gifTime = data.gifTime;
-        this.bitrate = this.validate(["bitrate"], "number");
+        this.bitrate = this.setValue(["bitrate"], "number");
 
         if (data?.logoParams) {
             try {
@@ -34,4 +34,4 @@ class VideoTemplate_DTO extends DTO {
     }
 }
 
-module.exports = VideoTemplate_DTO;
+module.exports = VideoTemplateResponse;

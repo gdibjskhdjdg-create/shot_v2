@@ -7,11 +7,11 @@ class SampleCRUD_Controller {
     constructor({
         validation = () => {},
         service = () => {},
-        DTO = () => {}
+        Response = () => {}
     }){
         this.service = service, 
         this.validation = validation;
-        this.DTO = DTO;
+        this.Response = Response;
 
         this.get = this.get.bind(this);
         this.create = this.create.bind(this);
@@ -24,14 +24,14 @@ class SampleCRUD_Controller {
         const query = getDataFromReqQuery(req);
         const response = await this.service.get(query);
 
-        return BaseController.ok(res, this.DTO.create(response));
+        return BaseController.ok(res, this.Response.create(response));
     }
 
     async create(req, res){
         const validData = await this.validation.create(req.body);
         const response = await this.service.create(validData);
 
-        return BaseController.ok(res, this.DTO.create(response));
+        return BaseController.ok(res, this.Response.create(response));
     }
 
     async update(req, res){
@@ -39,7 +39,7 @@ class SampleCRUD_Controller {
         const validData = await this.validation.update(id, req.body);
         const response = await this.service.update(id, validData);
 
-        return BaseController.ok(res, this.DTO.create(response));
+        return BaseController.ok(res, this.Response.create(response));
     }
 
     async delete(req, res){

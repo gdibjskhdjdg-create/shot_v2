@@ -1,6 +1,6 @@
 const AsyncHandler = require("../../../helper/asyncHandler.tool");
 
-const ExportVideoFileController = require("../controller/ExportVideoFile.controller");
+const ExportVideoFileController = require("../../controllers/ExportVideoFile.controllers");
 const CheckUserHaveValidAccessMiddleware = require("../../user/middleware/CheckUserHaveValidAccess.middleware");
 
 /* ------------------------------ prefix: /api/videoFile/export ------------------------------ */
@@ -15,8 +15,8 @@ async function exportRoutes(fastify, opts) {
 
     fastify.register(async (fastifyProtected, opts) => {
         fastifyProtected.addHook('preHandler', CheckUserHaveValidAccessMiddleware(['studio-manage']));
-        fastifyProtected.get('/', AsyncHandler(ExportVideoFileController.getExportFiles));
-        fastifyProtected.get('/shots/:exportId', AsyncHandler(ExportVideoFileController.getShotsOfExport));
+        fastifyProtected.get('/', AsyncHandler(ExportVideoFileController.fetchFiles));
+        fastifyProtected.get('/shots/:exportId', AsyncHandler(ExportVideoFileController.shots));
         fastifyProtected.get("/sendToSite/:exportId", AsyncHandler(ExportVideoFileController.getLogSite));
         fastifyProtected.get('/:id', AsyncHandler(ExportVideoFileController.getExportFile));
         fastifyProtected.post("/shots", AsyncHandler(ExportVideoFileController.createExportShots));

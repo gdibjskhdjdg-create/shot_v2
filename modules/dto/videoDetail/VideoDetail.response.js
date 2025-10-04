@@ -1,17 +1,17 @@
-const DTO = require("../../_default/DTO");
 const { VideoFile } = require("../../_default/model");
 const moment = require("jalali-moment");
 const { videoFileService } = require("../../services/videoFile");
+const BaseResponse = require("../../_default/BaseResponse");
 
-class VideoDetail_DTO extends DTO {
+class VideoDetailResponse extends BaseResponse {
 
     constructor(data) {
         super(data);
 
-        this.id = this.validate(["id", "videoFileId"], 'number');
-        this.videoFileId = this.validate(["videoFileId"], 'number');
-        this.title = this.validate(["title"], 'string');
-        this.status = this.validate(["status"], 'string');
+        this.id = this.setValue(["id", "videoFileId"], 'number');
+        this.videoFileId = this.setValue(["videoFileId"], 'number');
+        this.title = this.setValue(["title"], 'string');
+        this.status = this.setValue(["status"], 'string');
         this.user = data.user;
         this.project = data.project;
         this.shotStatus = data?.shotStatus;
@@ -31,4 +31,4 @@ class VideoDetail_DTO extends DTO {
     }
 }
 
-module.exports = VideoDetail_DTO
+module.exports = VideoDetailResponse

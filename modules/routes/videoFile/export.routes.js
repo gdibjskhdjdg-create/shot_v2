@@ -8,26 +8,26 @@ const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckU
 
 async function exportRoutes(fastify, opts) {
 
-    fastify.get('/getDownloadUrl/:id', AsyncHandler(ExportVideoFileController.downloadExportFileUrl))
-    fastify.get('/getFileUrl/:id', AsyncHandler(ExportVideoFileController.showExportFile))
-    fastify.get('/getpath/:id', AsyncHandler(ExportVideoFileController.getPathExportFile))
+    fastify.get('/getDownloadUrl/:id', AsyncHandler(ExportVideoFileController.downloadUrl))
+    fastify.get('/getFileUrl/:id', AsyncHandler(ExportVideoFileController.show))
+    fastify.get('/getpath/:id', AsyncHandler(ExportVideoFileController.pathFile))
 
 
     fastify.register(async (fastifyProtected, opts) => {
         fastifyProtected.addHook('preHandler', CheckUserHaveValidAccessMiddleware(['studio-manage']));
-        fastifyProtected.get('/', AsyncHandler(ExportVideoFileController.getExportFiles));
-        fastifyProtected.get('/shots/:exportId', AsyncHandler(ExportVideoFileController.getShotsOfExport));
-        fastifyProtected.get("/sendToSite/:exportId", AsyncHandler(ExportVideoFileController.getLogSite));
-        fastifyProtected.get('/:id', AsyncHandler(ExportVideoFileController.getExportFile));
-        fastifyProtected.post("/shots", AsyncHandler(ExportVideoFileController.createExportShots));
-        fastifyProtected.post("/videos", AsyncHandler(ExportVideoFileController.createExportVideos));
-        fastifyProtected.post("/", AsyncHandler(ExportVideoFileController.createExportFiles));
-        fastifyProtected.post("/sendToSite/:exportId", AsyncHandler(ExportVideoFileController.reqToSendToSite));
-        fastifyProtected.put('/modifyFile/:exportId', AsyncHandler(ExportVideoFileController.modifyFile));
-        fastifyProtected.post('/rebuildFile/:exportId', AsyncHandler(ExportVideoFileController.rebuildFile));
-        fastifyProtected.post('/sendFiles2Rush', AsyncHandler(ExportVideoFileController.sendFiles2Rush));
-        fastifyProtected.put('/important/:exportId', AsyncHandler(ExportVideoFileController.setImportantExportFile));
-        fastifyProtected.delete("/", AsyncHandler(ExportVideoFileController.destroyExportFiles));
+        fastifyProtected.get('/', AsyncHandler(ExportVideoFileController.fetchFiles));
+        fastifyProtected.get('/shots/:exportId', AsyncHandler(ExportVideoFileController.shots));
+        fastifyProtected.get("/sendToSite/:exportId", AsyncHandler(ExportVideoFileController.logsSite));
+        fastifyProtected.get('/:id', AsyncHandler(ExportVideoFileController.detailFile));
+        fastifyProtected.post("/shots", AsyncHandler(ExportVideoFileController.addShots));
+        fastifyProtected.post("/videos", AsyncHandler(ExportVideoFileController.addVideos));
+        fastifyProtected.post("/", AsyncHandler(ExportVideoFileController.addFiles));
+        fastifyProtected.post("/sendToSite/:exportId", AsyncHandler(ExportVideoFileController.add2SiteQueue));
+        fastifyProtected.put('/modifyFile/:exportId', AsyncHandler(ExportVideoFileController.update));
+        fastifyProtected.post('/rebuildFile/:exportId', AsyncHandler(ExportVideoFileController.regenerate));
+        fastifyProtected.post('/sendFiles2Rush', AsyncHandler(ExportVideoFileController.sendFiles2Site));
+        fastifyProtected.put('/important/:exportId', AsyncHandler(ExportVideoFileController.setFileIsImportant));
+        fastifyProtected.delete("/", AsyncHandler(ExportVideoFileController.destroyItems));
     })
 }
 

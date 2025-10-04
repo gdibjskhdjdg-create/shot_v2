@@ -1,16 +1,16 @@
-const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
-const Language_DTO = require("../../dto//language/Language.dto");
+const LanguageResponse = require("../../dto//language/Language.response");
 const LanguageService = require("../../services/language/Language.service");
 const LanguageValidation = require("../../validation/language/Language.validation");
 const { getDataFromReqQuery } = require("../../../helper/general.tool");
 const BaseController = require("../../_default/controller/Base.controller");
+const SampleCRUD_Controller = require("../../_default/controller/SampleCRUD.controller");
 
 class LanguageController extends SampleCRUD_Controller {
-    constructor(){
+    constructor() {
         super({
             validation: LanguageValidation,
             service: LanguageService,
-            DTO: Language_DTO
+            Response: LanguageResponse
         })
     }
 
@@ -34,4 +34,4 @@ class LanguageController extends SampleCRUD_Controller {
     }
 }
 
-module.exports = new LanguageController();
+module.exports = new LanguageController()

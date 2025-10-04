@@ -1,24 +1,23 @@
-const DTO = require("../../_default/DTO");
+const BaseResponse = require("../../_default/BaseResponse");
 const ShotScoreEntity = require("../../entity/shotList/ShotScore.entity");
 
 
-class ShotScore_DTO extends DTO {
+class ShotScoreResponse extends BaseResponse {
 
     constructor(data) {
         super(data);
 
         const findScore = ShotScoreEntity.getByKey(data.scoreKey)
 
-        this.shotId = this.validate(["shotId", 'number']);
+        this.shotId = this.setValue(["shotId", 'number']);
         this.userId = data?.user?.id
         this.userFullName = data?.user?.fullName
-        this.score = this.validate(["score", 'string']);
-        this.section = this.validate(["section", 'string']);
+        this.score = this.setValue(["score", 'string']);
+        this.section = this.setValue(["section", 'string']);
         this.sectionTitle = data.section == 'shot-main-score' ? findScore.sectionTitle : 'main';
-        this.scoreKey = this.validate(["scoreKey", 'string']);
+        this.scoreKey = this.setValue(["scoreKey", 'string']);
         this.scoreTitle = findScore.title
         this.scoreDescription = findScore.description
-    }
-}
+    }}
 
-module.exports = ShotScore_DTO
+module.exports = ShotScoreResponse;

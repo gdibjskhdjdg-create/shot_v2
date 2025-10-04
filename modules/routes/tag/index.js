@@ -12,18 +12,18 @@ async function tagRoutes(fastify, opts) {
     fastify.register(tagCategoryRoute, { prefix: "/category" })
     fastify.register(tagInVideoRoute, { prefix: "/inVideo" })
 
-    fastify.get("/", AsyncHandler(TagController.getList));
-    fastify.get("/search", AsyncHandler(TagController.searchTag));
-    fastify.get("/detail/:tagId", AsyncHandler(TagController.getDetail));
-    fastify.get("/shots/:tagId", AsyncHandler(TagController.getShots));
-    fastify.post("/", AsyncHandler(TagController.createTag));
-    fastify.put("/:sourceTagId/:targetTagId", AsyncHandler(TagController.mergeTag));
-    fastify.patch("/:tagId", AsyncHandler(TagController.editTag));
-    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagController.detachShotFromTag));
+    fastify.get("/", AsyncHandler(TagController.listItems));
+    fastify.get("/search", AsyncHandler(TagController.suggestions));
+    fastify.get("/detail/:tagId", AsyncHandler(TagController.show));
+    fastify.get("/shots/:tagId", AsyncHandler(TagController.shots));
+    fastify.post("/", AsyncHandler(TagController.newItem));
+    fastify.put("/:sourceTagId/:targetTagId", AsyncHandler(TagController.combine));
+    fastify.patch("/:tagId", AsyncHandler(TagController.update));
+    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagController.removeShot));
     fastify.delete("/:tagId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['tag-manage'])
-        }, AsyncHandler(TagController.deleteTag));
+        }, AsyncHandler(TagController.destroy));
 
 }
 
