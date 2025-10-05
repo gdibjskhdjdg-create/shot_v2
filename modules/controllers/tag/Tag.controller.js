@@ -64,7 +64,7 @@ async function destroy(req, res) {
 
 
 module.exports = {
-    listItems,
+    list,
     suggestions,
     show,
     shots,

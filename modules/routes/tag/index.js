@@ -12,7 +12,7 @@ async function tagRoutes(fastify, opts) {
     fastify.register(tagCategoryRoute, { prefix: "/category" })
     fastify.register(tagInVideoRoute, { prefix: "/inVideo" })
 
-    fastify.get("/", ErrorBoundary(TagController.tags));
+    fastify.get("/", ErrorBoundary(TagController.list));
     fastify.get("/search", ErrorBoundary(TagController.suggestions));
     fastify.get("/detail/:tagId", ErrorBoundary(TagController.show));
     fastify.get("/shots/:tagId", ErrorBoundary(TagController.shots));

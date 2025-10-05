@@ -51,7 +51,7 @@ async function removeShot(req, res) {
 
 
 module.exports = {
-    get,
+    list,
     create,
     update,
     destroy,

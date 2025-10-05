@@ -1,5 +1,5 @@
-const ErrorResult = require("../../../helper/error.tool");
-const generalTool = require("../../../helper/general.tool");
+const ErrorResult = require("../../helper/error.tool");
+const generalTool = require("../../helper/general.tool");
 
 class ResponseDTO {
     static success(res, result = {}, statusCode = 200) {
