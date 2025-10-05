@@ -7,9 +7,9 @@ const CheckUserHaveValidAccessMiddleware = require("../../middleware/user//Check
 async function tagCategoryRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/", AsyncHandler(TagCategoryController.getList));
-    fastify.get("/detail/:tagCategoryId", AsyncHandler(TagCategoryController.getDetail));
-    fastify.get("/show/:tagCategoryId", AsyncHandler(TagCategoryController.showCategory));
+    fastify.get("/", AsyncHandler(TagCategoryController.fetchList));
+    fastify.get("/detail/:tagCategoryId", AsyncHandler(TagCategoryController.fetchDetail));
+    fastify.get("/show/:tagCategoryId", AsyncHandler(TagCategoryController.displayCategory));
     fastify.post("/",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
@@ -18,12 +18,12 @@ async function tagCategoryRoutes(fastify, opts) {
     fastify.patch("/:tagCategoryId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
-        }, AsyncHandler(TagCategoryController.editTagCategory));
+        }, AsyncHandler(TagCategoryController.addTagCategory));
 
     fastify.delete("/:tagCategoryId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(["tag-category-manage"])
-        }, AsyncHandler(TagCategoryController.deleteTagCategory));
+        }, AsyncHandler(TagCategoryController.removeTagCategory));
 }
 
 module.exports = tagCategoryRoutes;

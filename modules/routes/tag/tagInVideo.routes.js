@@ -5,12 +5,12 @@ const TagInVideoController = require("../../controllers/tag/TagInVideo.controlle
 // tag in video
 async function tagInVideoRoutes(fastify, opts) {
 
-    fastify.get("/", AsyncHandler(TagInVideoController.getTagsInVideo));
-    fastify.get("/shots/:tagId", AsyncHandler(TagInVideoController.getShots));
-    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagInVideoController.detachShotFromTag));
+    fastify.get("/", AsyncHandler(TagInVideoController.fetchTagsInVideo));
+    fastify.get("/shots/:tagId", AsyncHandler(TagInVideoController.fetchShots));
+    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagInVideoController.disconnectShotFromTag));
     fastify.delete("/:tagId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['tag-manage'])
-    }, AsyncHandler(TagInVideoController.deleteTag));
+    }, AsyncHandler(TagInVideoController.removeTag));
 }
 
 module.exports = tagInVideoRoutes;

@@ -3,7 +3,7 @@ const TagResponse = require("../../dto/tag/Tag.response");
 const TagService = require("../../services/tag/Tag.service");
 const TagValidation = require("../../validation/tag/Tag.validation");
 
-async function listItems(req, res) {
+async function list(req, res) {
     const tags = await TagService.getTags({ ...req.query , shotUsageCount: true});
     return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }

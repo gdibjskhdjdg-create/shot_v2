@@ -8,7 +8,7 @@ const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.mid
 async function categoryRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/", AsyncHandler(CategoryController.get));
+    // fastify.get("/", AsyncHandler(CategoryController.get));
     fastify.get("/list", AsyncHandler(CategoryController.list));
     fastify.get("/shots/:id", AsyncHandler(CategoryController.shots));
     fastify.post("/", AsyncHandler(CategoryController.create));

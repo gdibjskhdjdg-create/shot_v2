@@ -3,7 +3,7 @@ const TagResponse = require("../../dto/tag/Tag.response");
 const TagCategoryService = require("../../services/tag/TagCategory.service");
 const TagCategoryValidation = require("../../validation/tag/TagCategory.validation");
 
-async function getList(req, res) {
+async function fetchList(req, res) {
   
     const categories = await TagCategoryService.getTagCategories({
         ...req.query,
@@ -13,7 +13,7 @@ async function getList(req, res) {
     return ResponseDTO.success(res, { categories: categories.rows, count: categories.count });
 }
 
-async function searchTag(req, res) {
+async function findTag(req, res) {
   
 
     const tags = await TagCategoryService.getTagCategories(req.query);
@@ -21,7 +21,7 @@ async function searchTag(req, res) {
     return ResponseDTO.success(res, { tags: TagResponse.create(tags.rows), count: tags.count });
 }
 
-async function showCategory(req, res) {
+async function displayCategory(req, res) {
     const { tagCategoryId } = req.params;
 
     const category = await TagCategoryService.showCategory(tagCategoryId);
@@ -29,7 +29,7 @@ async function showCategory(req, res) {
     return ResponseDTO.success(res, category);
 }
 
-async function getDetail(req, res) {
+async function fetchDetail(req, res) {
     const { tagId } = req.params;
 
     const tag = await TagCategoryService.getTagDetail(tagId);
@@ -37,7 +37,7 @@ async function getDetail(req, res) {
     return ResponseDTO.success(res, tag);
 }
 
-async function createTagCategory(req, res) {
+async function addTagCategory(req, res) {
     const body = req.body;
 
     const data = TagCategoryValidation.createTagCategory(body);
@@ -45,7 +45,7 @@ async function createTagCategory(req, res) {
     return ResponseDTO.success(res, { tagCategoryId: category.id });
 }
 
-async function editTagCategory(req, res) {
+async function modifyTagCategory(req, res) {
     const body = req.body;
     const { tagCategoryId } = req.params;
 
@@ -54,7 +54,7 @@ async function editTagCategory(req, res) {
     return ResponseDTO.success(res);
 }
 
-async function deleteTagCategory(req, res) {
+async function removeTagCategory(req, res) {
     const { tagCategoryId } = req.params;
 
     await TagCategoryService.deleteCategory(tagCategoryId);
@@ -63,11 +63,11 @@ async function deleteTagCategory(req, res) {
 
 
 module.exports = {
-    getList,
-    searchTag,
-    showCategory,
-    getDetail,
-    createTagCategory,
-    editTagCategory,
-    deleteTagCategory
+    fetchList,
+    findTag,
+    displayCategory,
+    fetchDetail,
+    addTagCategory,
+    modifyTagCategory,
+    removeTagCategory
 };

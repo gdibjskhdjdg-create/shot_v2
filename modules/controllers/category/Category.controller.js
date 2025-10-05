@@ -3,11 +3,11 @@ const CategoryResponse = require("../../dto/category/Category.response");
 const CategoryService = require("../../services/category/Category.service");
 const CategoryValidation = require("../../validation/category/Category.validation");
 
-async function get(req, res) {
-    const response = await CategoryService.get(req.query);
+// async function get(req, res) {
+//     const response = await CategoryService.get(req.query);
 
-    return ResponseDTO.success(res, CategoryResponse.create(response));
-}
+//     return ResponseDTO.success(res, CategoryResponse.create(response));
+// }
 
 async function create(req, res) {
     const validData = await CategoryValidation.create(req.body);
