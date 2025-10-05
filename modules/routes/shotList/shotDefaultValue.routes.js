@@ -8,22 +8,22 @@ const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.mid
 async function shotDefaultValueRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/", AsyncHandler(ShotDefaultValueController.get));
-    fastify.get("/list/:section", AsyncHandler(ShotDefaultValueController.getList));
-    fastify.get("/shots/:id/:section", AsyncHandler(ShotDefaultValueController.getShots));
-    fastify.post("/", AsyncHandler(ShotDefaultValueController.create));
+    fastify.get("/", AsyncHandler(ShotDefaultValueController.fetch));
+    fastify.get("/list/:section", AsyncHandler(ShotDefaultValueController.fetchList));
+    fastify.get("/shots/:id/:section", AsyncHandler(ShotDefaultValueController.fetchShots));
+    fastify.post("/", AsyncHandler(ShotDefaultValueController.add));
     fastify.patch("/:id",
         {
             preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(ShotDefaultValueController.update));
+        }, AsyncHandler(ShotDefaultValueController.modify));
 
     fastify.delete("/:id", {
         preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-    }, AsyncHandler(ShotDefaultValueController.delete));
+    }, AsyncHandler(ShotDefaultValueController.remove));
 
     fastify.delete("/:shotId/:section", {
         preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-    }, AsyncHandler(ShotDefaultValueController.detachShot));
+    }, AsyncHandler(ShotDefaultValueController.disconnectShot));
 }
 
 module.exports = shotDefaultValueRoutes;

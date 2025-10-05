@@ -6,18 +6,18 @@ const shotValidation = require("../../validation/shotList/shot.validation");
 const ShotImportFileService = require('../../services/shotList/ShotImportFile.service');
 const ErrorResult = require('../../../helper/error.tool');
 
-async function getBasicInfo(req, res) {
+async function fetchBasicInfo(req, res) {
     const response = await shotService.getBasicInfoForShot();
     return ResponseDTO.success(res, response);
 }
 
-async function getExportInfoShots(req, res) {
+async function fetchExportInfoShots(req, res) {
     const { shots, isExcludeMode, ...filters } = req.query
     const info = await shotService.getExportInfoShots({ shots, isExcludeMode, filters })
     return ResponseDTO.success(res, info)
 }
 
-async function getShotList(req, res) {
+async function fetchShotList(req, res) {
 
     const { status } = req.params;
 
@@ -45,7 +45,7 @@ async function getShotList(req, res) {
     return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
-async function getMeetingShotList(req, res) {
+async function fetchMeetingShotList(req, res) {
     const filters = ShotListQuery.create({
         page: 1, take: 10, ...req.query
     });
@@ -62,7 +62,7 @@ async function getMeetingShotList(req, res) {
     return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
-async function getShotListSpecial(req, res) {
+async function fetchShotListSpecial(req, res) {
     const filters = {
         page: 1,
         take: 10,
@@ -83,14 +83,14 @@ async function getShotListSpecial(req, res) {
     return ResponseDTO.success(res, { shots: ShotListResponse.create(shots), count });
 }
 
-async function getShotDetail(req, res) {
+async function fetchShotDetail(req, res) {
     const { id } = req.params;
 
     const response = await shotService.detail(id);
     return ResponseDTO.success(res, response);
 }
 
-async function updateInitShot(req, res) {
+async function modifyInitShot(req, res) {
     const body = req.body;
     const { id } = req.params;
     const userId = req.user.id
@@ -100,7 +100,7 @@ async function updateInitShot(req, res) {
     return ResponseDTO.success(res, response)
 }
 
-async function updateEditorShot(req, res) {
+async function modifyEditorShot(req, res) {
     const body = req.body;
     const { id } = req.params;
     const userId = req.user.id
@@ -110,7 +110,7 @@ async function updateEditorShot(req, res) {
     return ResponseDTO.success(res, response)
 }
 
-async function updateEqualizingShot(req, res) {
+async function modifyEqualizingShot(req, res) {
     const body = req.body;
     const { id } = req.params;
     const userId = req.user.id
@@ -120,7 +120,7 @@ async function updateEqualizingShot(req, res) {
     return ResponseDTO.success(res, response)
 }
 
-async function updateNeedMeetingShot(req, res) {
+async function modifyNeedMeetingShot(req, res) {
     const body = req.body;
     const { id } = req.params;
     const userId = req.user.id
@@ -130,7 +130,7 @@ async function updateNeedMeetingShot(req, res) {
     return ResponseDTO.success(res, response)
 }
 
-async function updateShot(req, res) {
+async function modifyShot(req, res) {
     const body = req.body;
     const { id, status } = req.params;
     const userId = req.user.id;
@@ -140,7 +140,7 @@ async function updateShot(req, res) {
     return ResponseDTO.success(res, response)
 }
 
-async function updateShotStatus(req, res) {
+async function modifyShotStatus(req, res) {
     const { status } = req.body;
     const id = req.params.id;
     const userId = req.user.id
@@ -154,28 +154,28 @@ async function updateShotStatus(req, res) {
 
 }
 
-async function deleteShot(req, res) {
+async function removeShot(req, res) {
     const id = req.params.id;
 
     const response = await shotService.deleteShot(id);
     return ResponseDTO.success(res, response)
 }
 
-async function deleteShotOfProject(req, res) {
+async function removeShotOfProject(req, res) {
     const { projectId } = req.params;
 
     const response = await shotService.deleteShotsOfProject(projectId);
     return ResponseDTO.success(res, response)
 }
 
-async function deleteShotsOfVideoFile(req, res) {
+async function removeShotsOfVideoFile(req, res) {
     const { videoFileId } = req.params;
 
     const response = await shotService.deleteShotsOfVideoFile(videoFileId);
     return ResponseDTO.success(res, response)
 }
 
-async function createInitShot(req, res) {
+async function addInitShot(req, res) {
     const { videoFileId } = req.params;
     const body = req.body;
 
@@ -187,7 +187,7 @@ async function createInitShot(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function createEditorShot(req, res) {
+async function addEditorShot(req, res) {
     const { videoFileId } = req.params;
     const body = req.body;
 
@@ -199,7 +199,7 @@ async function createEditorShot(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function createEqualizingShot(req, res) {
+async function addEqualizingShot(req, res) {
     const { videoFileId } = req.params;
     const body = req.body;
 
@@ -212,13 +212,13 @@ async function createEqualizingShot(req, res) {
 }
 
 // ====shots of video =====================================
-async function getShotOfVideoFile(req, res) {
+async function fetchShotOfVideoFile(req, res) {
     const { videoFileId } = req.params
     const response = await shotService.getSections_Service(videoFileId, req.query);
     return ResponseDTO.success(res, response);
 }
 
-async function getInitShotOfVideoFile(req, res) {
+async function fetchInitShotOfVideoFile(req, res) {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -229,7 +229,7 @@ async function getInitShotOfVideoFile(req, res) {
     return ResponseDTO.success(res, videoFiles)
 }
 
-async function getEditorShotOfVideoFile(req, res) {
+async function fetchEditorShotOfVideoFile(req, res) {
     const { videoFileId } = req.params;
 
     const filters = {};
@@ -240,7 +240,7 @@ async function getEditorShotOfVideoFile(req, res) {
     return ResponseDTO.success(res, videoFiles)
 }
 
-async function getEqualizingShotOfVideoFile(req, res) {
+async function fetchEqualizingShotOfVideoFile(req, res) {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -251,7 +251,7 @@ async function getEqualizingShotOfVideoFile(req, res) {
     return ResponseDTO.success(res, videoFiles)
 }
 
-async function exportShotListSpecial(req, res) {
+async function exportSpecialShotList(req, res) {
     const { exportType } = req.params;
 
     const filters = {
@@ -270,13 +270,13 @@ async function exportShotListSpecial(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function getExportShotsId(req, res) {
+async function fetchExportShotsId(req, res) {
     const { shots, isExcludeMode, ...filters } = req.query
     const shotsId = await shotExportService.getExportShotsId(shots, isExcludeMode, filters)
     return ResponseDTO.success(res, shotsId)
 }
 
-async function exportShots(req, res) {
+async function exportShotData(req, res) {
     const { exportType } = req.params;
 
     const validData = shotValidation.exportShots(req.query.shotsId);
@@ -285,7 +285,7 @@ async function exportShots(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function exportShotsOfProject(req, res) {
+async function exportProjectShots(req, res) {
     const { exportType, projectId } = req.params;
 
     const response = await shotExportService.exportShotsOfProject(exportType, projectId)
@@ -293,7 +293,7 @@ async function exportShotsOfProject(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function exportShotsOfVideo(req, res) {
+async function exportVideoShots(req, res) {
     const { exportType, videoFileId } = req.params;
 
     const response = await shotExportService.exportShotsOfVideo(exportType, videoFileId)
@@ -301,46 +301,46 @@ async function exportShotsOfVideo(req, res) {
     return ResponseDTO.success(res, response);
 }
 
-async function exportExcel(req, res) {
+async function exportToExcel(req, res) {
     const { exportType, shotId } = req.params;
     const shots = await shotExportService.exportShot(exportType, [shotId])
     return ResponseDTO.success(res, shots)
 }
 
-async function uploadExcel(req, res) {
+async function importFromExcel(req, res) {
     await ShotImportFileService.storeExcelFile(req);
     return ResponseDTO.success(res, {});
 }
 
 
 module.exports = {
-    getBasicInfo,
-    getExportInfoShots,
-    getShotList,
-    getMeetingShotList,
-    getShotListSpecial,
-    getShotDetail,
-    updateInitShot,
-    updateEditorShot,
-    updateEqualizingShot,
-    updateNeedMeetingShot,
-    updateShot,
-    updateShotStatus,
-    deleteShot,
-    deleteShotOfProject,
-    deleteShotsOfVideoFile,
-    createInitShot,
-    createEditorShot,
-    createEqualizingShot,
-    getShotOfVideoFile,
-    getInitShotOfVideoFile,
-    getEditorShotOfVideoFile,
-    getEqualizingShotOfVideoFile,
-    exportShotListSpecial,
-    getExportShotsId,
-    exportShots,
-    exportShotsOfProject,
-    exportShotsOfVideo,
-    exportExcel,
-    uploadExcel,
+    fetchBasicInfo,
+    fetchExportInfoShots,
+    fetchShotList,
+    fetchMeetingShotList,
+    fetchShotListSpecial,
+    fetchShotDetail,
+    modifyInitShot,
+    modifyEditorShot,
+    modifyEqualizingShot,
+    modifyNeedMeetingShot,
+    modifyShot,
+    modifyShotStatus,
+    removeShot,
+    removeShotOfProject,
+    removeShotsOfVideoFile,
+    addInitShot,
+    addEditorShot,
+    addEqualizingShot,
+    fetchShotOfVideoFile,
+    fetchInitShotOfVideoFile,
+    fetchEditorShotOfVideoFile,
+    fetchEqualizingShotOfVideoFile,
+    exportSpecialShotList,
+    fetchExportShotsId,
+    exportShotData,
+    exportProjectShots,
+    exportVideoShots,
+    exportToExcel,
+    importFromExcel,
 };

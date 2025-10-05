@@ -3,7 +3,7 @@ const { videoTemplateService } = require("../../services/videoFile/index");
 const VideoTemplateValidation = require("../../validation/videoFile/VideoTemplate.validation");
 const VideoTemplateResponse = require("../../dto/videoFile/VideoTemplate.response");
 
-const getVideoTemplateList = async (req, res) => {
+const fetchList = async (req, res) => {
     const templates = await videoTemplateService.getList(req.query);
 
     return ResponseDTO.success(res, {
@@ -12,14 +12,14 @@ const getVideoTemplateList = async (req, res) => {
     })
 }
 
-const showVideoTemplate = async (req, res) => {
+const show = async (req, res) => {
     const { templateId } = req.params;
     const template = await videoTemplateService.show(templateId);
 
     return ResponseDTO.success(res, VideoTemplateResponse.create(template));
 }
 
-const createVideoTemplate = async (req, res) => {
+const create = async (req, res) => {
     const { logoFile, ...fields } = req.body
 
     const file = logoFile?.toBuffer()
@@ -31,7 +31,7 @@ const createVideoTemplate = async (req, res) => {
     return ResponseDTO.success(res);
 }
 
-const updateVideoTemplate = async (req, res) => {
+const update = async (req, res) => {
     const { templateId } = req.params
 
     const { logoFile, ...fields } = req.body
@@ -45,16 +45,16 @@ const updateVideoTemplate = async (req, res) => {
     return ResponseDTO.success(res)
 }
 
-const deleteVideoTemplate = async (req, res) => {
+const destroy = async (req, res) => {
     const { templateId } = req.params
     await videoTemplateService.delete(templateId)
     return ResponseDTO.success(res)
 }
 
 module.exports = {
-    getVideoTemplateList,
-    showVideoTemplate,
-    createVideoTemplate,
-    updateVideoTemplate,
-    deleteVideoTemplate
+    fetchList,
+    show,
+    create,
+    update,
+    destroy
 };

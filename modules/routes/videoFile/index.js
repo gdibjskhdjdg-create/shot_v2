@@ -17,45 +17,45 @@ async function videoFileRoutes(fastify, opts) {
     /* ------------------------------ prefix: /api/videoFile ------------------------------ */
     fastify.get("/", {
         preHandler: CheckUserHaveValidAccessMiddleware([])
-    }, AsyncHandler(VideoFileController.getVideoFileList));
+    }, AsyncHandler(VideoFileController.fetchVideoFileList));
 
     fastify.patch("/:videoFileId", {
         preHandler: OnlyAdminMiddleware
-    }, AsyncHandler(VideoFileController.updateFileInfo));
+    }, AsyncHandler(VideoFileController.modifyFileInfo));
 
     // sources list routes
     fastify.get("/canBeShot", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access'])
-    }, AsyncHandler(VideoFileController.getVideoFileListCanBeShot));
+    }, AsyncHandler(VideoFileController.fetchVideoFileListCanBeShot));
 
     fastify.get("/canBeShot/init-check", {
         preHandler: CheckUserHaveValidAccessMiddleware([])
-    }, AsyncHandler(VideoFileController.getInitCheckVideoFileListCanBeShot));
+    }, AsyncHandler(VideoFileController.fetchInitCheckVideoFileListCanBeShot));
 
     fastify.get("/canBeShot/editor", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-editor'])
-    }, AsyncHandler(VideoFileController.getEditorCheckVideoFileListCanBeShot));
+    }, AsyncHandler(VideoFileController.fetchEditorCheckVideoFileListCanBeShot));
     fastify.get("/canBeShot/equalizing", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, AsyncHandler(VideoFileController.getEqualizingCheckVideoFileListCanBeShot));
+    }, AsyncHandler(VideoFileController.fetchEqualizingCheckVideoFileListCanBeShot));
     fastify.get("/canBeShot/equalized", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, AsyncHandler(VideoFileController.getEqualizedCheckVideoFileListCanBeShot));
+    }, AsyncHandler(VideoFileController.fetchEqualizedCheckVideoFileListCanBeShot));
     // ========================
 
     // sources detail list routes
     fastify.get("/detail/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access'])
-    }, AsyncHandler(VideoFileController.getVideoFileDetail));
+    }, AsyncHandler(VideoFileController.fetchVideoFileDetail));
     fastify.get("/detail/:videoFileId/init-check", {
         preHandler: CheckUserHaveValidAccessMiddleware([])
-    }, AsyncHandler(VideoFileController.getInitVideoFileDetail));
+    }, AsyncHandler(VideoFileController.fetchInitVideoFileDetail));
     fastify.get("/detail/:videoFileId/editor", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-editor'])
-    }, AsyncHandler(VideoFileController.getEditorVideoFileDetail));
+    }, AsyncHandler(VideoFileController.fetchEditorVideoFileDetail));
     fastify.get("/detail/:videoFileId/equalizing", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, AsyncHandler(VideoFileController.getEqualizingVideoFileDetail));
+    }, AsyncHandler(VideoFileController.fetchEqualizingVideoFileDetail));
 
     // =========================
 
@@ -63,73 +63,73 @@ async function videoFileRoutes(fastify, opts) {
     // fastify.post("/specProject/:projectId", CheckUserHaveValidAccessMiddleware([]), AsyncHandler(VideoFileController.getVideoFileOfPath));
     fastify.post("/specProject/init-check/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware([])
-    }, AsyncHandler(VideoFileController.getInitCheckVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchInitCheckVideoFileOfPath));
     fastify.post("/specProject/editor/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-editor'])
-    }, AsyncHandler(VideoFileController.getEditorVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchEditorVideoFileOfPath));
     fastify.post("/specProject/equalizing/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, AsyncHandler(VideoFileController.getEqualizingVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchEqualizingVideoFileOfPath));
     fastify.post("/specProject/equalized/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, AsyncHandler(VideoFileController.getEqualizedVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchEqualizedVideoFileOfPath));
 
     fastify.post("/specProject/init/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware([])
-    }, AsyncHandler(VideoFileController.getInitVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchInitVideoFileOfPath));
     fastify.post("/specProject/cleaning/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-cleaning'])
-    }, AsyncHandler(VideoFileController.getCleaningVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchCleaningVideoFileOfPath));
     fastify.post("/specProject/cleaned/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-cleaning'])
-    }, AsyncHandler(VideoFileController.getCleanedVideoFileOfPath));
+    }, AsyncHandler(VideoFileController.fetchCleanedVideoFileOfPath));
     // =========================
 
-    fastify.get("/show/:videoFileId", AsyncHandler(VideoFileController.showVideoFile));
+    fastify.get("/show/:videoFileId", AsyncHandler(VideoFileController.streamVideoFile));
 
     fastify.get("/log/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"])
-    }, AsyncHandler(VideoFileController.getVideoFileLog));
+    }, AsyncHandler(VideoFileController.fetchVideoFileLog));
 
     fastify.post("/assigned/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-to-user', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.assignVideoToUser));
+    }, AsyncHandler(VideoFileController.assignVideoToUserByQuery));
     fastify.put("/assigned/:videoFileId/:userId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-to-user', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.reassignVideo2User));
+    }, AsyncHandler(VideoFileController.reassignVideoToUser));
     fastify.put("/assigned/project/:projectId/:userId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-to-user', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.reassignVideosOfProject2User));
+    }, AsyncHandler(VideoFileController.reassignProjectVideosToUser));
     fastify.put("/assignedByPath/project/:projectId/:userId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-to-user', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.reassignVideosByPath));
+    }, AsyncHandler(VideoFileController.reassignVideosByPathToUser));
 
     /** set important to all videos of project */
     fastify.put("/important/project/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access"])
-    }, AsyncHandler(VideoFileController.setImportantVideosOfProject));
+    }, AsyncHandler(VideoFileController.markImportantVideosOfProject));
     /** set owner to all videos of project */
     fastify.put('/detail/setOwner/:projectId', {
         preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access"])
-    }, AsyncHandler(VideoDetailController.setOwner2FilesProject));
+    }, AsyncHandler(VideoDetailController.assignOwnerToProjectFiles));
 
     fastify.put("/important/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access"])
-    }, AsyncHandler(VideoFileController.setImportantEncodeVideo));
+    }, AsyncHandler(VideoFileController.markImportantEncodeVideo));
 
     fastify.post("/upload", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-upload', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.uploadVideoFile));
+    }, AsyncHandler(VideoFileController.importVideoFile));
     fastify.post("/upload/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['video-upload', "videos-full-access"])
-    }, AsyncHandler(VideoFileController.reassignVideoFile));
+    }, AsyncHandler(VideoFileController.reimportVideoFile));
 
     fastify.delete("/:videoFileId", {
         preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access"])
-    }, AsyncHandler(VideoFileController.deleteVideoFile));
+    }, AsyncHandler(VideoFileController.removeVideoFile));
     fastify.delete("/mainFileProject/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(["project-manage", "videos-full-access"])
-    }, AsyncHandler(VideoFileController.deleteVideoMainFile));
+    }, AsyncHandler(VideoFileController.removeVideoMainFile));
 
 }
 module.exports = videoFileRoutes;

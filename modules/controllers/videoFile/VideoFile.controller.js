@@ -7,7 +7,7 @@ const VideoFileListQuery = require('../../dto/videoFile/VideoFileList.query');
 const ErrorResult = require('../../../helper/error.tool');
 const VideoDetailResponse = require('../../dto/videoDetail/VideoDetail.response');
 
-const getVideoFileList = async (req, res) => {
+const fetchVideoFileList = async (req, res) => {
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
@@ -29,7 +29,7 @@ const getVideoFileList = async (req, res) => {
     return ResponseDTO.success(res, { videoFiles: VideoFileResponse.create(videoFiles), count });
 }
 
-const getVideoFileListCanBeShot = async (req, res) => {
+const fetchVideoFileListCanBeShot = async (req, res) => {
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
@@ -53,7 +53,7 @@ const getVideoFileListCanBeShot = async (req, res) => {
     return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
-const getInitCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchInitCheckVideoFileListCanBeShot = async (req, res) => {
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
@@ -75,7 +75,7 @@ const getInitCheckVideoFileListCanBeShot = async (req, res) => {
     return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
-const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEditorCheckVideoFileListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -90,7 +90,7 @@ const getEditorCheckVideoFileListCanBeShot = async (req, res) => {
     return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
-const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -105,7 +105,7 @@ const getEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
     return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
 }
 
-const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -148,7 +148,7 @@ const getEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
 //     return ResponseDTO.success(res, videoFiles);
 // }
 
-const getInitCheckVideoFileOfPath = async (req, res) => {
+const fetchInitCheckVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -172,7 +172,7 @@ const getInitCheckVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getEditorVideoFileOfPath = async (req, res) => {
+const fetchEditorVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -187,7 +187,7 @@ const getEditorVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getEqualizingVideoFileOfPath = async (req, res) => {
+const fetchEqualizingVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -202,7 +202,7 @@ const getEqualizingVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getEqualizedVideoFileOfPath = async (req, res) => {
+const fetchEqualizedVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -217,7 +217,7 @@ const getEqualizedVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getInitVideoFileOfPath = async (req, res) => {
+const fetchInitVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -240,7 +240,7 @@ const getInitVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getCleaningVideoFileOfPath = async (req, res) => {
+const fetchCleaningVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -255,7 +255,7 @@ const getCleaningVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getCleanedVideoFileOfPath = async (req, res) => {
+const fetchCleanedVideoFileOfPath = async (req, res) => {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -270,13 +270,13 @@ const getCleanedVideoFileOfPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getVideoFileDetail = async (req, res) => {
+const fetchVideoFileDetail = async (req, res) => {
     const { videoFileId } = req.params;
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId);
     return ResponseDTO.success(res, videoFiles)
 }
 
-const getInitVideoFileDetail = async (req, res) => {
+const fetchInitVideoFileDetail = async (req, res) => {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -287,7 +287,7 @@ const getInitVideoFileDetail = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const getEditorVideoFileDetail = async (req, res) => {
+const fetchEditorVideoFileDetail = async (req, res) => {
     const { videoFileId } = req.params;
     const filters = {}
     filters.shotStatus = ['editor', 'equalizing']
@@ -297,7 +297,7 @@ const getEditorVideoFileDetail = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const getEqualizingVideoFileDetail = async (req, res) => {
+const fetchEqualizingVideoFileDetail = async (req, res) => {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -308,7 +308,7 @@ const getEqualizingVideoFileDetail = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const getVideoFileLog = async (req, res) => {
+const fetchVideoFileLog = async (req, res) => {
     const { videoFileId } = req.params;
 
     const logs = await videoFileService.getVideoFileLog(videoFileId);
@@ -316,7 +316,7 @@ const getVideoFileLog = async (req, res) => {
     return ResponseDTO.success(res, logs)
 }
 
-const setImportantEncodeVideo = async (req, res) => {
+const markImportantEncodeVideo = async (req, res) => {
     const { videoFileId } = req.params;
     const { isImportant } = req.body
     await videoFileService.setImportantEncodeVideo(+videoFileId, isImportant)
@@ -324,7 +324,7 @@ const setImportantEncodeVideo = async (req, res) => {
 }
 
 // assign to user ***********************
-const reassignProjectVideoFileBy = async (req, res) => {
+const reassignProjectVideoFileByUser = async (req, res) => {
     const { projectId, videoFileId, userId } = req.params;
 
     const videoFiles = await videoFileService.assignToUserByVideoFileIdProjectId(projectId, videoFileId, userId);
@@ -332,7 +332,7 @@ const reassignProjectVideoFileBy = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const reassignVideosByPath = async (req, res) => {
+const reassignVideosByPathToUser = async (req, res) => {
     const { projectId, userId } = req.params;
     const { path } = req.body
 
@@ -341,7 +341,7 @@ const reassignVideosByPath = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const reassignVideosOfProject2User = async (req, res) => {
+const reassignProjectVideosToUser = async (req, res) => {
     const { projectId, userId } = req.params;
 
     const videoFiles = await videoFileService.assignVideosOfProject2User(projectId, userId);
@@ -349,13 +349,13 @@ const reassignVideosOfProject2User = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const reassignVideo2User = async (req, res) => {
+const reassignVideoToUser = async (req, res) => {
     const { videoFileId, userId } = req.params;
     const videoFiles = await videoFileService.assignVideoFile2User(videoFileId, userId);
     return ResponseDTO.success(res, videoFiles)
 }
 
-const assignVideoToUser = async (req, res) => {
+const assignVideoToUserByQuery = async (req, res) => {
     const {
         userId,
         originalPath = "",
@@ -375,7 +375,7 @@ const assignVideoToUser = async (req, res) => {
  * @param {*} res 
  * @returns 
  */
-const setImportantVideosOfProject = async (req, res) => {
+const markImportantVideosOfProject = async (req, res) => {
     const { projectId } = req.params;
     const { isImportant } = req.body
 
@@ -384,30 +384,30 @@ const setImportantVideosOfProject = async (req, res) => {
     return ResponseDTO.success(res, {});
 }
 
-const deleteVideoFile = async (req, res) => {
+const removeVideoFile = async (req, res) => {
     const { videoFileId } = req.params;
     await videoFileService.deleteVideoFile(videoFileId);
     return ResponseDTO.success(res, {});
 }
 
-const deleteVideoMainFile = async (req, res) => {
+const removeVideoMainFile = async (req, res) => {
     const { projectId } = req.params;
     await videoFileService.deleteMainFileOfProject(projectId);
     return ResponseDTO.success(res);
 }
 
-const uploadVideoFile = async (req, res) => {
+const importVideoFile = async (req, res) => {
     await videoFileService.uploadVideoFile(req);
     return ResponseDTO.success(res, {});
 }
 
-const reassignVideoFile = async (req, res) => {
+const reimportVideoFile = async (req, res) => {
     const { videoFileId } = req.params
     await videoFileService.uploadVideoFile(req, { videoId: videoFileId });
     return ResponseDTO.success(res, {});
 }
 
-const showVideoFile = async (req, reply) => {
+const streamVideoFile = async (req, reply) => {
     try {
         const { videoFileId } = req.params;
         const { videoPath, videoSize } = await videoFileService.getVideoFileToShow(videoFileId, req, reply);
@@ -444,7 +444,7 @@ const showVideoFile = async (req, reply) => {
     }
 }
 
-const updateFileInfo = async (req, res) => {
+const modifyFileInfo = async (req, res) => {
     const { videoFileId } = req.params;
     const body = req.body;
 
@@ -453,35 +453,35 @@ const updateFileInfo = async (req, res) => {
 }
 
 module.exports = {
-    getVideoFileList,
-    getVideoFileListCanBeShot,
-    getInitCheckVideoFileListCanBeShot,
-    getEditorCheckVideoFileListCanBeShot,
-    getEqualizingCheckVideoFileListCanBeShot,
-    getEqualizedCheckVideoFileListCanBeShot,
-    getInitCheckVideoFileOfPath,
-    getEditorVideoFileOfPath,
-    getEqualizingVideoFileOfPath,
-    getEqualizedVideoFileOfPath,
-    getInitVideoFileOfPath,
-    getCleaningVideoFileOfPath,
-    getCleanedVideoFileOfPath,
-    getVideoFileDetail,
-    getInitVideoFileDetail,
-    getEditorVideoFileDetail,
-    getEqualizingVideoFileDetail,
-    getVideoFileLog,
-    setImportantEncodeVideo,
-    reassignProjectVideoFileBy,
-    reassignVideosByPath,
-    reassignVideosOfProject2User,
-    reassignVideo2User,
-    assignVideoToUser,
-    setImportantVideosOfProject,
-    deleteVideoFile,
-    deleteVideoMainFile,
-    uploadVideoFile,
-    reassignVideoFile,
-    showVideoFile,
-    updateFileInfo
+    fetchVideoFileList,
+    fetchVideoFileListCanBeShot,
+    fetchInitCheckVideoFileListCanBeShot,
+    fetchEditorCheckVideoFileListCanBeShot,
+    fetchEqualizingCheckVideoFileListCanBeShot,
+    fetchEqualizedCheckVideoFileListCanBeShot,
+    fetchInitCheckVideoFileOfPath,
+    fetchEditorVideoFileOfPath,
+    fetchEqualizingVideoFileOfPath,
+    fetchEqualizedVideoFileOfPath,
+    fetchInitVideoFileOfPath,
+    fetchCleaningVideoFileOfPath,
+    fetchCleanedVideoFileOfPath,
+    fetchVideoFileDetail,
+    fetchInitVideoFileDetail,
+    fetchEditorVideoFileDetail,
+    fetchEqualizingVideoFileDetail,
+    fetchVideoFileLog,
+    markImportantEncodeVideo,
+    reassignProjectVideoFileByUser,
+    reassignVideosByPathToUser,
+    reassignProjectVideosToUser,
+    reassignVideoToUser,
+    assignVideoToUserByQuery,
+    markImportantVideosOfProject,
+    removeVideoFile,
+    removeVideoMainFile,
+    importVideoFile,
+    reimportVideoFile,
+    streamVideoFile,
+    modifyFileInfo
 };

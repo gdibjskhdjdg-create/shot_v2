@@ -7,8 +7,8 @@ const VideoDetailLogController = require("../../controllers/videoDetail/VideoDet
 async function videoDetailLogRoutes(fastify, opts) {
 
     fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/:videoFileId", AsyncHandler(VideoDetailLogController.getList));
-    fastify.post("/:videoFileId", AsyncHandler(VideoDetailLogController.create));
+    fastify.get("/:videoFileId", AsyncHandler(VideoDetailLogController.fetchList));
+    fastify.post("/:videoFileId", AsyncHandler(VideoDetailLogController.add));
 }
 
 module.exports = videoDetailLogRoutes;

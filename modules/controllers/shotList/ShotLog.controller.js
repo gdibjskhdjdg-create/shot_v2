@@ -1,7 +1,7 @@
 const ResponseDTO = require("../../_default/Response.dto");
 const { shotLogService } = require("../../services/shotList/index");
 
-async function getList(req, res) {
+async function fetchList(req, res) {
     const { shotId } = req.params
 
     const files = await shotLogService.getShotLogList(shotId, req.query)
@@ -9,17 +9,17 @@ async function getList(req, res) {
 }
 
 
-async function report(req, res) {
+async function generateReport(req, res) {
     const report = await shotLogService.getShoteReport(req.query)
     return ResponseDTO.success(res, report)
 }
 
-async function getSpecificDayReport(req, res) {
+async function fetchSpecificDayReport(req, res) {
     const report = await shotLogService.specificDayLogReport(req.query)
     return ResponseDTO.success(res, report)
 }
 
-async function exportUserProjectsReport(req, res) {
+async function exportUserProjectsData(req, res) {
     const { exportType, userId } = req.params
     let result = {}
     if (exportType == 'excel') {
@@ -28,14 +28,14 @@ async function exportUserProjectsReport(req, res) {
     return ResponseDTO.success(res, result)
 }
 
-async function geUserProjectsReport(req, res) {
+async function fetchUserProjectsReport(req, res) {
     const { userId } = req.params
     const report = await shotLogService.getUserProjectsReport(userId, req.query)
     return ResponseDTO.success(res, report)
 }
 
 
-async function exportDailyReport(req, res) {
+async function exportDailyData(req, res) {
     const { exportType } = req.params
     let result = {}
     if (exportType == 'excel') {
@@ -45,13 +45,13 @@ async function exportDailyReport(req, res) {
 }
 
 
-async function getDailyReport(req, res) {
+async function fetchDailyReport(req, res) {
     const report = await shotLogService.getDailyReport(req.query)
     return ResponseDTO.success(res, report)
 }
 
 
-async function create(req, res) {
+async function add(req, res) {
     const userId = req.user.id
     const { shotId } = req.params
 
@@ -62,12 +62,12 @@ async function create(req, res) {
 
 
 module.exports = {
-    getList,
-    report,
-    getSpecificDayReport,
-    exportUserProjectsReport,
-    geUserProjectsReport,
-    exportDailyReport,
-    getDailyReport,
-    create
+    fetchList,
+    generateReport,
+    fetchSpecificDayReport,
+    exportUserProjectsData,
+    fetchUserProjectsReport,
+    exportDailyData,
+    fetchDailyReport,
+    add
 }

@@ -10,9 +10,9 @@ async function videoScoreLogRoutes(fastify, opts) {
 
     // fastify.addHook('preHandler', [OnlyLoginUserMiddleware(), heckUserHaveValidAccessMiddleware(['shot-main-score', 'shot-list-score', 'shot-equalize-score', 'shot-editing-score']]);
 
-    fastify.get("/", AsyncHandler(VideoDetailScoreController.listBySection))
-    fastify.get("/:videoFileId", AsyncHandler(VideoDetailScoreController.fetchItems));
-    fastify.post("/:videoFileId", AsyncHandler(VideoDetailScoreController.store));
+    fastify.get("/", AsyncHandler(VideoDetailScoreController.fetchListBySection))
+    fastify.get("/:videoFileId", AsyncHandler(VideoDetailScoreController.fetchAllItems));
+    fastify.post("/:videoFileId", AsyncHandler(VideoDetailScoreController.save));
 
 }
 

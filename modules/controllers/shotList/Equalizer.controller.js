@@ -5,7 +5,7 @@ const { equalizerService } = require("../../services/shotList/index");
 const ErrorResult = require("../../../helper/error.tool");
 
 
-async function getVideoFileOfPathForEqualizer(req, res) {
+async function fetchVideoFileOfPathForEqualizer(req, res) {
     const { projectId } = req.params;
     const { reqPath } = req.body;
 
@@ -19,7 +19,7 @@ async function getVideoFileOfPathForEqualizer(req, res) {
     return ResponseDTO.success(res, videoFiles);
 }
 
-async function getEqualizeList(req, res) {
+async function fetchEqualizeList(req, res) {
     const validKey = ["page", "take", "userId", "videoFileId", "projectId", "status"];
     const filters = getDataFromReqQuery(req, validKey);
     const user = req.user;
@@ -37,14 +37,14 @@ async function getEqualizeList(req, res) {
     return ResponseDTO.success(res, videoFiles);
 }
 
-async function getEqualizeCompare(req, res) {
+async function fetchEqualizeCompare(req, res) {
     const { equalizeId } = req.params;
 
     const response = await equalizerService.getCompare(equalizeId);
     return ResponseDTO.success(res, response);
 }
 
-async function startEqualizeProcess(req, res) {
+async function initiateEqualizeProcess(req, res) {
     const { shotId } = req.params;
     const { user } = req;
 
@@ -52,7 +52,7 @@ async function startEqualizeProcess(req, res) {
     return ResponseDTO.success(res);
 }
 
-async function submitStatusEqualizerShot(req, res) {
+async function submitEqualizerShotStatus(req, res) {
     const { shotId } = req.params;
     const { user } = req;
     const { status, description, newData, oldData } = req.body;
@@ -61,7 +61,7 @@ async function submitStatusEqualizerShot(req, res) {
     return ResponseDTO.success(res)
 }
 
-async function getReports(req, res) {
+async function fetchReports(req, res) {
 
     if (!queries.userId) {
         throw ErrorResult.badRequest(null, "userId is required");
@@ -73,11 +73,11 @@ async function getReports(req, res) {
 }
 
 module.exports = {
-    getVideoFileOfPathForEqualizer,
-    getEqualizeList,
-    getEqualizeCompare,
-    startEqualizeProcess,
-    submitStatusEqualizerShot,
-    getReports
+    fetchVideoFileOfPathForEqualizer,
+    fetchEqualizeList,
+    fetchEqualizeCompare,
+    initiateEqualizeProcess,
+    submitEqualizerShotStatus,
+    fetchReports
 
 };

@@ -4,7 +4,7 @@ const ProjectQuery = require("../../dto/project/Project.query");
 const ProjectValidation = require("../../validation/project/Project.validation");
 const { projectService } = require("../../services/project/index");
 
-async function getProjects(req, res) {
+async function fetchProjects(req, res) {
     const filters = ProjectQuery.create({
         page: 1, take: 10, ...req.query
     });
@@ -19,7 +19,7 @@ async function getProjects(req, res) {
     return ResponseDTO.success(res, { projects: ProjectResponse.create(projects), count });
 }
 
-async function exportUserReportProject(req, res) {
+async function exportUserProjectReport(req, res) {
     const { exportType, projectId } = req.params
     let result = {}
     if (exportType == 'excel') {
@@ -28,13 +28,13 @@ async function exportUserReportProject(req, res) {
     return ResponseDTO.success(res, result)
 }
 
-async function userReportProject(req, res) {
+async function fetchUserProjectReport(req, res) {
     const { projectId } = req.params;
     const report = await projectService.userReportProject(projectId, req.query)
     return ResponseDTO.success(res, report)
 }
 
-async function exportReportPerProject(req, res) {
+async function exportPerProjectReport(req, res) {
     const { exportType } = req.params
     let result = {}
     if (exportType == 'excel') {
@@ -43,19 +43,19 @@ async function exportReportPerProject(req, res) {
     return ResponseDTO.success(res, result)
 }
 
-async function reportPerProject(req, res) {
+async function fetchPerProjectReport(req, res) {
     const report = await projectService.reportPerProject(req.query)
     return ResponseDTO.success(res, report)
 }
 
-async function createProjects(req, res) {
+async function addProjects(req, res) {
     const validData = ProjectValidation.createProject(req.body);
     const project = await projectService.createProject(validData);
 
     return ResponseDTO.success(res, { project: ProjectResponse.create(project) });
 }
 
-async function updateProjects(req, res) {
+async function modifyProjects(req, res) {
     const { projectId } = req.params;
     const validData = ProjectValidation.createProject(req.body);
     const project = await projectService.updateProject(projectId, validData);
@@ -63,19 +63,19 @@ async function updateProjects(req, res) {
     return ResponseDTO.success(res, { project: ProjectResponse.create(project) });
 }
 
-async function assignVideoFilesOfProjectToUser(req, res) {
+async function assignProjectVideoFilesToUser(req, res) {
     const { projectId, userId } = req.params;
     return ResponseDTO.success(res);
 }
 
-async function deleteProjects(req, res) {
+async function removeProjects(req, res) {
     const { projectId } = req.params;
     await projectService.deleteProject(projectId);
     return ResponseDTO.success(res);
 }
 
 
-async function deleteMainFileOfProject(req, res) {
+async function removeMainFileOfProject(req, res) {
     const { projectId } = req.params;
     await projectService.deleteMainFileOfProject(projectId);
     return ResponseDTO.success(res);
@@ -83,14 +83,14 @@ async function deleteMainFileOfProject(req, res) {
 
 
 module.exports = {
-    getProjects,
-    exportUserReportProject,
-    userReportProject,
-    exportReportPerProject,
-    reportPerProject,
-    createProjects,
-    updateProjects,
-    assignVideoFilesOfProjectToUser,
-    deleteProjects,
-    deleteMainFileOfProject
+    fetchProjects,
+    exportUserProjectReport,
+    fetchUserProjectReport,
+    exportPerProjectReport,
+    fetchPerProjectReport,
+    addProjects,
+    modifyProjects,
+    assignProjectVideoFilesToUser,
+    removeProjects,
+    removeMainFileOfProject
 }

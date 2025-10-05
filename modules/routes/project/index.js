@@ -14,38 +14,38 @@ async function projectRoutes(fastify, opts) {
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['report-project-user'])
         },
-        AsyncHandler(ProjectController.userReportProject));
+        AsyncHandler(ProjectController.fetchUserProjectReport));
 
 
     fastify.get('/report/user/:projectId/export/:exportType',
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['report-project-user'])
         },
-        AsyncHandler(ProjectController.exportUserReportProject));
+        AsyncHandler(ProjectController.exportUserProjectReport));
 
     fastify.get('/report/perProject', {
         preHandler: CheckUserHaveValidAccessMiddleware(['report-per-project'])
     },
-        AsyncHandler(ProjectController.reportPerProject));
+        AsyncHandler(ProjectController.fetchPerProjectReport));
 
     fastify.get('/report/perProject/export/:exportType', {
         preHandler: CheckUserHaveValidAccessMiddleware(['report-per-project'])
-    }, AsyncHandler(ProjectController.exportReportPerProject));
+    }, AsyncHandler(ProjectController.exportPerProjectReport));
 
     fastify.get("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(["projects-list", "project-manage"])
-    }, AsyncHandler(ProjectController.getProjects));
+    }, AsyncHandler(ProjectController.fetchProjects));
 
     fastify.post("/", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.createProjects));
+    }, AsyncHandler(ProjectController.addProjects));
 
     fastify.patch("/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.updateProjects));
+    }, AsyncHandler(ProjectController.modifyProjects));
 
     fastify.delete("/:projectId", {
         preHandler: CheckUserHaveValidAccessMiddleware(['project-manage'])
-    }, AsyncHandler(ProjectController.deleteProjects));
+    }, AsyncHandler(ProjectController.removeProjects));
 }
 module.exports = projectRoutes;

@@ -8,9 +8,9 @@ const ShotScoreController = require("../../controllers/shotList/ShotScore.contro
 async function shotScoreROutes(fastify, opts) {
 
 
-    fastify.get("/", AsyncHandler(ShotScoreController.listBySection))
-    fastify.get("/:shotId", AsyncHandler(ShotScoreController.fetchItems));
-    fastify.post("/:shotId", AsyncHandler(ShotScoreController.store));
+    fastify.get("/", AsyncHandler(ShotScoreController.fetchListBySection))
+    fastify.get("/:shotId", AsyncHandler(ShotScoreController.fetchAllItems));
+    fastify.post("/:shotId", AsyncHandler(ShotScoreController.save));
 
 }
 

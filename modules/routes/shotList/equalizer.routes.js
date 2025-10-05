@@ -9,31 +9,31 @@ async function equalizerRoutes(fastify, opts) {
     fastify.post("/path/:projectId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.getVideoFileOfPathForEqualizer));
+        }, AsyncHandler(EqualizerController.fetchVideoFileOfPathForEqualizer));
 
     fastify.get("/compare/:equalizeId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.getEqualizeCompare));
+        }, AsyncHandler(EqualizerController.fetchEqualizeCompare));
 
     fastify.get("/reports",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.getReports));
+        }, AsyncHandler(EqualizerController.fetchReports));
 
     fastify.post("/start/:shotId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.startEqualizeProcess));
+        }, AsyncHandler(EqualizerController.initiateEqualizeProcess));
 
     fastify.post("/confirm/:shotId",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.submitStatusEqualizerShot));
+        }, AsyncHandler(EqualizerController.submitEqualizerShotStatus));
 
     fastify.get("/",
         {
             preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.getEqualizeList));
+        }, AsyncHandler(EqualizerController.fetchEqualizeList));
 }
 module.exports = equalizerRoutes;

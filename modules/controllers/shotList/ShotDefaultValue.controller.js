@@ -3,21 +3,21 @@ const ResponseDTO = require("../../_default/Response.dto");
 const ShotDefaultValueValidation = require("../../validation/shotList/ShotDefaultValue.validation");
 const ShotDefaultValueService = require("../../services/shotList/ShotDefaultValue.service");
 
-async function get(req, res) {
+async function fetch(req, res) {
 
     const response = await CategoryService.get(req.query);
 
     return ResponseDTO.success(res, CategoryResponse.create(response));
 }
 
-async function create(req, res) {
+async function add(req, res) {
     const validData = await ShotDefaultValueValidation.create(req.body);
     const response = await ShotDefaultValueService.create(validData);
 
     return ResponseDTO.success(res, ShotDefaultValueResponse.create(response));
 }
 
-async function update(req, res) {
+async function modify(req, res) {
     const { id } = req.params;
     const validData = await ShotDefaultValueValidation.update(id, req.body);
     const response = await ShotDefaultValueService.update(id, validData);
@@ -25,26 +25,26 @@ async function update(req, res) {
     return ResponseDTO.success(res, ShotDefaultValueResponse.create(response));
 }
 
-async function destroy(req, res) {
+async function remove(req, res) {
     const { id } = req.params;
     await CategoryService.delete(id);
     return ResponseDTO.success(res);
 }
 
-async function getList(req, res) {
+async function fetchList(req, res) {
     const { section } = req.params
 
     const list = await ShotDefaultValueService.getList(section, req.query)
     return ResponseDTO.success(res, list)
 }
 
-async function getShots(req, res) {
+async function fetchShots(req, res) {
     const { section, id } = req.params
     const shots = await ShotDefaultValueService.getShotsOfValue(section, id, req.query)
     return ResponseDTO.success(res, shots)
 }
 
-async function detachShot(req, res) {
+async function disconnectShot(req, res) {
     const { section, shotId } = req.params
     await ShotDefaultValueService.detachShotFromValue(section, shotId)
     return ResponseDTO.success(res)
@@ -52,11 +52,11 @@ async function detachShot(req, res) {
 }
 
 module.exports = {
-    get,
-    create,
-    update,
-    destroy,
-    getList,
-    getShots,
-    detachShot
+    fetch,
+    add,
+    modify,
+    remove,
+    fetchList,
+    fetchShots,
+    disconnectShot
 }
