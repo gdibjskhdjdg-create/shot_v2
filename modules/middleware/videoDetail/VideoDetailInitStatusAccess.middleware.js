@@ -1,8 +1,8 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const ErrorResult = require("../../../helper/error.tool");
 const { videoDetailService } = require("../../services/videoDetail");
 
-module.exports = AsyncHandler(async (req, res, next) => {
+module.exports = ErrorBoundary(async (req, res, next) => {
     const { videoFileId } = req.params;
     const access = await videoDetailService.checkCanUpdateInitVideoDetail(videoFileId);
     if (access) {

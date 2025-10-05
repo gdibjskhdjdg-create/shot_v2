@@ -1,6 +1,6 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const EqualizerController = require("../../controllers/shotList/Equalizer.controller");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 
 /* ------------------------------ prefix: /api/shotList/equalizer ------------------------------ */
@@ -8,32 +8,32 @@ async function equalizerRoutes(fastify, opts) {
 
     fastify.post("/path/:projectId",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.fetchVideoFileOfPathForEqualizer));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.fetchVideoFileOfPathForEqualizer));
 
     fastify.get("/compare/:equalizeId",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.fetchEqualizeCompare));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.fetchEqualizeCompare));
 
     fastify.get("/reports",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.fetchReports));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.fetchReports));
 
     fastify.post("/start/:shotId",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.initiateEqualizeProcess));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.initiateEqualizeProcess));
 
     fastify.post("/confirm/:shotId",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.submitEqualizerShotStatus));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.submitEqualizerShotStatus));
 
     fastify.get("/",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['shot-list-equalize'])
-        }, AsyncHandler(EqualizerController.fetchEqualizeList));
+            preHandler: AuthorizationMiddleware(['shot-list-equalize'])
+        }, ErrorBoundary(EqualizerController.fetchEqualizeList));
 }
 module.exports = equalizerRoutes;

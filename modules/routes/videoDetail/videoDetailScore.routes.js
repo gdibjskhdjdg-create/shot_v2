@@ -1,4 +1,4 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 
 const VideoDetailScoreController = require("../../controllers/videoDetail/VideoDetailScore.controller");
 
@@ -6,13 +6,12 @@ const VideoDetailScoreController = require("../../controllers/videoDetail/VideoD
 async function videoScoreLogRoutes(fastify, opts) {
 
     // router.use(OnlyLoginUserMiddleware())
-    // router.use(CheckUserHaveValidAccessMiddleware(['shot-main-score', 'shot-list-score', 'shot-equalize-score', 'shot-editing-score']))
 
     // fastify.addHook('preHandler', [OnlyLoginUserMiddleware(), heckUserHaveValidAccessMiddleware(['shot-main-score', 'shot-list-score', 'shot-equalize-score', 'shot-editing-score']]);
 
-    fastify.get("/", AsyncHandler(VideoDetailScoreController.fetchListBySection))
-    fastify.get("/:videoFileId", AsyncHandler(VideoDetailScoreController.fetchAllItems));
-    fastify.post("/:videoFileId", AsyncHandler(VideoDetailScoreController.save));
+    fastify.get("/", ErrorBoundary(VideoDetailScoreController.fetchListBySection))
+    fastify.get("/:videoFileId", ErrorBoundary(VideoDetailScoreController.fetchAllItems));
+    fastify.post("/:videoFileId", ErrorBoundary(VideoDetailScoreController.save));
 
 }
 

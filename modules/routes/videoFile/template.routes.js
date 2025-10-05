@@ -1,18 +1,18 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const VideoTemplateController = require("../../controllers/videoFile/VideoTemplate.controller");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 /* ------------------------------ prefix: /api/videoFile/template ------------------------------ */
 
 async function videoTemplateRoutes(fastify, opts) {
 
-    fastify.addHook('preHandler', CheckUserHaveValidAccessMiddleware(['template-manage']));
+    fastify.addHook('preHandler', AuthorizationMiddleware(['template-manage']));
 
-    fastify.get('/', AsyncHandler(VideoTemplateController.getVideoTemplateList))
-    fastify.get('/:templateId', AsyncHandler(VideoTemplateController.showVideoTemplate))
-    fastify.post("/", AsyncHandler(VideoTemplateController.createVideoTemplate))
-    fastify.patch("/:templateId", AsyncHandler(VideoTemplateController.updateVideoTemplate))
-    fastify.delete("/:templateId", AsyncHandler(VideoTemplateController.deleteVideoTemplate))
+    fastify.get('/', ErrorBoundary(VideoTemplateController.fetchList))
+    fastify.get('/:templateId', ErrorBoundary(VideoTemplateController.show))
+    fastify.post("/", ErrorBoundary(VideoTemplateController.create))
+    fastify.patch("/:templateId", ErrorBoundary(VideoTemplateController.update))
+    fastify.delete("/:templateId", ErrorBoundary(VideoTemplateController.destroy))
 
 }
 module.exports = videoTemplateRoutes;

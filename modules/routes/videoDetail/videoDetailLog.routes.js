@@ -1,14 +1,14 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
 const VideoDetailLogController = require("../../controllers/videoDetail/VideoDetailLog.controller");
 
 /* ------------------------------ prefix: /api/videoDetail/log ------------------------------ */
 async function videoDetailLogRoutes(fastify, opts) {
 
-    fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/:videoFileId", AsyncHandler(VideoDetailLogController.fetchList));
-    fastify.post("/:videoFileId", AsyncHandler(VideoDetailLogController.add));
+    fastify.addHook('preHandler', LoginRequiredMiddleware());
+    fastify.get("/:videoFileId", ErrorBoundary(VideoDetailLogController.fetchList));
+    fastify.post("/:videoFileId", ErrorBoundary(VideoDetailLogController.add));
 }
 
 module.exports = videoDetailLogRoutes;

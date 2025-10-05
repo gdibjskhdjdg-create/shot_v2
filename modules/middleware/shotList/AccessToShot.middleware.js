@@ -1,8 +1,8 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const ErrorResult = require("../../../helper/error.tool");
 const { shotService } = require("../../services/shotList");
 
-module.exports = AsyncHandler(async (req, res, next) => {
+module.exports = ErrorBoundary(async (req, res, next) => {
     const user = req.user;
     const { id } = req.params;
 

@@ -1,10 +1,10 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const ErrorResult = require("../../../helper/error.tool");
 const AuthService = require("../../services/user/Auth.service");
 
 
 
-module.exports = AsyncHandler(async (req, reply) => {
+module.exports = ErrorBoundary(async (req, reply) => {
     let user = null;
     let token = null;
     if(req.headers.authorization){

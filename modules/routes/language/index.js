@@ -1,30 +1,30 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const LanguageController = require("../../controllers/language/Language.controller");
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 /* ------------------------------ prefix: /api/language ------------------------------ */
 async function languageRoutes(fastify, opts) {
-    fastify.addHook('preHandler', OnlyLoginUserMiddleware());
+    fastify.addHook('preHandler', LoginRequiredMiddleware());
 
-    fastify.get("/", AsyncHandler(LanguageController.get));
-    fastify.get("/list", AsyncHandler(LanguageController.list));
-    fastify.get("/shots/:id", AsyncHandler(LanguageController.shots));
-    fastify.post("/", AsyncHandler(LanguageController.create));
+    fastify.get("/", ErrorBoundary(LanguageController.get));
+    fastify.get("/list", ErrorBoundary(LanguageController.list));
+    fastify.get("/shots/:id", ErrorBoundary(LanguageController.shots));
+    fastify.post("/", ErrorBoundary(LanguageController.create));
     fastify.patch("/:id",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(LanguageController.update));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(LanguageController.update));
 
     fastify.delete("/:id",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(LanguageController.destroy));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(LanguageController.destroy));
 
     fastify.delete("/:id/:shotId",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(LanguageController.removeShot));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(LanguageController.removeShot));
 }
 
 module.exports = languageRoutes;

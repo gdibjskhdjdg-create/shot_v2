@@ -1,16 +1,16 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 const TagInVideoController = require("../../controllers/tag/TagInVideo.controller");
 
 // tag in video
 async function tagInVideoRoutes(fastify, opts) {
 
-    fastify.get("/", AsyncHandler(TagInVideoController.fetchTagsInVideo));
-    fastify.get("/shots/:tagId", AsyncHandler(TagInVideoController.fetchShots));
-    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagInVideoController.disconnectShotFromTag));
+    fastify.get("/", ErrorBoundary(TagInVideoController.fetchTagsInVideo));
+    fastify.get("/shots/:tagId", ErrorBoundary(TagInVideoController.fetchShots));
+    fastify.delete("/shots/:shotId/:tagId", ErrorBoundary(TagInVideoController.disconnectShotFromTag));
     fastify.delete("/:tagId", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['tag-manage'])
-    }, AsyncHandler(TagInVideoController.removeTag));
+        preHandler: AuthorizationMiddleware(['tag-manage'])
+    }, ErrorBoundary(TagInVideoController.removeTag));
 }
 
 module.exports = tagInVideoRoutes;

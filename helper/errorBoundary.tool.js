@@ -2,18 +2,18 @@ const TypeTool = require("./type.tool");
 const ErrorResult = require("./error.tool");
 const { ValidationError } = require("sequelize");
 const ResponseDTO = require("../modules/_default/Response.dto");
-const { getDataFromReqQuery } = require("./general.tool");
+const { reqQuery2Params } = require("./general.tool");
 
-function AsyncHandler(fn) {
+function ErrorBoundary(fn) {
     return async function (request, reply) {
         try {
 
-            const query = getDataFromReqQuery(request)
+            const query = reqQuery2Params(request)
             request.query = query
             await fn(request, reply);
         }
         catch (err) {
-            let functionName = "asyncHandler";
+            let functionName = "errorBoundary";
             if (typeof fn === "function") {
                 functionName = fn.name;
             }
@@ -38,4 +38,4 @@ function AsyncHandler(fn) {
 }
 
 
-module.exports = AsyncHandler;
+module.exports = ErrorBoundary;

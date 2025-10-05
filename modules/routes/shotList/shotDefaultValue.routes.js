@@ -1,29 +1,29 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 
 const ShotDefaultValueController = require("../../controllers/shotList/ShotDefaultValue.controller");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 /* ------------------------------ prefix: /api/shotList/defaultValue ------------------------------ */
 async function shotDefaultValueRoutes(fastify, opts) {
 
-    fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    fastify.get("/", AsyncHandler(ShotDefaultValueController.fetch));
-    fastify.get("/list/:section", AsyncHandler(ShotDefaultValueController.fetchList));
-    fastify.get("/shots/:id/:section", AsyncHandler(ShotDefaultValueController.fetchShots));
-    fastify.post("/", AsyncHandler(ShotDefaultValueController.add));
+    fastify.addHook('preHandler', LoginRequiredMiddleware());
+    fastify.get("/", ErrorBoundary(ShotDefaultValueController.fetch));
+    fastify.get("/list/:section", ErrorBoundary(ShotDefaultValueController.fetchList));
+    fastify.get("/shots/:id/:section", ErrorBoundary(ShotDefaultValueController.fetchShots));
+    fastify.post("/", ErrorBoundary(ShotDefaultValueController.add));
     fastify.patch("/:id",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(ShotDefaultValueController.modify));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(ShotDefaultValueController.modify));
 
     fastify.delete("/:id", {
-        preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-    }, AsyncHandler(ShotDefaultValueController.remove));
+        preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+    }, ErrorBoundary(ShotDefaultValueController.remove));
 
     fastify.delete("/:shotId/:section", {
-        preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-    }, AsyncHandler(ShotDefaultValueController.disconnectShot));
+        preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+    }, ErrorBoundary(ShotDefaultValueController.disconnectShot));
 }
 
 module.exports = shotDefaultValueRoutes;

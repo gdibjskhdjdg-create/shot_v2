@@ -194,7 +194,7 @@ exports.addDataToRequest = async (req, ...data) => {
 };
 
 /* --------------------- extract data from requset query -------------------- */
-exports.getDataFromReqQuery = (req, validKey = []) => {
+exports.reqQuery2Params = (req, validKey = []) => {
     let data = {};
     const reqQuery = req.query;
 

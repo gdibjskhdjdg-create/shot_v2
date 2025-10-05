@@ -1,10 +1,10 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 
 const authRouter = require("./auth");
 const roleRouter = require("./role.routes")
 const UserController = require("../../controllers/user/User.controller");
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 /* ------------------------------ prefix: /api/user ------------------------------ */
 
@@ -18,28 +18,28 @@ async function userRoutes(fastify, opts) {
     // // These routes will have the preHandler applied to all of them
     // const userRoutesWithAuth = async (fastify, opts) => {
     fastify.get('/', {
-        preHandler: CheckUserHaveValidAccessMiddleware(['users-list', 'user-manage'])
-    }, AsyncHandler(UserController.getUserList));
+        preHandler: AuthorizationMiddleware(['users-list', 'user-manage'])
+    }, ErrorBoundary(UserController.getUserList));
 
     fastify.post("/register", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.userRegister));
+        preHandler: AuthorizationMiddleware(['user-manage'])
+    }, ErrorBoundary(UserController.userRegister));
 
     fastify.patch("/updateInfo/:userId", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.updateInfo));
+        preHandler: AuthorizationMiddleware(['user-manage'])
+    }, ErrorBoundary(UserController.updateInfo));
 
     fastify.patch("/changeUserPassword/:userId", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.changeUserPassword));
+        preHandler: AuthorizationMiddleware(['user-manage'])
+    }, ErrorBoundary(UserController.changeUserPassword));
 
     fastify.patch("/changeIsActive", {
-        preHandler: CheckUserHaveValidAccessMiddleware(['user-manage'])
-    }, AsyncHandler(UserController.changeUserIsActive));
+        preHandler: AuthorizationMiddleware(['user-manage'])
+    }, ErrorBoundary(UserController.changeUserIsActive));
 
     fastify.patch("/changePassword", {
-        preHandler: OnlyLoginUserMiddleware([])
-    }, AsyncHandler(UserController.changePassword));
+        preHandler: LoginRequiredMiddleware()
+    }, ErrorBoundary(UserController.changePassword));
 
     //     // other routes similarly with preHandlers if needed
     // }

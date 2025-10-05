@@ -1,29 +1,29 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const TagController = require("../../controllers/tag/Tag.controller");
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
 const tagCategoryRoute = require("./tagCategory.routes");
 const tagInVideoRoute = require("./tagInVideo.routes");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
 /* ------------------------------ prefix: /api/tag ------------------------------ */
 async function tagRoutes(fastify, opts) {
 
-    fastify.addHook('preHandler', OnlyLoginUserMiddleware());
+    fastify.addHook('preHandler', LoginRequiredMiddleware());
     fastify.register(tagCategoryRoute, { prefix: "/category" })
     fastify.register(tagInVideoRoute, { prefix: "/inVideo" })
 
-    fastify.get("/", AsyncHandler(TagController.tags));
-    fastify.get("/search", AsyncHandler(TagController.suggestions));
-    fastify.get("/detail/:tagId", AsyncHandler(TagController.show));
-    fastify.get("/shots/:tagId", AsyncHandler(TagController.shots));
-    fastify.post("/", AsyncHandler(TagController.newItem));
-    fastify.put("/:sourceTagId/:targetTagId", AsyncHandler(TagController.combine));
-    fastify.patch("/:tagId", AsyncHandler(TagController.update));
-    fastify.delete("/shots/:shotId/:tagId", AsyncHandler(TagController.removeShot));
+    fastify.get("/", ErrorBoundary(TagController.tags));
+    fastify.get("/search", ErrorBoundary(TagController.suggestions));
+    fastify.get("/detail/:tagId", ErrorBoundary(TagController.show));
+    fastify.get("/shots/:tagId", ErrorBoundary(TagController.shots));
+    fastify.post("/", ErrorBoundary(TagController.newItem));
+    fastify.put("/:sourceTagId/:targetTagId", ErrorBoundary(TagController.combine));
+    fastify.patch("/:tagId", ErrorBoundary(TagController.update));
+    fastify.delete("/shots/:shotId/:tagId", ErrorBoundary(TagController.removeShot));
     fastify.delete("/:tagId",
         {
-            preHandler: CheckUserHaveValidAccessMiddleware(['tag-manage'])
-        }, AsyncHandler(TagController.destroy));
+            preHandler: AuthorizationMiddleware(['tag-manage'])
+        }, ErrorBoundary(TagController.destroy));
 
 }
 

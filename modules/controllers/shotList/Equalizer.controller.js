@@ -1,6 +1,6 @@
 const ResponseDTO = require("../../_default/Response.dto");
 
-const { getDataFromReqQuery } = require("../../../helper/general.tool");
+const { reqQuery2Params } = require("../../../helper/general.tool");
 const { equalizerService } = require("../../services/shotList/index");
 const ErrorResult = require("../../../helper/error.tool");
 
@@ -21,7 +21,7 @@ async function fetchVideoFileOfPathForEqualizer(req, res) {
 
 async function fetchEqualizeList(req, res) {
     const validKey = ["page", "take", "userId", "videoFileId", "projectId", "status"];
-    const filters = getDataFromReqQuery(req, validKey);
+    const filters = reqQuery2Params(req, validKey);
     const user = req.user;
 
     // if(user.permission !== "admin"){

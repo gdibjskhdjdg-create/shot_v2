@@ -49,7 +49,6 @@ const logsSite = async (req, res) => {
 const add2SiteQueue = async (req, res) => {
     const { exportId } = req.params;
 
-    // let result = await rashService.GetAndSendDataByExportId(exportId, true);
     await rashService.setExportFile2Queue(exportId)
     return ResponseDTO.success(res);
 }
@@ -78,7 +77,7 @@ const sendFiles2Site = async (req, res) => {
     return ResponseDTO.success(res);
 }
 
-const setFileIsImportant = async (req, res) => {
+const markFileAsImportant = async (req, res) => {
     const { exportId } = req.params
     const { isImportant } = req.body
     await exportVideoService.setImportantExportFile(+exportId, isImportant);
@@ -173,7 +172,7 @@ module.exports = {
     update,
     regenerate,
     sendFiles2Site,
-    setFileIsImportant,
+    markFileAsImportant,
     destroyFile,
     destroyItems,
     pathFile,

@@ -1,30 +1,30 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 const CategoryController = require("../../controllers/category/Category.controller");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
 
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
 
 /* ------------------------------ prefix: /api/shotList/category ------------------------------ */
 async function categoryRoutes(fastify, opts) {
 
-    fastify.addHook('preHandler', OnlyLoginUserMiddleware());
-    // fastify.get("/", AsyncHandler(CategoryController.get));
-    fastify.get("/list", AsyncHandler(CategoryController.list));
-    fastify.get("/shots/:id", AsyncHandler(CategoryController.shots));
-    fastify.post("/", AsyncHandler(CategoryController.create));
+    fastify.addHook('preHandler', LoginRequiredMiddleware());
+    // fastify.get("/", ErrorBoundary(CategoryController.get));
+    fastify.get("/list", ErrorBoundary(CategoryController.list));
+    fastify.get("/shots/:id", ErrorBoundary(CategoryController.shots));
+    fastify.post("/", ErrorBoundary(CategoryController.create));
     fastify.patch("/:id",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(CategoryController.update));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(CategoryController.update));
 
     fastify.delete("/:id",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(CategoryController.destroy));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(CategoryController.destroy));
 
     fastify.delete("/:id/:shotId",
         {
-            preHandler: AsyncHandler(CheckUserHaveValidAccessMiddleware(['manage-data']))
-        }, AsyncHandler(CategoryController.removeShot));
+            preHandler: ErrorBoundary(AuthorizationMiddleware(['manage-data']))
+        }, ErrorBoundary(CategoryController.removeShot));
 }
 module.exports = categoryRoutes;

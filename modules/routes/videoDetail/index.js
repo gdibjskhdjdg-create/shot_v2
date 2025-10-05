@@ -1,98 +1,98 @@
-const AsyncHandler = require("../../../helper/asyncHandler.tool");
+const ErrorBoundary = require("../../../helper/errorBoundary.tool");
 
 
 const VideoDetailController = require("../../controllers/videoDetail/VideoDetail.controller");
 const videoDetailLogRoute = require("./videoDetailLog.routes");
 const videoDetailScoreRoute = require("./videoDetailScore.routes");
-const OnlyAdminMiddleware = require("../../middleware/user/OnlyAdmin.middleware");
-const CheckUserHaveValidAccessMiddleware = require("../../middleware/user/CheckUserHaveValidAccess.middleware");
-const VideoDetailValidInitStatusMiddleware = require("../../middleware/videoDetail/VideoDetailValidInitStatus.middleware");
-const OnlyLoginUserMiddleware = require("../../middleware/user/OnlyLoginUser.middleware");
-const AccessToVideoDetailMiddleware = require("../../middleware/videoDetail/AccessToVideoDetail.middleware");
+const StrictlyAdminMiddleware = require("../../middleware/user/StrictlyAdmin.middleware");
+const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
+const VideoDetailInitStatusAccessMiddleware = require("../../middleware/videoDetail/VideoDetailInitStatusAccess.middleware");
+const LoginRequiredMiddleware = require("../../middleware/user/LoginRequired.middleware");
+const VideoDetailAccessMiddleware = require("../../middleware/videoDetail/VideoDetailAccess.middleware");
 
 /* ------------------------------ prefix: /api/videoDetail ------------------------------ */
 async function videoDetailRoutes(fastify, opts) {
 
-    fastify.get("/specialSearch/with-link/:uuid", AsyncHandler(VideoDetailController.fetchVideoListWithCode))
-    fastify.get("/withUUID/:videoFileId/:uuid", AsyncHandler(VideoDetailController.fetchDetailWithUUID));
+    fastify.get("/specialSearch/with-link/:uuid", ErrorBoundary(VideoDetailController.fetchVideoListWithCode))
+    fastify.get("/withUUID/:videoFileId/:uuid", ErrorBoundary(VideoDetailController.fetchDetailWithUUID));
 
     fastify.register(async (fastifyProtected, opts) => {
 
-        fastifyProtected.addHook('preHandler', OnlyLoginUserMiddleware());
+        fastifyProtected.addHook('preHandler', LoginRequiredMiddleware());
         fastifyProtected.register(videoDetailLogRoute, { prefix: "/log" });
         fastifyProtected.register(videoDetailScoreRoute, { prefix: "/score" });
-        fastifyProtected.get("/exportInfo", AsyncHandler(VideoDetailController.fetchExportInfoVideos));
+        fastifyProtected.get("/exportInfo", ErrorBoundary(VideoDetailController.fetchExportInfoVideos));
 
         fastifyProtected.get("/aiTags",
-            // CheckUserHaveValidAccessMiddleware(["videos-full-access"]),
-            AsyncHandler(VideoDetailController.fetchAiTagsReport)
+            // AuthorizationMiddleware(["videos-full-access"]),
+            ErrorBoundary(VideoDetailController.fetchAiTagsReport)
 
         )
         fastifyProtected.get("/aiTags/total",
-            // CheckUserHaveValidAccessMiddleware(["videos-full-access"]),
-            AsyncHandler(VideoDetailController.fetchAiTagsTotalReport)
+            // AuthorizationMiddleware(["videos-full-access"]),
+            ErrorBoundary(VideoDetailController.fetchAiTagsTotalReport)
         )
 
         fastifyProtected.get("/aiTags/:videoFileId",
-            // CheckUserHaveValidAccessMiddleware(["videos-full-access"]),
-            AsyncHandler(VideoDetailController.fetchAiTagsDetail)
+            // AuthorizationMiddleware(["videos-full-access"]),
+            ErrorBoundary(VideoDetailController.fetchAiTagsDetail)
         )
 
-        fastifyProtected.post("/specialSearch/generate-link", { preHandler: OnlyAdminMiddleware }, AsyncHandler(VideoDetailController.createListLink))
+        fastifyProtected.post("/specialSearch/generate-link", { preHandler: StrictlyAdminMiddleware }, ErrorBoundary(VideoDetailController.createListLink))
 
-        fastifyProtected.get("/specialSearch", { preHandler: CheckUserHaveValidAccessMiddleware(["video-list", "videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.fetchVideoDetailSpecial));
-        fastifyProtected.get("/specialSearch/getVideoDetailsId", { preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.fetchExportVideoDetailIds));
-        fastifyProtected.get("/specialSearch/export/:exportType", { preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.exportSpecialVideoDetail));
-        fastifyProtected.get("/export/:exportType", { preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.exportVideoDetailData));
-        fastifyProtected.get("/export/path/:exportType", { preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.exportVideoDetailPath));
-        fastifyProtected.get("/export/:exportType/:videoDetailId", { preHandler: CheckUserHaveValidAccessMiddleware(["videos-full-access", "source-full-access"]) }, AsyncHandler(VideoDetailController.exportToExcel));
+        fastifyProtected.get("/specialSearch", { preHandler: AuthorizationMiddleware(["video-list", "videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.fetchVideoDetailSpecial));
+        fastifyProtected.get("/specialSearch/getVideoDetailsId", { preHandler: AuthorizationMiddleware(["videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.fetchExportVideoDetailIds));
+        fastifyProtected.get("/specialSearch/export/:exportType", { preHandler: AuthorizationMiddleware(["videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.exportSpecialVideoDetail));
+        fastifyProtected.get("/export/:exportType", { preHandler: AuthorizationMiddleware(["videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.exportVideoDetailData));
+        fastifyProtected.get("/export/path/:exportType", { preHandler: AuthorizationMiddleware(["videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.exportVideoDetailPath));
+        fastifyProtected.get("/export/:exportType/:videoDetailId", { preHandler: AuthorizationMiddleware(["videos-full-access", "source-full-access"]) }, ErrorBoundary(VideoDetailController.exportToExcel));
 
-        fastifyProtected.get("/list/cleaning/:status", { preHandler: CheckUserHaveValidAccessMiddleware(["video-list", "video-cleaning"]) }, AsyncHandler(VideoDetailController.fetchList));
-        fastifyProtected.get("/list/all", { preHandler: CheckUserHaveValidAccessMiddleware(["video-list"]) }, AsyncHandler(VideoDetailController.fetchAllList));
-        fastifyProtected.get("/list/:status", { preHandler: CheckUserHaveValidAccessMiddleware([]) }, AsyncHandler(VideoDetailController.fetchList));
+        fastifyProtected.get("/list/cleaning/:status", { preHandler: AuthorizationMiddleware(["video-list", "video-cleaning"]) }, ErrorBoundary(VideoDetailController.fetchList));
+        fastifyProtected.get("/list/all", { preHandler: AuthorizationMiddleware(["video-list"]) }, ErrorBoundary(VideoDetailController.fetchAllList));
+        fastifyProtected.get("/list/:status", { preHandler: AuthorizationMiddleware([]) }, ErrorBoundary(VideoDetailController.fetchList));
 
-        fastifyProtected.get("/:videoFileId", { preHandler: CheckUserHaveValidAccessMiddleware(["video-list", "video-cleaning", "videos-full-access", "video-init", 'video-score']) }, AsyncHandler(VideoDetailController.fetchDetail));
-        fastifyProtected.get("/videoFile/:videoFileId", { preHandler: CheckUserHaveValidAccessMiddleware(["video-list"]) }, AsyncHandler(VideoDetailController.fetchVideoDetailsOfVideoFile));
+        fastifyProtected.get("/:videoFileId", { preHandler: AuthorizationMiddleware(["video-list", "video-cleaning", "videos-full-access", "video-init", 'video-score']) }, ErrorBoundary(VideoDetailController.fetchDetail));
+        fastifyProtected.get("/videoFile/:videoFileId", { preHandler: AuthorizationMiddleware(["video-list"]) }, ErrorBoundary(VideoDetailController.fetchVideoDetailsOfVideoFile));
 
-        fastifyProtected.post("/uploadExcel", { preHandler: CheckUserHaveValidAccessMiddleware(['video-import-excel', 'shot-full-access']) }, AsyncHandler(VideoDetailController.importFromExcel));
-        fastifyProtected.delete('/deleteByExcel', { preHandler: CheckUserHaveValidAccessMiddleware(['video-import-excel', "videos-full-access"]) }, AsyncHandler(VideoDetailController.importRemovalFromExcel));
+        fastifyProtected.post("/uploadExcel", { preHandler: AuthorizationMiddleware(['video-import-excel', 'shot-full-access']) }, ErrorBoundary(VideoDetailController.importFromExcel));
+        fastifyProtected.delete('/deleteByExcel', { preHandler: AuthorizationMiddleware(['video-import-excel', "videos-full-access"]) }, ErrorBoundary(VideoDetailController.importRemovalFromExcel));
 
         fastifyProtected.patch("/init/:videoFileId", {
             preHandler: [
-                CheckUserHaveValidAccessMiddleware(["video-edit", "video-init", "videos-full-access", "video-cleaning"]),
-                AccessToVideoDetailMiddleware,
-                VideoDetailValidInitStatusMiddleware]
+                AuthorizationMiddleware(["video-edit", "video-init", "videos-full-access", "video-cleaning"]),
+                VideoDetailAccessMiddleware,
+                VideoDetailInitStatusAccessMiddleware]
         },
-            AsyncHandler(VideoDetailController.modifyInitVideoDetail)
+            ErrorBoundary(VideoDetailController.modifyInitVideoDetail)
         );
         fastifyProtected.patch("/edit/:videoFileId", {
             preHandler: [
-                CheckUserHaveValidAccessMiddleware(["video-edit", "videos-full-access", "video-cleaning"]),
-                AccessToVideoDetailMiddleware
+                AuthorizationMiddleware(["video-edit", "videos-full-access", "video-cleaning"]),
+                VideoDetailAccessMiddleware
             ]
         },
-            AsyncHandler(VideoDetailController.modifyVideoDetail)
+            ErrorBoundary(VideoDetailController.modifyVideoDetail)
         );
         fastifyProtected.patch("/cleaning/:videoFileId", {
             preHandler:
-                CheckUserHaveValidAccessMiddleware(["video-cleaning"])
+                AuthorizationMiddleware(["video-cleaning"])
         },
-            AsyncHandler(VideoDetailController.modifyCleaningVideoDetail)
+            ErrorBoundary(VideoDetailController.modifyCleaningVideoDetail)
         );
 
         fastifyProtected.patch("/changeStatus", {
             preHandler:
-                OnlyAdminMiddleware
+            StrictlyAdminMiddleware
         },
-            AsyncHandler(VideoDetailController.modifyVideoDetailStatus)
+            ErrorBoundary(VideoDetailController.modifyVideoDetailStatus)
         );
 
         fastifyProtected.patch("/group/setScore", {
             preHandler:
-                // OnlyAdminMiddleware,
-                CheckUserHaveValidAccessMiddleware(['video-score'])
+                // StrictlyAdminMiddleware,
+                AuthorizationMiddleware(['video-score'])
         },
-            AsyncHandler(VideoDetailController.modifyVideoDetailScores)
+            ErrorBoundary(VideoDetailController.modifyVideoDetailScores)
         );
     })
 }
