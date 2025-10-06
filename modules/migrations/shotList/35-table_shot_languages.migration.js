@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTable = require("../../_default/migrate");
-const ShotRelLanguages = require("../model/schema/ShotRelLanguages.schema");
+const ShotRelLanguages = require("../../models/shotList/schema/ShotRelLanguages.schema");
 
 module.exports = {
     async up(queryInterface, Sequelize) {

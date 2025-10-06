@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTable = require("../../_default/migrate");
-const EqualizerLog = require("../model/schema/EqualizerLog.schema");
+const EqualizerLog = require("../../models/shotList/schema/EqualizerLog.schema");
 
 module.exports = {
     async up(queryInterface, Sequelize) {

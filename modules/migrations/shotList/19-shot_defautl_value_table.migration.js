@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTable = require("../../_default/migrate");
-const ShotDefaultValues = require("../model/schema/ShotDefaultValues.schema");
+const ShotDefaultValues = require("../../models/shotList/schema/ShotDefaultValues.schema");
 
 module.exports = {
     async up(queryInterface, Sequelize) {
