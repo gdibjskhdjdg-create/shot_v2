@@ -883,7 +883,7 @@ class ShotService extends Service {
             })
         })
 
-        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateKeywordArray(newTags);
         bulkData = bulkData.map(item => {
             if (item.isNew) {
                 let findTag = newTagsEntity.find(tag => tag.tag === item.tagId);
@@ -932,7 +932,7 @@ class ShotService extends Service {
             })
         })
 
-        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateKeywordArray(newTags);
 
         bulkData = bulkData.map(item => {
             if (item.isNew) {
@@ -988,7 +988,7 @@ class ShotService extends Service {
         await this.updateShotCategories(shot.id, { categoriesId: categories.map(item => item.id) });
 
         const inputsText = [...new Set(data.tags.map(item => item.input))];
-        const tags = await KeywordService.findOrCreateTagArray(data.tags.map(item => item.tag));
+        const tags = await KeywordService.findOrCreateKeywordArray(data.tags.map(item => item.tag));
         const inputs = await ShotInputService.findOrCreate(inputsText.map(item => ({ title: item, type: "multiSelect", valuesFrom: "tag" })))
         const tagsToInsert = inputs.map(item => {
             let tagIds = data.tags.filter(it => item.title === it.input).map(item => tags.find(it => it.tag === item.tag).id)

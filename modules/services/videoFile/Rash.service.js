@@ -428,7 +428,7 @@ class RashService extends Service {
                 locationTag[locTag[i].tag] = [];
             }
             else {
-                let tag = await KeywordService.getTagDetail(locTag[i].id);
+                let tag = await KeywordService.getKeywordDetail(locTag[i].id);
                 if (!tag || !tag.location.lat || !tag.location.lng) {
                     locationTag[locTag[i].tag] = [];
                 }

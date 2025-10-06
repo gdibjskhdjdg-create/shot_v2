@@ -4,38 +4,38 @@ const KeywordService = require("../../services/keyword/Keyword.service");
 const KeywordValidation = require("../../validation/keyword/Keyword.validation");
 
 async function list(req, res) {
-    const tags = await KeywordService.getTags({ ...req.query , shotUsageCount: true});
+    const tags = await KeywordService.getKeywords({ ...req.query , shotUsageCount: true});
     return ResponseDTO.success(res, { tags: KeywordResponse.create(tags.rows), count: tags.count });
 }
 
 
 async function suggestions(req, res) {
-    const tags = await KeywordService.getTags({ ...req.query });
+    const tags = await KeywordService.getKeywords({ ...req.query });
     return ResponseDTO.success(res, { tags: KeywordResponse.create(tags.rows), count: tags.count });
 }
 
 async function show(req, res) {
     const { keywordId } = req.params;
-    const tag = await KeywordService.getTagDetail(keywordId);
+    const tag = await KeywordService.getKeywordDetail(keywordId);
     return ResponseDTO.success(res, tag);
 }
 
 async function shots(req, res) {
     const { keywordId } = req.params;
-    const tag = await KeywordService.getShotsOfTag(keywordId, req.query);
+    const tag = await KeywordService.getShotsOfKeyword(keywordId, req.query);
     return ResponseDTO.success(res, tag);
 }
 
 async function newItem(req, res) {
     const body = req.body;
     const data = KeywordValidation.createTag(body);
-    const tag = await KeywordService.createTag(data);
+    const tag = await KeywordService.createKeyword(data);
     return ResponseDTO.success(res, KeywordResponse.create(tag));
 }
 
 async function combine(req, res) {
     const { sourceKeywordId, targetKeywordId } = req.params
-    const hasAffected = await KeywordService.mergeTag(sourceKeywordId, targetKeywordId)
+    const hasAffected = await KeywordService.mergeKeyword(sourceKeywordId, targetKeywordId)
     return ResponseDTO.success(res, { hasAffected });
 
 }
@@ -51,14 +51,14 @@ async function update(req, res) {
 
 async function removeShot(req, res) {
     const { keywordId, shotId } = req.params
-    await KeywordService.detachShotFromTag(keywordId, shotId)
+    await KeywordService.detachShotFromKeyword(keywordId, shotId)
     return ResponseDTO.success(res);
 }
 
 
 async function destroy(req, res) {
     const { keywordId } = req.params
-    await KeywordService.deleteTag(keywordId)
+    await KeywordService.deleteKeyword(keywordId)
     return ResponseDTO.success(res);
 }
 

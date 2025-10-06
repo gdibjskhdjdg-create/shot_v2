@@ -14,7 +14,7 @@ class KeywordService extends Service {
         super(Tag)
     }
 
-    async getTags(filters = {}) {
+    async getKeywords(filters = {}) {
 
         const {
             categoryId = "",
@@ -74,7 +74,7 @@ class KeywordService extends Service {
         return tag;
     }
 
-    async mergeTag(sourceTagId, targetTagId) {
+    async mergeKeyword(sourceTagId, targetTagId) {
 
         const [affectedRows] = await ShotRelTag.update({
             tagId: targetTagId
@@ -90,7 +90,7 @@ class KeywordService extends Service {
 
     }
 
-    async getShotsOfTag(tagId, query = {}) {
+    async getShotsOfKeyword(tagId, query = {}) {
 
         const page = query.page || 1
         const take = query.take || 10
@@ -106,7 +106,7 @@ class KeywordService extends Service {
         return { count: totalItems?.[0]?.total || 0, rows }
     }
 
-    async detachShotFromTag(tagId, shotId) {
+    async detachShotFromKeyword(tagId, shotId) {
 
         return await ShotRelTag.destroy({
             where: {
@@ -116,7 +116,7 @@ class KeywordService extends Service {
         })
     }
 
-    async deleteTag(tagId) {
+    async deleteKeyword(tagId) {
 
         return await Tag.destroy({
             where: {
@@ -125,12 +125,12 @@ class KeywordService extends Service {
         })
     }
 
-    async getTagsByIds(tagId) {
+    async getKeywordByIds(tagId) {
         const tags = await Tag.findAll({ where: { id: tagId } });
         return tags;
     }
 
-    async getTagDetail(tagId) {
+    async getKeywordDetail(tagId) {
         let tag = await this.getById(tagId);
         tag = tag.toJSON();
 
@@ -144,7 +144,7 @@ class KeywordService extends Service {
         return tag
     }
 
-    async createTag(data) {
+    async createKeyword(data) {
         let {
             tag,
             type = "normal",
@@ -162,10 +162,10 @@ class KeywordService extends Service {
             const tagModel = await Tag.create({ tag, type });
             let typeModel = null;
             if (type === 'location') {
-                typeModel = await this.createLocationTag(location)
+                typeModel = await this.createLocationKeyword(location)
             }
             else if (type === 'event') {
-                typeModel = await this.createEventTag(event)
+                typeModel = await this.createEventKeyword(event)
             }
 
             if (typeModel) {
@@ -178,7 +178,7 @@ class KeywordService extends Service {
 
     }
 
-    async findOrCreateTagArray(tags) {
+    async findOrCreateKeywordArray(tags) {
         let existTags = await this.model.findAll({ where: { tag: tags } });
         let onlyExistTagArray = [];
         existTags = existTags.map(item => {
@@ -205,7 +205,7 @@ class KeywordService extends Service {
         return existTags;
     }
 
-    async createLocationTag(data = {}) {
+    async createLocationKeyword(data = {}) {
         let {
             lat = null,
             lng = null,
@@ -223,7 +223,7 @@ class KeywordService extends Service {
         return model;
     }
 
-    async updateLocationTag(locId, data = {}) {
+    async updateLocationKeyword(locId, data = {}) {
         let {
             lat = null,
             lng = null,
@@ -251,7 +251,7 @@ class KeywordService extends Service {
         return true;
     }
 
-    async createEventTag(data = {}) {
+    async createEventKeyword(data = {}) {
         const {
             day = null,
             month = null,
@@ -263,7 +263,7 @@ class KeywordService extends Service {
         return model;
     }
 
-    async editEventTag(eventId, data = {}) {
+    async editEventKeyword(eventId, data = {}) {
         const {
             day,
             month,
@@ -305,10 +305,10 @@ class KeywordService extends Service {
         if (type !== tagModel.type) {
             let typeModel = null;
             if (type === 'location') {
-                typeModel = await this.createLocationTag(location);
+                typeModel = await this.createLocationKeyword(location);
             }
             else if (type === 'event') {
-                typeModel = await this.createEventTag(event);
+                typeModel = await this.createEventKeyword(event);
             }
 
             if (tagModel.type === 'location') {
@@ -323,10 +323,10 @@ class KeywordService extends Service {
         }
         else {
             if (type === 'location') {
-                await this.updateLocationTag(tagModel.typeId, location);
+                await this.updateLocationKeyword(tagModel.typeId, location);
             }
             else if (type === 'event') {
-                await this.editEventTag(tagModel.typeId, event);
+                await this.editEventKeyword(tagModel.typeId, event);
             }
         }
 
@@ -335,7 +335,7 @@ class KeywordService extends Service {
         return tagModel;
     }
 
-    async getTagUsageCount(tagIds) {
+    async getKeywordUsageCount(tagIds) {
         let counts = await ShotRelTag.findAll({
             where: { tagId: tagIds },
             group: ['tagId'],
@@ -345,12 +345,12 @@ class KeywordService extends Service {
         return counts.map(item => item.toJSON());
     }
 
-    async updateTagCategoryId(categoryId, tagIds) {
+    async updateKeywordCategoryId(categoryId, tagIds) {
         await Tag.update({ categoryId: null }, { where: { categoryId } });
         await Tag.update({ categoryId }, { where: { id: tagIds } });
     }
 
-    async updateTagCount(tagIds) {
+    async updateKeywordCount(tagIds) {
         for (let i = 0; i < tagIds.length; i++) {
             const tag = await Tag.findOne({ where: { id: tagIds[i] } });
             if (!tag) continue;

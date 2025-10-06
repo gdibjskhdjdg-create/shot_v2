@@ -737,7 +737,7 @@ class VideoDetailImportFile_Service extends Service {
 
         for (let i = 0; i < importBulk.length; i++) {
             try {
-                let newData = await KeywordService.createTag(importBulk[i]);
+                let newData = await KeywordService.createKeyword(importBulk[i]);
                 exist.push(newData);
             }
             catch (err) {

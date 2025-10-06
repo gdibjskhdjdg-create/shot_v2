@@ -65,7 +65,7 @@ class KeywordInVideoService extends Service {
         if (shotUsageCount) {
             let tagIds = tag.rows.map(item => item.id);
 
-            const tagShot = await this.getTagShotUsage(tagIds);
+            const tagShot = await this.getKeywordShotUsage(tagIds);
 
             tag.rows = tag.rows.map(item => {
 
@@ -91,7 +91,7 @@ class KeywordInVideoService extends Service {
         return tag;
     }
 
-    async getShotsOfTag(tagId, query = {}) {
+    async getShotsOfKeyword(tagId, query = {}) {
 
         const page = query.page || 1
         const take = query.take || 10
@@ -121,7 +121,7 @@ class KeywordInVideoService extends Service {
         return { count: totalItems?.[0]?.total || 0, rows }
     }
 
-    async getTagShotUsage(tagIds) {
+    async getKeywordShotUsage(tagIds) {
         let tagShot = await ShotRelTag.findAll({
             where: { tagId: tagIds, inVideo: 1 },
             attributes: ['tagId', 'otherInfo'],
@@ -130,7 +130,7 @@ class KeywordInVideoService extends Service {
         return tagShot.map(item => item.toJSON());
     }
 
-    async detachShotFromTag(tagId, shotId) {
+    async detachShotFromKeyword(tagId, shotId) {
 
 
         return await ShotRelTag.destroy({
@@ -142,7 +142,7 @@ class KeywordInVideoService extends Service {
         })
     }
 
-    async deleteTag(tagId) {
+    async deleteKeyword(tagId) {
         const tagIsInVideo = await ShotRelTag.findOne({ tagId })
         if (tagIsInVideo) {
             return Tag.destroy({ where: { tagId } })

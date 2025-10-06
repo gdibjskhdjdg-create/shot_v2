@@ -81,7 +81,7 @@ class ExportImportService extends Service {
             data.forEach(it => tagIds = [...tagIds, ...it.tagIds.map(it => it.tagId)]);
             tagIds = [...new Set(tagIds)];
 
-            let tags = await KeywordService.getTagsByIds(tagIds);
+            let tags = await KeywordService.getKeywordByIds(tagIds);
             tags = tags.map(it => ({ id: it.id, tag: it.tag, UUID: it.UUID }));
 
             for (let i = 0; i < data.length; i++) {

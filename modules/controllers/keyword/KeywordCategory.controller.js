@@ -5,7 +5,7 @@ const KeywordCategoryValidation = require("../../validation/keyword/KeywordCateg
 
 async function fetchList(req, res) {
   
-    const categories = await KeywordCategoryService.getTagCategories({
+    const categories = await KeywordCategoryService.getKeywordCategories({
         ...req.query,
         getTags: true
     });
@@ -16,7 +16,7 @@ async function fetchList(req, res) {
 async function findKeyword(req, res) {
   
 
-    const tags = await KeywordCategoryService.getTagCategories(req.query);
+    const tags = await KeywordCategoryService.getKeywordCategories(req.query);
 
     return ResponseDTO.success(res, { tags: KeywordResponse.create(tags.rows), count: tags.count });
 }
@@ -32,7 +32,7 @@ async function displayCategory(req, res) {
 async function fetchDetail(req, res) {
     const { keywordCategoryId } = req.params;
 
-    const tag = await KeywordCategoryService.getTagDetail(keywordCategoryId);
+    const tag = await KeywordCategoryService.getKeywordDetail(keywordCategoryId);
 
     return ResponseDTO.success(res, tag);
 }

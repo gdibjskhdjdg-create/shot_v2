@@ -159,7 +159,7 @@ class EqualizerService extends Service {
 
         tagIds = [...new Set(tagIds)];
 
-        let existTags = await KeywordService.getTagsByIds(tagIds);
+        let existTags = await KeywordService.getKeywordByIds(tagIds);
         existTags = existTags.map(item => item.toJSON());
 
         const funcSetNewValuesOfTagInput = (tagInput = []) => {

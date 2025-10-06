@@ -14,7 +14,7 @@ class KeywordCategoryService extends Service {
         super(CategoryTag)
     }
 
-    async getTagCategories(filters = {}) {
+    async getKeywordCategories(filters = {}) {
 
         const page = filters.page || 1
         const take = filters.take || 10
@@ -31,7 +31,7 @@ class KeywordCategoryService extends Service {
         return { count: totalItems?.[0]?.total || 0, rows }
     }
 
-    async getTagDetail(tagId) {
+    async getKeywordDetail(tagId) {
         let tag = await this.getById(tagId);
         tag = tag.toJSON();
 
@@ -70,7 +70,7 @@ class KeywordCategoryService extends Service {
             const categoryModel = await CategoryTag.create({ name });
             await categoryModel.save();
 
-            await this.updateTagsCategory(categoryModel.id, tagIds);
+            await this.updateKeywordsCategory(categoryModel.id, tagIds);
 
             return categoryModel;
         }
@@ -89,7 +89,7 @@ class KeywordCategoryService extends Service {
         }
         await categoryModel.save();
 
-        await this.updateTagsCategory(categoryModel.id, tagIds);
+        await this.updateKeywordsCategory(categoryModel.id, tagIds);
 
         return categoryModel;
     }
@@ -100,7 +100,7 @@ class KeywordCategoryService extends Service {
         return true;
     }
 
-    async updateTagsCategory(categoryId, tagsId) {
+    async updateKeywordsCategory(categoryId, tagsId) {
 
         await TagRelCategory.destroy({
             where: {
