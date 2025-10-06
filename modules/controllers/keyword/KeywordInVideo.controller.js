@@ -5,29 +5,29 @@ const KeywordInVideoService = require("../../services/keyword/KeywordInVideo.ser
 
 async function fetchKeywordsInVideo(req, res) {
 
-    const keywords = await KeywordInVideoService.getKeywords({  shotUsageCount: true, ...req.query });
+    const tags = await KeywordInVideoService.getTags({  shotUsageCount: true, ...req.query });
 
-    return ResponseDTO.success(res, { keywords: KeywordInVideoResponse.create(keywords.rows), count: keywords.count });
+    return ResponseDTO.success(res, { tags: KeywordInVideoResponse.create(tags.rows), count: tags.count });
 }
 
 async function fetchShots(req, res) {
     const { keywordId } = req.params
 
-    const keyword = await KeywordInVideoService.getShotsOfKeyword(keywordId, req.query);
-    return ResponseDTO.success(res, keyword);
+    const tag = await KeywordInVideoService.getShotsOfTag(keywordId, req.query);
+    return ResponseDTO.success(res, tag);
 
 }
 
 
 async function disconnectShotFromKeyword(req, res) {
     const { keywordId, shotId } = req.params
-    await KeywordInVideoService.detachShotFromKeyword(keywordId, shotId, { inVideo: 1 })
+    await KeywordInVideoService.detachShotFromTag(keywordId, shotId, { inVideo: 1 })
     return ResponseDTO.success(res);
 }
 
 async function removeKeyword(req, res) {
     const { keywordId } = req.params
-    await KeywordInVideoService.deleteKeyword(keywordId)
+    await KeywordInVideoService.deleteTag(keywordId)
     return ResponseDTO.success(res);
 }
 

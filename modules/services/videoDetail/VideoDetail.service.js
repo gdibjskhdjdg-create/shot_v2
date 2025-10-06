@@ -27,7 +27,7 @@ const ShotInputService = require('../shotList/ShotInput.service');
 
 const { createPaginationQuery } = require("../../../helper/SqlHelper.tool");
 const OwnerService = require('../owner/Owner.service');
-const TagService = require('../tag/Tag.service');
+const KeywordService = require('../keyword/Keyword.service');
 const ErrorResult = require('../../../helper/error.tool');
 const { takeScreenShot } = require('../../services/FFmpeg/FFmpeg.service');
 const GalleryParser = require('../../../helper/galleryParser.tool');
@@ -234,7 +234,7 @@ class VideoDetailService extends Service {
 
             const tagIds = [...(new Set(response.tagIds.map(item => item.tagId)))];
 
-            let tags = await TagService.getByAttribute('id', tagIds);
+            let tags = await KeywordService.getByAttribute('id', tagIds);
 
             tags = tags.map(item => item.toJSON());
 
@@ -272,7 +272,7 @@ class VideoDetailService extends Service {
         });
         tagIds = [...(new Set(tagIds))]
 
-        let tags = await TagService.getByAttribute('id', tagIds);
+        let tags = await KeywordService.getByAttribute('id', tagIds);
 
         tags = tags.map(item => item.toJSON());
 
@@ -463,7 +463,7 @@ class VideoDetailService extends Service {
         const detail = await this.findByVideoId(videoFileId)
 
         // find or create tags
-        const newTagsEntity = await TagService.findOrCreateTagArray(tags);
+        const newTagsEntity = await KeywordService.findOrCreateTagArray(tags);
 
         // 3. Get existing tag relationships
         const existingRelTags = await VideoDetailRelTag.findAll({
@@ -627,8 +627,8 @@ class VideoDetailService extends Service {
         const videoUrl = `${appConfigs.APP_URL}/api/videoFile/show/${videoFileId}`;
         const aiTagsId = videoFileDetail.aiTagsId ? JSON.parse(videoFileDetail.aiTagsId) : []
         const detailTagsId = (await VideoDetailRelTag.findAll({ where: { videoFileId } }))?.map(x => +x.tagId) || []
-        const allTags = await TagService.getTagsByIds(detailTagsId)
-        const aiTags = await TagService.getTagsByIds(aiTagsId)
+        const allTags = await KeywordService.getTagsByIds(detailTagsId)
+        const aiTags = await KeywordService.getTagsByIds(aiTagsId)
 
         return { allTags, aiTags, videoUrl }
     }
@@ -854,7 +854,7 @@ class VideoDetailService extends Service {
             })
         })
 
-        const newTagsEntity = await TagService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
         bulkData = bulkData.map(item => {
             if (item.isNew) {
                 let findTag = newTagsEntity.find(tag => tag.tag === item.tagId);
@@ -869,7 +869,7 @@ class VideoDetailService extends Service {
         const videoDetailTags = await VideoDetailRelTag.bulkCreate(bulkData, { transaction });
 
         changedTags = [...new Set([...changedTags])]
-        await TagService.updateTagCount(changedTags)
+        await KeywordService.updateTagCount(changedTags)
 
         return videoDetailTags
     }
@@ -904,7 +904,7 @@ class VideoDetailService extends Service {
             })
         })
 
-        const newTagsEntity = await TagService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
 
         bulkData = bulkData.map(item => {
             if (item.isNew) {

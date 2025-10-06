@@ -19,7 +19,7 @@ const UserService = require("../../services/user/User.service");
 const { secondToTimeFormat, sizeToFormat, generateRandomCode } = require('../../../helper/general.tool');
 const { VideoDetailStatus_Enum } = require('../../models/videoDetail/enum/VideoDetail.enum');
 const GalleryParser = require('../../../helper/galleryParser.tool');
-const TagService = require('../tag/Tag.service');
+const KeywordService = require('../keyword/Keyword.service');
 const { encryptFile, decryptFile } = require('../../../helper/fileEncryption.tool');
 
 class ProjectService extends Service {

@@ -4,17 +4,17 @@ const QueryTypes = Sequelize.QueryTypes
 
 const TypeTool = require("../../../helper/type.tool");
 const Service = require("../../_default/service");
-const { Keyword, KeywordRelCategory, CategoryKeyword, KeywordLocation, KeywordEvent, ShotRelKeyword, sequelize } = require("../../_default/model");
+const { Tag, TagRelCategory, CategoryTag, TagLocation, TagEvent, ShotRelTag, sequelize } = require("../../_default/model");
 const { createPaginationQuery } = require('../../../helper/SqlHelper.tool');
 const TableCountService = require('../tableCount/TableCount.service');
 
 class KeywordService extends Service {
 
     constructor() {
-        super(Keyword)
+        super(Tag)
     }
 
-    async getKeywords(filters = {}) {
+    async getTags(filters = {}) {
 
         const {
             categoryId = "",
@@ -33,7 +33,7 @@ class KeywordService extends Service {
         };
 
         if (!TypeTool.isNullUndefined(search) && search.toString().trim().length > 0) {
-            sqlQuery.where.keyword = { [Op.like]: `%${search}%` }
+            sqlQuery.where.tag = { [Op.like]: `%${search}%` }
         }
 
         if (!!excludeId) sqlQuery.where.id = { [Op.not]: excludeId }
@@ -44,8 +44,8 @@ class KeywordService extends Service {
 
         if (TypeTool.isNotEmptyString(categoryId)) {
             sqlQuery.include.push({
-                model: KeywordRelCategory,
-                as: `keyword_rel_category`,
+                model: TagRelCategory,
+                as: `tag_rel_category`,
                 where: { categoryId },
                 required: true,
             })
@@ -57,31 +57,31 @@ class KeywordService extends Service {
 
         sqlQuery = createPaginationQuery(sqlQuery, page, take);
 
-        let keyword = await Keyword.findAll({
+        let tag = await Tag.findAll({
             distinct: true,
             ...sqlQuery,
         });
 
-        keyword = { rows: keyword };
+        tag = { rows: tag };
 
-        let count = await TableCountService.getTableCountFromRedis(Keyword, sqlQuery);
+        let count = await TableCountService.getTableCountFromRedis(Tag, sqlQuery);
         if (count === null) {
-            count = await Keyword.count({ distinct: true, ...sqlQuery });
-            await TableCountService.storeTableCountInRedis(Keyword, sqlQuery, count);
+            count = await Tag.count({ distinct: true, ...sqlQuery });
+            await TableCountService.storeTableCountInRedis(Tag, sqlQuery, count);
         }
-        keyword.count = count;
+        tag.count = count;
 
-        return keyword;
+        return tag;
     }
 
-    async mergeKeyword(sourceKeywordId, targetKeywordId) {
+    async mergeTag(sourceTagId, targetTagId) {
 
-        const [affectedRows] = await ShotRelKeyword.update({
-            keywordId: targetKeywordId
+        const [affectedRows] = await ShotRelTag.update({
+            tagId: targetTagId
         },
             {
                 where: {
-                    keywordId: sourceKeywordId,
+                    tagId: sourceTagId,
                 }
             }
         )
@@ -90,15 +90,15 @@ class KeywordService extends Service {
 
     }
 
-    async getShotsOfKeyword(keywordId, query = {}) {
+    async getShotsOfTag(tagId, query = {}) {
 
         const page = query.page || 1
         const take = query.take || 10
 
-        const sqlQueryForCount = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT shotId FROM shot_keyword AS keywordIds WHERE (keywordIds.keywordId =:keywordId AND keywordIds.shotId = Shot.id ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_keyword AS keywordIds ON Shot.id = keywordIds.shotId AND keywordIds.keywordId=:keywordId  group by Shot.id limit 1;`
-        const sqlQuery = `SELECT  count(Shot.id) as keywordCount, Shot.id as shotId, Shot.title as shotTitle FROM (SELECT * FROM shots AS Shot WHERE ( SELECT Shot.id FROM shot_keyword AS keywordIds WHERE (keywordIds.keywordId =:keywordId AND keywordIds.shotId = Shot.id  ) LIMIT 1 ) IS NOT NULL limit :take offset :offset ) AS Shot INNER JOIN shot_keyword AS keywordIds ON Shot.id = keywordIds.shotId AND keywordIds.keywordId =:keywordId  group by Shot.id ;`
+        const sqlQueryForCount = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT shotId FROM shot_tag AS tagIds WHERE (tagIds.tagId =:tagId AND tagIds.shotId = Shot.id ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_tag AS tagIds ON Shot.id = tagIds.shotId AND tagIds.tagId=:tagId  group by Shot.id limit 1;`
+        const sqlQuery = `SELECT  count(Shot.id) as tagCount, Shot.id as shotId, Shot.title as shotTitle FROM (SELECT * FROM shots AS Shot WHERE ( SELECT Shot.id FROM shot_tag AS tagIds WHERE (tagIds.tagId =:tagId AND tagIds.shotId = Shot.id  ) LIMIT 1 ) IS NOT NULL limit :take offset :offset ) AS Shot INNER JOIN shot_tag AS tagIds ON Shot.id = tagIds.shotId AND tagIds.tagId =:tagId  group by Shot.id ;`
 
-        const replacements = { keywordId, offset: (+page - 1) * +take, take }
+        const replacements = { tagId, offset: (+page - 1) * +take, take }
 
         const totalItems = (await sequelize.query(sqlQueryForCount, { replacements, type: QueryTypes.SELECT }));
         const rows = await sequelize.query(sqlQuery, { replacements, type: QueryTypes.SELECT });
@@ -106,106 +106,106 @@ class KeywordService extends Service {
         return { count: totalItems?.[0]?.total || 0, rows }
     }
 
-    async detachShotFromKeyword(keywordId, shotId) {
+    async detachShotFromTag(tagId, shotId) {
 
-        return await ShotRelKeyword.destroy({
+        return await ShotRelTag.destroy({
             where: {
                 shotId,
-                keywordId
+                tagId
             }
         })
     }
 
-    async deleteKeyword(keywordId) {
+    async deleteTag(tagId) {
 
-        return await Keyword.destroy({
+        return await Tag.destroy({
             where: {
-                id: keywordId
+                id: tagId
             }
         })
     }
 
-    async getKeywordsByIds(keywordId) {
-        const keywords = await Keyword.findAll({ where: { id: keywordId } });
-        return keywords;
+    async getTagsByIds(tagId) {
+        const tags = await Tag.findAll({ where: { id: tagId } });
+        return tags;
     }
 
-    async getKeywordDetail(keywordId) {
-        let keyword = await this.getById(keywordId);
-        keyword = keyword.toJSON();
+    async getTagDetail(tagId) {
+        let tag = await this.getById(tagId);
+        tag = tag.toJSON();
 
-        if (keyword.type === "event") {
-            keyword.event = await KeywordEvent.findOne({ where: { id: keyword.typeId } });
+        if (tag.type === "event") {
+            tag.event = await TagEvent.findOne({ where: { id: tag.typeId } });
         }
-        else if (keyword.type === "location") {
-            keyword.location = await KeywordLocation.findOne({ where: { id: keyword.typeId } });
+        else if (tag.type === "location") {
+            tag.location = await TagLocation.findOne({ where: { id: tag.typeId } });
         }
 
-        return keyword
+        return tag
     }
 
-    async createKeyword(data) {
+    async createTag(data) {
         let {
-            keyword,
+            tag,
             type = "normal",
             location = {},
             event = {}
         } = data;
 
-        keyword = keyword.trim();
+        tag = tag.trim();
 
-        const checkKeyword = await Keyword.findOne({ where: { keyword } });
-        if (checkKeyword) {
-            return checkKeyword;
+        const checkTag = await Tag.findOne({ where: { tag } });
+        if (checkTag) {
+            return checkTag;
         }
         else {
-            const keywordModel = await Keyword.create({ keyword, type });
+            const tagModel = await Tag.create({ tag, type });
             let typeModel = null;
             if (type === 'location') {
-                typeModel = await this.createLocationKeyword(location)
+                typeModel = await this.createLocationTag(location)
             }
             else if (type === 'event') {
-                typeModel = await this.createEventKeyword(event)
+                typeModel = await this.createEventTag(event)
             }
 
             if (typeModel) {
-                keywordModel.typeId = typeModel.id;
-                await keywordModel.save();
+                tagModel.typeId = typeModel.id;
+                await tagModel.save();
             }
 
-            return keywordModel;
+            return tagModel;
         }
 
     }
 
-    async findOrCreateKeywordArray(keywords) {
-        let existKeywords = await this.model.findAll({ where: { keyword: keywords } });
-        let onlyExistKeywordArray = [];
-        existKeywords = existKeywords.map(item => {
+    async findOrCreateTagArray(tags) {
+        let existTags = await this.model.findAll({ where: { tag: tags } });
+        let onlyExistTagArray = [];
+        existTags = existTags.map(item => {
             item = item.toJSON();
-            onlyExistKeywordArray.push(item.keyword)
+            onlyExistTagArray.push(item.tag)
             return {
                 id: item.id,
-                keyword: item.keyword
+                tag: item.tag
             }
         });
 
-        let newKeywords = keywords.filter(keyword => !onlyExistKeywordArray.includes(keyword));
-        newKeywords = [...(new Set(newKeywords))].map(keyword => ({ keyword, type: "normal" }))
+        let newTags = tags.filter(tag => !onlyExistTagArray.includes(tag));
+        newTags = [...(new Set(newTags))].map(tag => ({ tag, type: "normal" }))
 
-        let response = await Keyword.bulkCreate(newKeywords);
+        let response = await Tag.bulkCreate(newTags);
         response.forEach(item => {
             item = item.toJSON();
-            existKeywords.push({
+            existTags.push({
                 id: item.id,
-                keyword: item.keyword
+                tag: item.tag
             })
         })
 
-        return existKeywords;
+        return existTags;
     }
 
-    async createLocationKeyword(data = {}) {
+    async createLocationTag(data = {}) {
         let {
             lat = null,
             lng = null,
@@ -219,11 +219,11 @@ class KeywordService extends Service {
         if (!TypeTool.boolean(lat)) lat = null
         if (!TypeTool.boolean(lng)) lng = null
 
-        const model = await KeywordLocation.create({ lat, lng, cityId });
+        const model = await TagLocation.create({ lat, lng, cityId });
         return model;
     }
 
-    async updateLocationKeyword(locId, data = {}) {
+    async updateLocationTag(locId, data = {}) {
         let {
             lat = null,
             lng = null,
@@ -234,7 +234,7 @@ class KeywordService extends Service {
             cityId = null;
         }
         try {
-            const model = await KeywordLocation.findOne({ where: { id: locId } });
+            const model = await TagLocation.findOne({ where: { id: locId } });
             model.lat = lat;
             model.lng = lng;
             model.cityId = cityId;
@@ -246,12 +246,12 @@ class KeywordService extends Service {
         }
     }
 
-    async deleteLocationKeyword(id) {
-        await KeywordLocation.destroy({ where: { id } });
+    async deleteLocationTag(id) {
+        await TagLocation.destroy({ where: { id } });
         return true;
     }
 
-    async createEventKeyword(data = {}) {
+    async createEventTag(data = {}) {
         const {
             day = null,
             month = null,
@@ -259,11 +259,11 @@ class KeywordService extends Service {
             type = null
         } = data;
 
-        const model = await KeywordEvent.create({ type, day, month, year });
+        const model = await TagEvent.create({ type, day, month, year });
         return model;
     }
 
-    async editEventKeyword(eventId, data = {}) {
+    async editEventTag(eventId, data = {}) {
         const {
             day,
             month,
@@ -272,7 +272,7 @@ class KeywordService extends Service {
         } = data;
 
         try {
-            const model = await KeywordEvent.findOne({ where: { id: eventId } });
+            const model = await TagEvent.findOne({ where: { id: eventId } });
             if (day !== undefined) model.day = day;
             if (month !== undefined) model.month = month;
             if (year !== undefined) model.year = year;
@@ -286,105 +286,105 @@ class KeywordService extends Service {
         }
     }
 
-    async deleteEventKeyword(id) {
-        await KeywordEvent.destroy({ where: { id } });
+    async deleteEventTag(id) {
+        await TagEvent.destroy({ where: { id } });
         return true;
     }
 
-    async editKeyword(keywordId, data = {}) {
+    async editTag(tagId, data = {}) {
         const {
             type,
-            keyword,
+            tag,
             location = {},
             event = {}
         } = data;
 
-        const keywordModel = await this.getById(keywordId);
-        keywordModel.keyword = keyword;
+        const tagModel = await this.getById(tagId);
+        tagModel.tag = tag;
 
-        if (type !== keywordModel.type) {
+        if (type !== tagModel.type) {
             let typeModel = null;
             if (type === 'location') {
-                typeModel = await this.createLocationKeyword(location);
+                typeModel = await this.createLocationTag(location);
             }
             else if (type === 'event') {
-                typeModel = await this.createEventKeyword(event);
+                typeModel = await this.createEventTag(event);
             }
 
-            if (keywordModel.type === 'location') {
-                await this.deleteLocationKeyword(keywordModel.typeId);
+            if (tagModel.type === 'location') {
+                await this.deleteLocationTag(tagModel.typeId);
             }
-            else if (keywordModel.type === 'event') {
-                await this.deleteEventKeyword(keywordModel.typeId);
+            else if (tagModel.type === 'event') {
+                await this.deleteEventTag(tagModel.typeId);
             }
 
-            keywordModel.typeId = typeModel?.id ?? null;
-            keywordModel.type = type;
+            tagModel.typeId = typeModel?.id ?? null;
+            tagModel.type = type;
         }
         else {
             if (type === 'location') {
-                await this.updateLocationKeyword(keywordModel.typeId, location);
+                await this.updateLocationTag(tagModel.typeId, location);
             }
             else if (type === 'event') {
-                await this.editEventKeyword(keywordModel.typeId, event);
+                await this.editEventTag(tagModel.typeId, event);
             }
         }
 
-        await keywordModel.save();
+        await tagModel.save();
 
-        return keywordModel;
+        return tagModel;
     }
 
-    async getKeywordUsageCount(keywordIds) {
-        let counts = await ShotRelKeyword.findAll({
-            where: { keywordId: keywordIds },
-            group: ['keywordId'],
-            attributes: ['id', 'keywordId', [Sequelize.fn('count', Sequelize.col('id')), 'count']],
+    async getTagUsageCount(tagIds) {
+        let counts = await ShotRelTag.findAll({
+            where: { tagId: tagIds },
+            group: ['tagId'],
+            attributes: ['id', 'tagId', [Sequelize.fn('count', Sequelize.col('id')), 'count']],
         })
 
         return counts.map(item => item.toJSON());
     }
 
-    async updateKeywordCategoryId(categoryId, keywordIds) {
-        await Keyword.update({ categoryId: null }, { where: { categoryId } });
-        await Keyword.update({ categoryId }, { where: { id: keywordIds } });
+    async updateTagCategoryId(categoryId, tagIds) {
+        await Tag.update({ categoryId: null }, { where: { categoryId } });
+        await Tag.update({ categoryId }, { where: { id: tagIds } });
     }
 
-    async updateKeywordCount(keywordIds) {
-        for (let i = 0; i < keywordIds.length; i++) {
-            const keyword = await Keyword.findOne({ where: { id: keywordIds[i] } });
-            if (!keyword) continue;
+    async updateTagCount(tagIds) {
+        for (let i = 0; i < tagIds.length; i++) {
+            const tag = await Tag.findOne({ where: { id: tagIds[i] } });
+            if (!tag) continue;
 
-            const replacements = { keywordId: keywordIds[i] }
+            const replacements = { tagId: tagIds[i] }
 
-            const sqlQueryForCountOfShot = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT "shotId" FROM shot_keyword AS "keywordIds" WHERE ("keywordIds"."keywordId" =:keywordId AND "keywordIds"."shotId" = Shot.id ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_keyword AS "keywordIds" ON Shot.id = "keywordIds"."shotId" AND "keywordIds"."keywordId"=:keywordId  group by Shot.id limit 1;`
+            const sqlQueryForCountOfShot = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT "shotId" FROM shot_tag AS "tagIds" WHERE ("tagIds"."tagId" =:tagId AND "tagIds"."shotId" = Shot.id ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_tag AS "tagIds" ON Shot.id = "tagIds"."shotId" AND "tagIds"."tagId"=:tagId  group by Shot.id limit 1;`
             const totalItemShot = (await sequelize.query(sqlQueryForCountOfShot, { replacements, type: QueryTypes.SELECT }));
 
-            const sqlQueryForCountVideoDetail = `SELECT count(*) over() as total FROM (SELECT * FROM video_detail AS VideoDetail WHERE ( SELECT "videoFileId" FROM video_detail_keyword AS keywordIds WHERE (keywordIds."keywordId" =:keywordId AND keywordIds."videoFileId" = VideoDetail."videoFileId" ) LIMIT 1 ) IS NOT NULL ) AS VideoDetail INNER JOIN video_detail_keyword AS keywordIds ON VideoDetail."videoFileId" = keywordIds."videoFileId" AND keywordIds."keywordId"=:keywordId  group by VideoDetail."videoFileId" limit 1;`
+            const sqlQueryForCountVideoDetail = `SELECT count(*) over() as total FROM (SELECT * FROM video_detail AS VideoDetail WHERE ( SELECT "videoFileId" FROM video_detail_tag AS tagIds WHERE (tagIds."tagId" =:tagId AND tagIds."videoFileId" = VideoDetail."videoFileId" ) LIMIT 1 ) IS NOT NULL ) AS VideoDetail INNER JOIN video_detail_tag AS tagIds ON VideoDetail."videoFileId" = tagIds."videoFileId" AND tagIds."tagId"=:tagId  group by VideoDetail."videoFileId" limit 1;`
             const totalItemVideoDetail = (await sequelize.query(sqlQueryForCountVideoDetail, { replacements, type: QueryTypes.SELECT }));
 
-            keyword.count = (totalItemShot?.[0]?.total ?? 0) + (totalItemVideoDetail?.[0]?.total ?? 0);
-            await keyword.save();
+            tag.count = (totalItemShot?.[0]?.total ?? 0) + (totalItemVideoDetail?.[0]?.total ?? 0);
+            await tag.save();
         }
     }
 
-    async checkAndUpdateWithUUID(keywords) {
-        let newKeywords = [];
-        for (let i = 0; i < keywords.length; i++) {
-            const checkKeyword = await Keyword.findOne({ where: { UUID: keywords[i].UUID } });
-            if (!checkKeyword) {
-                let t = await Keyword.create({ keyword: keywords[i].keyword.trim(), UUID: keywords[i].UUID });
-                newKeywords.push(t.toJSON());
+    async checkAndUpdateWithUUID(tags) {
+        let newTags = [];
+        for (let i = 0; i < tags.length; i++) {
+            const checkTag = await Tag.findOne({ where: { UUID: tags[i].UUID } });
+            if (!checkTag) {
+                let t = await Tag.create({ tag: tags[i].tag.trim(), UUID: tags[i].UUID });
+                newTags.push(t.toJSON());
             } else {
-                if (checkKeyword.keyword !== keywords[i].keyword) {
-                    checkKeyword.keyword = keywords[i].keyword;
-                    await checkKeyword.save();
+                if (checkTag.tag !== tags[i].tag) {
+                    checkTag.tag = tags[i].tag;
+                    await checkTag.save();
                 }
-                newKeywords.push(checkKeyword.toJSON());
+                newTags.push(checkTag.toJSON());
             }
         }
 
-        return newKeywords;
+        return newTags;
     }
 }
 

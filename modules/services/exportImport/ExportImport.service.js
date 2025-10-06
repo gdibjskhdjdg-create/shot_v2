@@ -20,7 +20,7 @@ const {
 const Service = require("../../_default/service");
 
 const GalleryParser = require('../../../helper/galleryParser.tool');
-const TagService = require('../tag/Tag.service');
+const KeywordService = require('../keyword/Keyword.service');
 const { encryptFile, decryptFile } = require('../../../helper/fileEncryption.tool');
 const CategoryService = require('../category/Category.service');
 const ShotInputService = require('../shotList/ShotInput.service');
@@ -81,7 +81,7 @@ class ExportImportService extends Service {
             data.forEach(it => tagIds = [...tagIds, ...it.tagIds.map(it => it.tagId)]);
             tagIds = [...new Set(tagIds)];
 
-            let tags = await TagService.getTagsByIds(tagIds);
+            let tags = await KeywordService.getTagsByIds(tagIds);
             tags = tags.map(it => ({ id: it.id, tag: it.tag, UUID: it.UUID }));
 
             for (let i = 0; i < data.length; i++) {
@@ -271,14 +271,14 @@ class ExportImportService extends Service {
         const data = await fsPromise.readFile(output, 'utf8').then(data => JSON.parse(data));
 
         const projects = await projectService.checkAndUpdateWithUUID(data.projects);
-        const tags = await TagService.checkAndUpdateWithUUID(data.tags);
+        const tags = await KeywordService.checkAndUpdateWithUUID(data.tags);
         const categories = await CategoryService.checkAndUpdateWithUUID(data.categories);
         const languages = await LanguageService.checkAndUpdateWithUUID(data.languages);
 
         const videoDetailIds = await this.importFullDataVideoFromOtherServer({ projects, tags, categories, languages }, data.videoDetails);
         await this.importShotFullDataFromOtherServer({ projects, tags, categories, languages }, videoDetailIds, data.shots);
 
-        await TagService.updateTagCount(tags.map(item => item.id))
+        await KeywordService.updateTagCount(tags.map(item => item.id))
 
         return {};
     }

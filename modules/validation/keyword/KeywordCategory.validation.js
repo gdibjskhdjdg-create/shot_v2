@@ -6,28 +6,28 @@ class KeywordCategoryValidation extends Validation {
         super();
     }
 
-    createKeywordCategory(data = {}){
+    createTagCategory(data = {}){
         this.setEmpty()
 
         const {
-            name, keywordIds = []
+            name, tagIds = []
         } = data;
 
         if(!TypeTool.boolean(name)){
             this.setError("name is required");
         }
         else if(name.trim().length < 2){
-            this.setError("min keyword name is 2 characters");
+            this.setError("min tag name is 2 characters");
         }
         else{
             this.setValidData("name", name.trim());
         }
 
-        if(!Array.isArray(keywordIds)){
-            this.setError("keywordIds must be an array")
+        if(!Array.isArray(tagIds)){
+            this.setError("tagIds must be an array")
         }
 
-        this.setValidData("keywordIds", keywordIds.filter(item => item))
+        this.setValidData("tagIds", tagIds.filter(item => item))
 
         return this.getResult();
     }

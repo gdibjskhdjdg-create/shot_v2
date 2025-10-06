@@ -1,5 +1,5 @@
 const userRoute = require("../modules/routes/user");
-const tagRoute = require("../modules/routes/tag");
+const keywordRoute = require("../modules/routes/keyword");
 const projectRoute = require("../modules/routes/project");
 const ownerRoute = require("../modules/routes/owner");
 const shotListRoute = require("../modules/routes/shotList");
@@ -14,7 +14,7 @@ async function apiRoutes(fastify, opts) {
 
     fastify.register(userRoute, { prefix: '/user' });
     fastify.register(exportImportRoute, { prefix: '/export-import' });
-    fastify.register(tagRoute, { prefix: '/tag' });
+    fastify.register(keywordRoute, { prefix: '/tag' });
     fastify.register(projectRoute, { prefix: '/project' });
     fastify.register(languageRoute, { prefix: '/language' });
     fastify.register(shotListRoute, { prefix: '/shotList' });

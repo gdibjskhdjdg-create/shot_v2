@@ -13,7 +13,7 @@ const {
 } = require("../../_default/model");
 const ErrorResult = require('../../../helper/error.tool');
 const { createPaginationQuery } = require("../../../helper/SqlHelper.tool");
-const TagService = require("../tag/Tag.service");
+const KeywordService = require("../keyword/Keyword.service");
 const emitter = require("../../_default/eventEmitter");
 
 class EqualizerService extends Service {
@@ -159,7 +159,7 @@ class EqualizerService extends Service {
 
         tagIds = [...new Set(tagIds)];
 
-        let existTags = await TagService.getTagsByIds(tagIds);
+        let existTags = await KeywordService.getTagsByIds(tagIds);
         existTags = existTags.map(item => item.toJSON());
 
         const funcSetNewValuesOfTagInput = (tagInput = []) => {

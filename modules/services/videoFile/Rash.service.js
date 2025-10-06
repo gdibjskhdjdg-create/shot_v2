@@ -3,7 +3,7 @@ const Service = require("../../_default/service")
 
 const fs = require('fs')
 const path = require('path');
-const TagService = require("../tag/Tag.service");
+const KeywordService = require("../keyword/Keyword.service");
 const { ExportRushLog, sequelize } = require("../../_default/model");
 const Redis = require("../../../db/redis")
 
@@ -428,7 +428,7 @@ class RashService extends Service {
                 locationTag[locTag[i].tag] = [];
             }
             else {
-                let tag = await TagService.getTagDetail(locTag[i].id);
+                let tag = await KeywordService.getTagDetail(locTag[i].id);
                 if (!tag || !tag.location.lat || !tag.location.lng) {
                     locationTag[locTag[i].tag] = [];
                 }

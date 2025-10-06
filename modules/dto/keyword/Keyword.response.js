@@ -7,11 +7,11 @@ class KeywordResponse extends BaseResponse {
         super(data);
 
         this.id = this.setValue(["id"], 'number');
-        this.keyword = this.setValue(["keyword"], 'string');
+        this.tag = this.setValue(["tag"], 'string');
         this.type = this.setValue(["type"], 'string');
         this.count = this.setValue(["count"], 'number');
-        this.keywords = this.setValue(["keywords"], "array")
-        this.keywords = this.validate(["keywords"], "array")
+        this.tags = this.setValue(["tags"], "array")
+        // this.tags = this.validate(["tags"], "array")
     }
 }
 

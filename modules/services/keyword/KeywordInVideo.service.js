@@ -1,20 +1,20 @@
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-const QueryTypes = Sequelize.QueryTypes;
+const QueryTypes = Sequelize.QueryTypes
 
 const TypeTool = require("../../../helper/type.tool");
 const Service = require("../../_default/service");
-const { Keyword, KeywordRelCategory, ShotRelKeyword, CategoryKeyword, KeywordLocation, KeywordEvent, sequelize } = require("../../_default/model");
+const { Tag, TagRelCategory, ShotRelTag, CategoryTag, TagLocation, TagEvent, sequelize } = require("../../_default/model");
 const { createPaginationQuery } = require('../../../helper/SqlHelper.tool');
 const ErrorResult = require('../../../helper/error.tool');
 
-class KeywordInVideo extends Service {
+class KeywordInVideoService extends Service {
 
     constructor() {
-        super(Keyword);
+        super(Tag)
     }
 
-    async getKeywords(filters = {}) {
+    async getTags(filters = {}) {
         const {
             categoryId = "",
             search = null,
@@ -29,15 +29,17 @@ class KeywordInVideo extends Service {
                 isCategory: 0
             },
             include: [{
-                model: ShotRelKeyword,
-                as: 'shot_keyword',
+                model: ShotRelTag,
+                as: 'shot_tag',
                 where: { inVideo: 1 },
                 required: true,
             }],
+
+
         };
 
         if (!TypeTool.isNullUndefined(search) && search.toString().trim().length > 0) {
-            sqlQuery.where.keyword = { [Op.like]: `%${search}%` };
+            sqlQuery.where.tag = { [Op.like]: `%${search}%` }
         }
         if (!TypeTool.isNullUndefined(type)) {
             sqlQuery.where.type = type;
@@ -45,103 +47,111 @@ class KeywordInVideo extends Service {
 
         if (TypeTool.isNotEmptyString(categoryId)) {
             sqlQuery.include.push({
-                model: KeywordRelCategory,
-                as: `keyword_rel_category`,
+                model: TagRelCategory,
+                as: `tag_rel_category`,
                 where: { categoryId },
                 required: true,
-            });
+            })
         }
 
         sqlQuery = createPaginationQuery(sqlQuery, page, take);
 
-        let keyword = await Keyword.findAndCountAll({
+        let tag = await Tag.findAndCountAll({
             distinct: true,
             ...sqlQuery,
         });
 
+
         if (shotUsageCount) {
-            let keywordIds = keyword.rows.map(item => item.id);
+            let tagIds = tag.rows.map(item => item.id);
 
-            const keywordShot = await this.getKeywordShotUsage(keywordIds);
+            const tagShot = await this.getTagShotUsage(tagIds);
 
-            keyword.rows = keyword.rows.map(item => {
-                const keywordShotOfKeyword = keywordShot.filter((x) => x.keywordId == item.id);
-                item.dataValues.shotCount = keywordShotOfKeyword.length;
+            tag.rows = tag.rows.map(item => {
 
-                for (const ks of keywordShotOfKeyword) {
-                    const otherInfo = ks.otherInfo ? JSON.parse(ks.otherInfo) : null;
+                const tagShotOfTag = tagShot.filter((x) => x.tagId == item.id)
+                item.dataValues.shotCount = tagShotOfTag.length
+
+                for (const ts of tagShotOfTag) {
+                    const otherInfo = ts.otherInfo ? JSON.parse(ts.otherInfo) : null
 
                     if (!item.dataValues.hasOwnProperty("count")) {
-                        item.dataValues.count = 0;
+                        item.dataValues.count = 0
                     }
 
                     if (otherInfo) {
                         item.dataValues.count += otherInfo['times'].reduce((acc, data) => acc + data.positions.length, 0);
                     }
+
                 }
 
                 return item;
-            });
+            })
         }
-        return keyword;
+        return tag;
     }
 
-    async getShotsOfKeyword(keywordId, query = {}) {
-        const page = query.page || 1;
-        const take = query.take || 10;
+    async getShotsOfTag(tagId, query = {}) {
 
-        const sqlQueryForCount = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT "shotId" FROM shot_keyword AS "keywordIds" WHERE ("keywordIds"."keywordId" =:keywordId AND "keywordIds"."shotId" = Shot.id AND "keywordIds"."inVideo" = 1  ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_keyword AS "keywordIds" ON Shot.id = "keywordIds"."shotId" AND "keywordIds"."keywordId"=:keywordId AND "keywordIds"."inVideo" = 1  group by Shot.id limit 1;`;
+        const page = query.page || 1
+        const take = query.take || 10
+
+        const sqlQueryForCount = `SELECT count(*) over() as total FROM (SELECT * FROM shots AS Shot WHERE ( SELECT "shotId" FROM shot_tag AS "tagIds" WHERE ("tagIds"."tagId" =:tagId AND "tagIds"."shotId" = Shot.id AND "tagIds"."inVideo" = 1  ) LIMIT 1 ) IS NOT NULL ) AS Shot INNER JOIN shot_tag AS "tagIds" ON Shot.id = "tagIds"."shotId" AND "tagIds"."tagId"=:tagId AND "tagIds"."inVideo" = 1  group by Shot.id limit 1;`
         
-        const sqlQuery = `SELECT Shot.id as shotId, Shot.title as "shotTitle", "keywordIds"."otherInfo" as "otherInfo" FROM (SELECT * FROM shots AS Shot WHERE ( SELECT Shot.id FROM shot_keyword AS "keywordIds" WHERE ("keywordIds"."keywordId" =:keywordId AND "keywordIds"."shotId" = Shot.id AND "keywordIds"."inVideo" = 1  ) LIMIT 1 ) IS NOT NULL limit :take offset :offset ) AS Shot INNER JOIN shot_keyword AS "keywordIds" ON Shot.id = "keywordIds"."shotId" AND "keywordIds"."keywordId" =:keywordId AND "keywordIds"."inVideo" = 1 group by Shot.id ;`;
+        const sqlQuery = `SELECT Shot.id as shotId, Shot.title as "shotTitle", "tagIds"."otherInfo" as "otherInfo" FROM (SELECT * FROM shots AS Shot WHERE ( SELECT Shot.id FROM shot_tag AS "tagIds" WHERE ("tagIds"."tagId" =:tagId AND "tagIds"."shotId" = Shot.id AND "tagIds"."inVideo" = 1  ) LIMIT 1 ) IS NOT NULL limit :take offset :offset ) AS Shot INNER JOIN shot_tag AS "tagIds" ON Shot.id = "tagIds"."shotId" AND "tagIds"."tagId" =:tagId AND "tagIds"."inVideo" = 1 group by Shot.id ;`
 
-        const replacements = { keywordId, offset: (+page - 1) * +take, take };
+        const replacements = { tagId, offset: (+page - 1) * +take, take }
 
         const totalItems = (await sequelize.query(sqlQueryForCount, { replacements, type: QueryTypes.SELECT }));
         const rows = await sequelize.query(sqlQuery, { replacements, type: QueryTypes.SELECT });
 
         for (const item of rows) {
-            const otherInfo = item.otherInfo ? JSON.parse(item.otherInfo) : null;
+            const otherInfo = item.otherInfo ? JSON.parse(item.otherInfo) : null
 
-            if (!item.hasOwnProperty("keywordCount")) {
-                item.keywordCount = 0;
+            if (!item.hasOwnProperty("tagCount")) {
+                item.tagCount = 0
             }
 
             if (otherInfo) {
-                item.keywordCount += otherInfo['times'].reduce((acc, data) => acc + data.positions.length, 0);
+                item.tagCount += otherInfo['times'].reduce((acc, data) => acc + data.positions.length, 0);
             }
+
         }
 
-        return { count: totalItems?.[0]?.total || 0, rows };
+        return { count: totalItems?.[0]?.total || 0, rows }
     }
 
-    async getKeywordShotUsage(keywordIds) {
-        let keywordShot = await ShotRelKeyword.findAll({
-            where: { keywordId: keywordIds, inVideo: 1 },
-            attributes: ['keywordId', 'otherInfo'],
-        });
+    async getTagShotUsage(tagIds) {
+        let tagShot = await ShotRelTag.findAll({
+            where: { tagId: tagIds, inVideo: 1 },
+            attributes: ['tagId', 'otherInfo'],
+        })
 
-        return keywordShot.map(item => item.toJSON());
+        return tagShot.map(item => item.toJSON());
     }
 
-    async detachShotFromKeyword(keywordId, shotId) {
-        return await ShotRelKeyword.destroy({
+    async detachShotFromTag(tagId, shotId) {
+
+
+        return await ShotRelTag.destroy({
             where: {
                 shotId,
                 inVideo: 1,
-                keywordId
+                tagId
             }
-        });
+        })
     }
 
-    async deleteKeyword(keywordId) {
-        const keywordIsInVideo = await ShotRelKeyword.findOne({ where: { keywordId } });
-        if (keywordIsInVideo) {
-            return Keyword.destroy({ where: { id: keywordId } });
+    async deleteTag(tagId) {
+        const tagIsInVideo = await ShotRelTag.findOne({ tagId })
+        if (tagIsInVideo) {
+            return Tag.destroy({ where: { tagId } })
         } else {
-            throw ErrorResult.badRequest("keyword is not in video");
+            throw ErrorResult.badRequest("tag is not in video")
         }
     }
 
+
 }
 
-module.exports = new KeywordInVideo();
+module.exports = new KeywordInVideoService();

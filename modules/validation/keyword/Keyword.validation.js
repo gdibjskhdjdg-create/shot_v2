@@ -6,25 +6,25 @@ class KeywordValidation extends Validation {
         super();
     }
 
-    createKeyword(data = {}){
+    createTag(data = {}){
         this.setEmpty();
-        const { keyword, type, event = null, location = null } = data;
+        const { tag, type, event = null, location = null } = data;
 
-        if(!TypeTool.boolean(keyword)){
-            this.setError("keyword is required");
+        if(!TypeTool.boolean(tag)){
+            this.setError("tag is required");
         }
-        else if(keyword.trim().length < 2){
-            this.setError("keyword 2 min characters");
+        else if(tag.trim().length < 2){
+            this.setError("tag 2 min characters");
         }
         else{
-            this.setValidData("keyword", keyword.trim());
+            this.setValidData("tag", tag.trim());
         }
 
         if(!TypeTool.boolean(type)){
-            this.setError("keyword type is required");
+            this.setError("tag type is required");
         }
-        else if(!(["normal", "event", 'location"].includes(type))){
-            this.setError("invalid keyword type");
+        else if(!(["normal", "event", "location"].includes(type))){
+            this.setError("invalid tag type");
         }
         else{
             this.setValidData("type", type);
@@ -51,7 +51,7 @@ class KeywordValidation extends Validation {
                 }
 
                 if(!['jalali', 'hijri', 'gregorian'].includes(type)){
-                    this.setError("event keyword type is invalid")
+                    this.setError("event tag type is invalid")
                 }
                 
                 validEventData.day = day;

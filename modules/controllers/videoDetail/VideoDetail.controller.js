@@ -2,7 +2,7 @@ const ResponseDTO = require("../../_default/Response.dto");
 const VideoDetailListResponse = require("../../dto/videoDetail/VideoDetailList.response");
 const { videoDetailService, videoDetailExportService, videoDetailImportService } = require("../../services/videoDetail/index");
 const videoDetailValidation = require("../../validation/videoDetail/videoDetail.validation");
-const TagResponse = require("../../dto/tag/Tag.response");
+const KeywordResponse = require("../../dto/keyword/Keyword.response");
 
 
 async function fetchList(req, res) {
@@ -209,21 +209,21 @@ async function importRemovalFromExcel(req, res) {
 
 }
 
-async function fetchAiTagsTotalReport(req, res) {
+async function fetchAiKeywordsTotalReport(req, res) {
     let response = await videoDetailService.getVideoDetailTotalReport(req.query)
     return ResponseDTO.success(res, response);
 }
 
 
-async function fetchAiTagsReport(req, res) {
+async function fetchAiKeywordsReport(req, res) {
     let { rows, count } = await videoDetailService.videoDetailAiTagsList(req.query)
     return ResponseDTO.success(res, { rows, count });
 }
 
-async function fetchAiTagsDetail(req, res) {
+async function fetchAiKeywordsDetail(req, res) {
     const { videoFileId } = req.params;
     let { allTags, aiTags, videoUrl } = await videoDetailService.videoDetailAiTagsReport(+videoFileId)
-    return ResponseDTO.success(res, { videoUrl, allTags: TagResponse.create(allTags), aiTags: TagResponse.create(aiTags) });
+    return ResponseDTO.success(res, { videoUrl, allTags: KeywordResponse.create(allTags), aiTags: KeywordResponse.create(aiTags) });
 }
 
 async function createListLink(req, res) {
@@ -265,9 +265,9 @@ module.exports = {
     exportVideoDetailPath,
     importFromExcel,
     importRemovalFromExcel,
-    fetchAiTagsTotalReport,
-    fetchAiTagsReport,
-    fetchAiTagsDetail,
+    fetchAiKeywordsTotalReport,
+    fetchAiKeywordsReport,
+    fetchAiKeywordsDetail,
     createListLink,
     fetchVideoListWithCode,
     fetchDetailWithUUID

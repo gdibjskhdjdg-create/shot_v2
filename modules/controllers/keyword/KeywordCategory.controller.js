@@ -5,9 +5,9 @@ const KeywordCategoryValidation = require("../../validation/keyword/KeywordCateg
 
 async function fetchList(req, res) {
   
-    const categories = await KeywordCategoryService.getKeywordCategories({
+    const categories = await KeywordCategoryService.getTagCategories({
         ...req.query,
-        getKeywords: true
+        getTags: true
     });
 
     return ResponseDTO.success(res, { categories: categories.rows, count: categories.count });
@@ -16,9 +16,9 @@ async function fetchList(req, res) {
 async function findKeyword(req, res) {
   
 
-    const keywords = await KeywordCategoryService.getKeywordCategories(req.query);
+    const tags = await KeywordCategoryService.getTagCategories(req.query);
 
-    return ResponseDTO.success(res, { keywords: KeywordResponse.create(keywords.rows), count: keywords.count });
+    return ResponseDTO.success(res, { tags: KeywordResponse.create(tags.rows), count: tags.count });
 }
 
 async function displayCategory(req, res) {
@@ -30,27 +30,27 @@ async function displayCategory(req, res) {
 }
 
 async function fetchDetail(req, res) {
-    const { keywordId } = req.params;
+    const { keywordCategoryId } = req.params;
 
-    const keyword = await KeywordCategoryService.getKeywordDetail(keywordId);
+    const tag = await KeywordCategoryService.getTagDetail(keywordCategoryId);
 
-    return ResponseDTO.success(res, keyword);
+    return ResponseDTO.success(res, tag);
 }
 
 async function addKeywordCategory(req, res) {
     const body = req.body;
 
-    const data = KeywordCategoryValidation.createKeywordCategory(body);
+    const data = KeywordCategoryValidation.createTagCategory(body);
     const category = await KeywordCategoryService.createCategory(data)
-    return ResponseDTO.success(res, { keywordCategoryId: category.id });
+    return ResponseDTO.success(res, { tagCategoryId: category.id });
 }
 
 async function modifyKeywordCategory(req, res) {
     const body = req.body;
     const { keywordCategoryId } = req.params;
 
-    const data = KeywordCategoryValidation.createKeywordCategory(body);
-    const keyword = await KeywordCategoryService.editCategory(keywordCategoryId, data);
+    const data = KeywordCategoryValidation.createTagCategory(body);
+    const tag = await KeywordCategoryService.editCategory(keywordCategoryId, data);
     return ResponseDTO.success(res);
 }
 

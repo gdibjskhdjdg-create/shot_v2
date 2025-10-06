@@ -25,17 +25,17 @@ async function videoDetailRoutes(fastify, opts) {
 
         fastifyProtected.get("/aiTags",
             // AuthorizationMiddleware(["videos-full-access"]),
-            ErrorBoundary(VideoDetailController.fetchAiTagsReport)
+            ErrorBoundary(VideoDetailController.fetchAiKeywordsReport)
 
         )
         fastifyProtected.get("/aiTags/total",
             // AuthorizationMiddleware(["videos-full-access"]),
-            ErrorBoundary(VideoDetailController.fetchAiTagsTotalReport)
+            ErrorBoundary(VideoDetailController.fetchAiKeywordsTotalReport)
         )
 
         fastifyProtected.get("/aiTags/:videoFileId",
             // AuthorizationMiddleware(["videos-full-access"]),
-            ErrorBoundary(VideoDetailController.fetchAiTagsDetail)
+            ErrorBoundary(VideoDetailController.fetchAiKeywordsDetail)
         )
 
         fastifyProtected.post("/specialSearch/generate-link", { preHandler: StrictlyAdminMiddleware }, ErrorBoundary(VideoDetailController.createListLink))

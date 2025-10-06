@@ -4,7 +4,7 @@ const Service = require("../../_default/service")
 
 const fs = require('fs')
 const path = require('path');
-const TagService = require("../../tag/service/Tag.service");
+const KeywordService = require("../../tag/service/Tag.service");
 const { ExportRushLog, sequelize } = require("../../_default/model");
 const Redis = require("../../../db/redis")
 
@@ -394,7 +394,7 @@ console.log(1111, isProduct, force)
                 locationTag[locTag[i].tag] = [];
             }
             else {
-                let tag = await TagService.getTagDetail(locTag[i].id);
+                let tag = await KeywordService.getTagDetail(locTag[i].id);
                 if (!tag || !tag.location.lat || !tag.location.lng) {
                     locationTag[locTag[i].tag] = [];
                 }

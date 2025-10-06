@@ -9,14 +9,14 @@ const { projectService } = require('../project');
 const CategoryService = require('../category/Category.service');
 const OwnerService = require('../owner/Owner.service');
 const LanguageService = require('../language/Language.service');
-const TagService = require('../tag/Tag.service');
+const KeywordService = require('../keyword/Keyword.service');
 
 const {
     VideoFile,
     VideoDetail
 } = require('../../_default/model');
 const ShotInputService = require('../shotList/ShotInput.service');
-const CityService = require('../tag/City.service');
+const CityService = require('../keyword/City.service');
 const { logError } = require('../../../helper/log.tool');
 const emitter = require('../../_default/eventEmitter');
 const TypeTool = require('../../../helper/type.tool');
@@ -724,7 +724,7 @@ class VideoDetailImportFile_Service extends Service {
         let importBulk = [];
         let addedTag = [];
 
-        let exist = await TagService.getByAttribute("tag", data);
+        let exist = await KeywordService.getByAttribute("tag", data);
         const existTitle = exist.map(item => (item.toJSON()).tag);
         const notExistTags = data.filter(item => !existTitle.includes(item)).map(item => ({ tag: item.trim(), type }));
         notExistTags.forEach(tag => {
@@ -737,7 +737,7 @@ class VideoDetailImportFile_Service extends Service {
 
         for (let i = 0; i < importBulk.length; i++) {
             try {
-                let newData = await TagService.createTag(importBulk[i]);
+                let newData = await KeywordService.createTag(importBulk[i]);
                 exist.push(newData);
             }
             catch (err) {

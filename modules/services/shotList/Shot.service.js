@@ -26,7 +26,7 @@ const ShotDefaultValueService = require('./ShotDefaultValue.service');
 const { createPaginationQuery } = require("../../../helper/SqlHelper.tool");
 const OwnerService = require('../owner/Owner.service');
 const ShotInputService = require('./ShotInput.service');
-const TagService = require('../tag/Tag.service');
+const KeywordService = require('../keyword/Keyword.service');
 const ErrorResult = require('../../../helper/error.tool');
 const emitter = require('../../_default/eventEmitter');
 const { takeScreenShot } = require('../../services/FFmpeg/FFmpeg.service');
@@ -418,7 +418,7 @@ class ShotService extends Service {
 
             const tagIds = [...(new Set(response.tagIds.map(item => item.tagId)))];
 
-            let tags = await TagService.getByAttribute('id', tagIds);
+            let tags = await KeywordService.getByAttribute('id', tagIds);
 
             tags = tags.map(item => item.toJSON());
 
@@ -482,7 +482,7 @@ class ShotService extends Service {
 
         const tagIds = [...(new Set(response.tagIds.map(item => item.tagId)))];
 
-        let tags = await TagService.getByAttribute('id', tagIds);
+        let tags = await KeywordService.getByAttribute('id', tagIds);
 
         tags = tags.map(item => item.toJSON());
 
@@ -518,7 +518,7 @@ class ShotService extends Service {
         });
         tagIds = [...(new Set(tagIds))]
 
-        let tags = await TagService.getByAttribute('id', tagIds);
+        let tags = await KeywordService.getByAttribute('id', tagIds);
 
         tags = tags.map(item => item.toJSON());
 
@@ -883,7 +883,7 @@ class ShotService extends Service {
             })
         })
 
-        const newTagsEntity = await TagService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
         bulkData = bulkData.map(item => {
             if (item.isNew) {
                 let findTag = newTagsEntity.find(tag => tag.tag === item.tagId);
@@ -898,7 +898,7 @@ class ShotService extends Service {
         await ShotRelTag.bulkCreate(bulkData, { transaction });
 
         changedTags = [...new Set([...changedTags])]
-        await TagService.updateTagCount(changedTags)
+        await KeywordService.updateTagCount(changedTags)
 
         return;
     }
@@ -932,7 +932,7 @@ class ShotService extends Service {
             })
         })
 
-        const newTagsEntity = await TagService.findOrCreateTagArray(newTags);
+        const newTagsEntity = await KeywordService.findOrCreateTagArray(newTags);
 
         bulkData = bulkData.map(item => {
             if (item.isNew) {
@@ -988,7 +988,7 @@ class ShotService extends Service {
         await this.updateShotCategories(shot.id, { categoriesId: categories.map(item => item.id) });
 
         const inputsText = [...new Set(data.tags.map(item => item.input))];
-        const tags = await TagService.findOrCreateTagArray(data.tags.map(item => item.tag));
+        const tags = await KeywordService.findOrCreateTagArray(data.tags.map(item => item.tag));
         const inputs = await ShotInputService.findOrCreate(inputsText.map(item => ({ title: item, type: "multiSelect", valuesFrom: "tag" })))
         const tagsToInsert = inputs.map(item => {
             let tagIds = data.tags.filter(it => item.title === it.input).map(item => tags.find(it => it.tag === item.tag).id)

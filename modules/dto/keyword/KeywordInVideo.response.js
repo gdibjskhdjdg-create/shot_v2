@@ -7,7 +7,7 @@ class KeywordInVideoResponse extends BaseResponse {
         super(data);
 
         this.id = this.setValue(["id"], 'number');
-        this.keyword = this.setValue(["keyword"], 'string');
+        this.tag = this.setValue(["tag"], 'string');
         this.type = this.setValue(["type"], 'type');
         this.shotCount = this.setValue(["shotCount"], 'number');
         this.count = this.setValue(["count"], 'number');
