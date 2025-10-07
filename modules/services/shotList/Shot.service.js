@@ -898,7 +898,7 @@ class ShotService extends Service {
         await ShotRelTag.bulkCreate(bulkData, { transaction });
 
         changedTags = [...new Set([...changedTags])]
-        await KeywordService.updateTagCount(changedTags)
+        await KeywordService.updateKeywordCount(changedTags)
 
         return;
     }

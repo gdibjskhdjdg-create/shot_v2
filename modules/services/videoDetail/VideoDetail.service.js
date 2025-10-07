@@ -869,7 +869,7 @@ class VideoDetailService extends Service {
         const videoDetailTags = await VideoDetailRelTag.bulkCreate(bulkData, { transaction });
 
         changedTags = [...new Set([...changedTags])]
-        await KeywordService.updateTagCount(changedTags)
+        await KeywordService.updateKeywordCount(changedTags)
 
         return videoDetailTags
     }

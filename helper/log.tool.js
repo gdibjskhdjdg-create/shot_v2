@@ -3,10 +3,11 @@ const fs = require("fs");
 const path = require("path");
 
 /* ---------------------------------- Tools --------------------------------- */
-const TypeTool = require("./type.tool");
 
 exports.logError = (section, error, folderName = 'errors') => {
     return new Promise(async (resolve, reject) => {
+        const TypeTool = require("./type.tool");
+
         console.log(`************** ${section} ******************`);
         console.log(error);
 
@@ -16,7 +17,7 @@ exports.logError = (section, error, folderName = 'errors') => {
         if (!fs.existsSync(path.join(__dirname, "../logs", folderName))) {
             fs.mkdirSync(path.join(__dirname, "../logs", folderName), { recursive: true });
         }
-        fs.appendFile(
+        fs.appendFileSync(
             path.join(
                 __dirname,
                 `../logs/${folderName}`,
