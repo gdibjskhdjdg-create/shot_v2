@@ -14,7 +14,7 @@ class KeywordInVideoService extends Service {
         super(Tag)
     }
 
-    async getTags(filters = {}) {
+    async getKeywords(filters = {}) {
         const {
             categoryId = "",
             search = null,

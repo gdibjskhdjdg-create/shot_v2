@@ -216,13 +216,13 @@ async function fetchAiKeywordsTotalReport(req, res) {
 
 
 async function fetchAiKeywordsReport(req, res) {
-    let { rows, count } = await videoDetailService.videoDetailAiTagsList(req.query)
+    let { rows, count } = await videoDetailService.videoDetailAiKeywordsList(req.query)
     return ResponseDTO.success(res, { rows, count });
 }
 
 async function fetchAiKeywordsDetail(req, res) {
     const { videoFileId } = req.params;
-    let { allTags, aiTags, videoUrl } = await videoDetailService.videoDetailAiTagsReport(+videoFileId)
+    let { allTags, aiTags, videoUrl } = await videoDetailService.videoDetailAiKeywordsReport(+videoFileId)
     return ResponseDTO.success(res, { videoUrl, allTags: KeywordResponse.create(allTags), aiTags: KeywordResponse.create(aiTags) });
 }
 

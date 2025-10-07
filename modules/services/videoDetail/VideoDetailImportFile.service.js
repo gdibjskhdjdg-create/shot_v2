@@ -716,7 +716,7 @@ class VideoDetailImportFile_Service extends Service {
                     tags.push({ inputId: input.id, tagIds });
                 }
             });
-            await this.videoDetailService.updateVideoDetailTag(videoDetail.videoFileId, { tagInput: tags });
+            await this.videoDetailService.updateVideoDetailKeyword(videoDetail.videoFileId, { tagInput: tags });
         }
     }
 

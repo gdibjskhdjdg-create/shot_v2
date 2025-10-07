@@ -499,7 +499,7 @@ class VideoDetailService extends Service {
 
     }
 
-    async videoDetailAiTagsList(query = { page: 1, take: 10, title }) {
+    async videoDetailAiKeywordsList(query = { page: 1, take: 10, title }) {
         const { page, take, title } = query;
 
         const where = { isAI: 1, aiTagStatus: "complete" }
@@ -622,7 +622,7 @@ class VideoDetailService extends Service {
         return { tagsSum, newTagsSum, aiTagsSum, aiRemovedSum }
     }
 
-    async videoDetailAiTagsReport(videoFileId) {
+    async videoDetailAiKeywordsReport(videoFileId) {
         const videoFileDetail = await this.findByVideoId(videoFileId)
         const videoUrl = `${appConfigs.APP_URL}/api/videoFile/show/${videoFileId}`;
         const aiTagsId = videoFileDetail.aiTagsId ? JSON.parse(videoFileDetail.aiTagsId) : []
@@ -702,8 +702,8 @@ class VideoDetailService extends Service {
 
         await this.createDefaultValue(data);
         await this.updateVideoDetailCategories(videoDetail.videoFileId, data);
-        await this.updateVideoDetailTag(videoDetail.videoFileId, data);
-        await this.updateVideoDetailTagInVideo(videoDetail.videoFileId, data);
+        await this.updateVideoDetailKeyword(videoDetail.videoFileId, data);
+        await this.updateVideoDetailKeywordInVideo(videoDetail.videoFileId, data);
         videoDetail = await this.updateVideoDetailLanguage(videoDetail, data);
         videoDetail = await this.updateVideoDetailGallery(videoDetail, data);
     }
@@ -817,7 +817,7 @@ class VideoDetailService extends Service {
         }
     }
 
-    async updateVideoDetailTag(videoFileId, data = {}, more = {}) {
+    async updateVideoDetailKeyword(videoFileId, data = {}, more = {}) {
         /* tagInput [{inputId: 1, tagIds: []}] */
         const { tagInput } = data;
         if (TypeTool.isNullUndefined(tagInput)) {
@@ -874,7 +874,7 @@ class VideoDetailService extends Service {
         return videoDetailTags
     }
 
-    async updateVideoDetailTagInVideo(videoFileId, data, more = {}) {
+    async updateVideoDetailKeywordInVideo(videoFileId, data, more = {}) {
         /* tagInVideo [{tagId: 1, times: TagInVideoDetail_VO}] */
         const { tagInVideo } = data;
         if (TypeTool.isNullUndefined(tagInVideo)) {

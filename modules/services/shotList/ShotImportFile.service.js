@@ -553,7 +553,7 @@ class ShotImportFile_Service extends Service {
                     tags.push({ inputId: input.id, tagIds });
                 }
             });
-            await shotService.updateShotTag(shot.id, { tagInput: tags });
+            await shotService.updateShotTagKeyword(shot.id, { tagInput: tags });
         }
     }
 

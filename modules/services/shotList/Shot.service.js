@@ -732,8 +732,8 @@ class ShotService extends Service {
 
         await this.createDefaultValue(data);
         await this.updateShotCategories(shot.id, data);
-        await this.updateShotTagInVideo(shot.id, data);
-        await this.updateShotTag(shot.id, data);
+        await this.updateShotKeywordInVideo(shot.id, data);
+        await this.updateShotKeyword(shot.id, data);
         shot = await this.updateShotLanguage(shot, data);
         shot = await this.updateShotGallery(shot, data);
     }
@@ -847,7 +847,7 @@ class ShotService extends Service {
         }
     }
 
-    async updateShotTag(shotId, data = {}, more = {}) {
+    async updateShotKeyword(shotId, data = {}, more = {}) {
         /* tagInput [{inputId: 1, tagIds: []}] */
         const { tagInput } = data;
         if (TypeTool.isNullUndefined(tagInput)) {
@@ -903,7 +903,7 @@ class ShotService extends Service {
         return;
     }
 
-    async updateShotTagInVideo(shotId, data, more = {}) {
+    async updateShotKeywordInVideo(shotId, data, more = {}) {
         /* tagInVideo [{tagId: 1, times: TagInVideoDetail_VO}] */
         const { tagInVideo } = data;
         if (TypeTool.isNullUndefined(tagInVideo)) {
@@ -994,7 +994,7 @@ class ShotService extends Service {
             let tagIds = data.tags.filter(it => item.title === it.input).map(item => tags.find(it => it.tag === item.tag).id)
             return { inputId: item.id, tagIds };
         })
-        await this.updateShotTag(shot.id, { tagInput: tagsToInsert });
+        await this.updateShotKeyword(shot.id, { tagInput: tagsToInsert });
 
         const createOrSetDefaultValue = async (key, returnKey) => {
             if (data?.[key]) {

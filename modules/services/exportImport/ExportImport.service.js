@@ -378,7 +378,7 @@ class ExportImportService extends Service {
         })
 
         const tagsToInsert = await this.generateTagToInsert(data);
-        await this.videoDetailService.updateVideoDetailTag(videoDetail.videoFileId, { tagInput: tagsToInsert });
+        await this.videoDetailService.updateVideoDetailKeyword(videoDetail.videoFileId, { tagInput: tagsToInsert });
 
         /* Insert Languages */
         const setLanguages = (UUIDs) => {
@@ -464,7 +464,7 @@ class ExportImportService extends Service {
                 return { ...item, tagId: tag.id }
             })
             const tagsToInsert = await this.generateTagToInsert(shotData);
-            await this.shotService.updateShotTag(shot.id, { tagInput: tagsToInsert });
+            await this.shotService.updateShotKeyword(shot.id, { tagInput: tagsToInsert });
 
             /* Insert Languages */
             const setLanguages = (UUIDs) => {
