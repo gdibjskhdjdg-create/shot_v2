@@ -563,9 +563,9 @@ class VideoDetailImportFile_Service extends Service {
         dataMustCreateInDB["pictureType"] = await this.getDefaultValues(dataMustCreateInDB["pictureType"], "pictureType", defaultValues["pictureType"]);
         dataMustCreateInDB["pictureMode"] = await this.getDefaultValues(dataMustCreateInDB["pictureMode"], "pictureMode", defaultValues["pictureMode"]);
 
-        dataMustCreateInDB["locationTag"] = await this.getTags([...dataMustCreateInDB["locationTag"], ...dataMustCreateInDB["city"].map(item => item.name)], 'location');
-        dataMustCreateInDB["eventTag"] = await this.getTags(dataMustCreateInDB["eventTag"], 'event');
-        dataMustCreateInDB["tag"] = await this.getTags(dataMustCreateInDB["tag"], 'normal');
+        dataMustCreateInDB["locationTag"] = await this.getKeywords([...dataMustCreateInDB["locationTag"], ...dataMustCreateInDB["city"].map(item => item.name)], 'location');
+        dataMustCreateInDB["eventTag"] = await this.getKeywords(dataMustCreateInDB["eventTag"], 'event');
+        dataMustCreateInDB["tag"] = await this.getKeywords(dataMustCreateInDB["tag"], 'normal');
 
         dataMustCreateInDB["allTags"] = [
             ...dataMustCreateInDB["locationTag"],
@@ -720,7 +720,7 @@ class VideoDetailImportFile_Service extends Service {
         }
     }
 
-    async getTags(data, type = 'normal') {
+    async getKeywords(data, type = 'normal') {
         let importBulk = [];
         let addedTag = [];
 
