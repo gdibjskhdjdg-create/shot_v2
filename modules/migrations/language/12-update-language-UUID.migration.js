@@ -1,6 +1,6 @@
 'use strict';
 
-const { errorLog } = require("../../helper/showLog");
+const { errorLog } = require("../../../helper/showLog");
 
 module.exports = {
     async up(queryInterface, Sequelize) {

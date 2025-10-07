@@ -27,7 +27,6 @@ const ShotInputService = require('../shotList/ShotInput.service');
 const ShotDefaultValueService = require('../shotList/ShotDefaultValue.service');
 const { projectService } = require('../project/index');
 const LanguageService = require('../language/Language.service');
-const VideoDetailEntity = require('../../entity/videoDetail/VideoDetail.entity');
 
 class ExportImportService extends Service {
 
@@ -35,15 +34,15 @@ class ExportImportService extends Service {
         ShotLogService = () => { },
         ShotService = () => { },
         EqualizerService = () => { },
-        VideoDetailLogService = () => { },
-        VideoDetailService = () => { }
+        VideoInfoLogService = () => { },
+        VideoInfoService = () => { }
     ) {
         super(Project);
         this.shotLogService = ShotLogService;
         this.shotService = ShotService;
         this.equalizerService = EqualizerService;
-        this.videoDetailLogService = VideoDetailLogService;
-        this.videoDetailService = VideoDetailService;
+        this.VideoInfoLogService = VideoInfoLogService;
+        this.VideoInfoService = VideoInfoService;
 
         // this.folderToStore = "shotDetailExport"
         this.folderToStore = "excel"
@@ -369,7 +368,7 @@ class ExportImportService extends Service {
         if (data.category && data.category.length > 0) {
             data.category = categories.filter(it => data.category.includes(it.UUID)).map(item => item.id)
         }
-        await this.videoDetailService.updateVideoDetailCategories(videoDetail.videoFileId, { categoriesId: data.category });
+        await this.VideoInfoService.updateCategories(videoDetail.videoFileId, { categoriesId: data.category });
 
         /* Insert Tags */
         data.tags = data.tags.map(item => {
@@ -378,7 +377,7 @@ class ExportImportService extends Service {
         })
 
         const tagsToInsert = await this.generateTagToInsert(data);
-        await this.videoDetailService.updateVideoDetailKeyword(videoDetail.videoFileId, { tagInput: tagsToInsert });
+        await this.VideoInfoService.updateKeyword(videoDetail.videoFileId, { tagInput: tagsToInsert });
 
         /* Insert Languages */
         const setLanguages = (UUIDs) => {
@@ -392,7 +391,7 @@ class ExportImportService extends Service {
         data.narrationLanguages = setLanguages(data.narrationLanguages)
 
         const dataLanguage = await this.findAndSetLanguages(data, videoDetail);
-        await this.videoDetailService.updateVideoDetailLanguage(videoDetail, dataLanguage);
+        await this.VideoInfoService.updateLanguage(videoDetail, dataLanguage);
 
         /* Insert Score */
         const section = 'shot-main-score'

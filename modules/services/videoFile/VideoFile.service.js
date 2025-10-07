@@ -17,19 +17,19 @@ const TypeTool = require('../../../helper/type.tool');
 const { createPaginationQuery } = require('../../../helper/SqlHelper.tool');
 const ErrorResult = require('../../../helper/error.tool');
 const emitter = require('../../_default/eventEmitter');
-const { VideoDetailShotStatus_Enum, VideoDetailStatus_Enum } = require('../../models/videoDetail/enum/VideoDetail.enum');
+const { VideoInfoShotStatus_Enum, VideoInfoStatus_Enum } = require('../../models/videoDetail/enum/VideoInfo.enum');
 const { pipeline } = require('stream');
 const util = require('util');
 const pump = util.promisify(pipeline);
 
 class VideoFileService extends Service {
 
-    constructor(ShotService = () => { }, videoDetailService = () => { }) {
+    constructor(ShotService = () => { }, VideoInfoService = () => { }) {
 
         super(VideoFile);
 
         this.ShotService = ShotService;
-        this.videoDetailService = videoDetailService
+        this.VideoInfoService = VideoInfoService
         this.pathToStoreFile = path.join(__dirname, '..', '..', '..', appConfigs.MainFile_FOLDER_FROM_APP_ROOT);
 
         this.updateVideoFileShotCount = this.updateVideoFileShotCount.bind(this);
@@ -332,58 +332,58 @@ class VideoFileService extends Service {
         return await VideoFile.count({ where: { projectId } });
     }
 
-    async getInitVideoDetailList(filters = {}) {
+    async getInitVideoInfoList(filters = {}) {
         let shotStatus = 'init-check';
         if (['init-check', 'editor'].includes(filters.shotStatus)) {
             shotStatus = filters.shotStatus;
         }
 
-        return await this.getAcceptedVideoDetailList({
+        return await this.getAcceptedVideoInfoList({
             ...filters,
             shotStatus,
         });
     }
 
-    async getEditorVideoDetailList(filters = {}) {
+    async getEditorVideoInfoList(filters = {}) {
         let shotStatus = 'editor';
         if (['editor', 'equalizing'].includes(filters.shotStatus)) {
             shotStatus = filters.shotStatus;
         }
 
-        return await this.getAcceptedVideoDetailList({
+        return await this.getAcceptedVideoInfoList({
             ...filters,
             shotStatus,
         });
     }
 
-    async getEqualizingVideoDetailList(filters = {}) {
+    async getEqualizingVideoInfoList(filters = {}) {
         let shotStatus = 'equalizing';
         if (['equalizing', 'equalized'].includes(filters.shotStatus)) {
             shotStatus = filters.shotStatus;
         }
 
-        return await this.getAcceptedVideoDetailList({
+        return await this.getAcceptedVideoInfoList({
             ...filters,
             shotStatus,
         });
     }
 
-    async getEqualizedVideoDetailList(filters = {}) {
+    async getEqualizedVideoInfoList(filters = {}) {
         let shotStatus = 'equalized';
-        return await this.getAcceptedVideoDetailList({
+        return await this.getAcceptedVideoInfoList({
             ...filters,
             shotStatus,
         });
     }
 
-    async getAcceptedVideoDetailList(filters = {}) {
-        return await this.getVideoDetailList({
+    async getAcceptedVideoInfoList(filters = {}) {
+        return await this.getVideoInfoList({
             ...filters,
             status: "accept"
         });
     }
 
-    async getVideoDetailList(filters = {}) {
+    async getVideoInfoList(filters = {}) {
         const {
             id = null,
             page = null,
@@ -403,7 +403,7 @@ class VideoFileService extends Service {
         if (TypeTool.boolean(status)) videoDetailFilters.status = status;
         if (TypeTool.boolean(title)) videoDetailFilters.search = title;
 
-        const { videoDetails, count } = await this.videoDetailService.videoDetailList(videoDetailFilters)
+        const { videoDetails, count } = await this.VideoInfoService.list(videoDetailFilters)
 
         const videoFiles = videoDetails.map(item => item.toJSON())
 
@@ -411,34 +411,34 @@ class VideoFileService extends Service {
     }
 
     async getInitCheckDetailFolder(filters = {}) {
-        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoDetailShotStatus_Enum.initCheck.value })
+        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoInfoShotStatus_Enum.initCheck.value })
     }
 
     async getEditorDetailFolder(filters = {}) {
-        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoDetailShotStatus_Enum.editor.value })
+        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoInfoShotStatus_Enum.editor.value })
     }
 
     async getEqualizingDetailFolder(filters = {}) {
-        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoDetailShotStatus_Enum.equalizing.value })
+        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoInfoShotStatus_Enum.equalizing.value })
     }
 
     async getEqualizedDetailFolder(filters = {}) {
-        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoDetailShotStatus_Enum.equalized.value })
+        return await this.getDetailOfFolder({ ...filters, shotStatus: VideoInfoShotStatus_Enum.equalized.value })
     }
 
-    async getInitVideoDetailFolder(filters = {}) {
+    async getInitVideoInfoFolder(filters = {}) {
 
-        return await this.getDetailOfFolder({ ...filters, videoStatus: VideoDetailStatus_Enum.init.value })
+        return await this.getDetailOfFolder({ ...filters, videoStatus: VideoInfoStatus_Enum.init.value })
     }
 
-    async getCleaningVideoDetailFolder(filters = {}) {
-        return await this.getDetailOfFolder({ ...filters, videoStatus: VideoDetailStatus_Enum.cleaning.value })
+    async getCleaningVideoInfoFolder(filters = {}) {
+        return await this.getDetailOfFolder({ ...filters, videoStatus: VideoInfoStatus_Enum.cleaning.value })
     }
 
-    async getCleanedVideoDetailFolder(filters = {}) {
+    async getCleanedVideoInfoFolder(filters = {}) {
         return await this.getDetailOfFolder({
             ...filters, videoStatus: [
-                VideoDetailStatus_Enum.cleaning.value, VideoDetailStatus_Enum.accept.value, VideoDetailStatus_Enum.reject.value
+                VideoInfoStatus_Enum.cleaning.value, VideoInfoStatus_Enum.accept.value, VideoInfoStatus_Enum.reject.value
             ]
         })
     }
@@ -878,7 +878,7 @@ class VideoFileService extends Service {
                 });
                 console.log("create video:", { originalName });
 
-                await this.videoDetailService.newVideoDetailForVideoFile({ ...video.toJSON(), isAI })
+                await this.VideoInfoService.newVideoFile({ ...video.toJSON(), isAI })
             }
             else {
                 video.name = newName;
@@ -891,7 +891,7 @@ class VideoFileService extends Service {
             }
         }
 
-        const detail = await this.videoDetailService.findOrCreateVideoDetail({ ...video.toJSON(), isAI });
+        const detail = await this.VideoInfoService.findOrCreate({ ...video.toJSON(), isAI });
         console.log("create detail:", { detail });
 
         if (convertRequired === true) {

@@ -5,7 +5,7 @@ const VideoFileController = require("../../controllers/videoFile/VideoFile.contr
 const exportVideoFile = require("./export.routes")
 const templateVideoFile = require("./template.routes");
 const AuthorizationMiddleware = require("../../middleware/user/Authorization.middleware");
-const VideoDetailController = require("../../controllers/videoDetail/VideoDetail.controller");
+const VideoInfoController = require("../../controllers/videoInfo/VideoInfo.controller");
 const StrictlyAdminMiddleware = require("../../middleware/user/StrictlyAdmin.middleware");
 
 
@@ -30,32 +30,32 @@ async function videoFileRoutes(fastify, opts) {
 
     fastify.get("/canBeShot/init-check", {
         preHandler: AuthorizationMiddleware([])
-    }, ErrorBoundary(VideoFileController.fetchInitCheckVideoFileListCanBeShot));
+    }, ErrorBoundary(VideoFileController.fetchInitCheckListCanBeShot));
 
     fastify.get("/canBeShot/editor", {
         preHandler: AuthorizationMiddleware(['shot-full-access', 'shot-list-editor'])
-    }, ErrorBoundary(VideoFileController.fetchEditorCheckVideoFileListCanBeShot));
+    }, ErrorBoundary(VideoFileController.fetchEditorCheckListCanBeShot));
     fastify.get("/canBeShot/equalizing", {
         preHandler: AuthorizationMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, ErrorBoundary(VideoFileController.fetchEqualizingCheckVideoFileListCanBeShot));
+    }, ErrorBoundary(VideoFileController.fetchEqualizingCheckListCanBeShot));
     fastify.get("/canBeShot/equalized", {
         preHandler: AuthorizationMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, ErrorBoundary(VideoFileController.fetchEqualizedCheckVideoFileListCanBeShot));
+    }, ErrorBoundary(VideoFileController.fetchEqualizedCheckListCanBeShot));
     // ========================
 
     // sources detail list routes
     fastify.get("/detail/:videoFileId", {
         preHandler: AuthorizationMiddleware(['shot-full-access'])
-    }, ErrorBoundary(VideoFileController.fetchVideoFileDetail));
+    }, ErrorBoundary(VideoFileController.fetchDetail));
     fastify.get("/detail/:videoFileId/init-check", {
         preHandler: AuthorizationMiddleware([])
-    }, ErrorBoundary(VideoFileController.fetchInitVideoFileDetail));
+    }, ErrorBoundary(VideoFileController.fetchInitDetail));
     fastify.get("/detail/:videoFileId/editor", {
         preHandler: AuthorizationMiddleware(['shot-full-access', 'shot-list-editor'])
-    }, ErrorBoundary(VideoFileController.fetchEditorVideoFileDetail));
+    }, ErrorBoundary(VideoFileController.fetchEditorDetail));
     fastify.get("/detail/:videoFileId/equalizing", {
         preHandler: AuthorizationMiddleware(['shot-full-access', 'shot-list-equalize'])
-    }, ErrorBoundary(VideoFileController.fetchEqualizingVideoFileDetail));
+    }, ErrorBoundary(VideoFileController.fetchEqualizingDetail));
 
     // =========================
 
@@ -111,7 +111,7 @@ async function videoFileRoutes(fastify, opts) {
     /** set owner to all videos of project */
     fastify.put('/detail/setOwner/:projectId', {
         preHandler: AuthorizationMiddleware(["videos-full-access"])
-    }, ErrorBoundary(VideoDetailController.assignOwnerToProjectFiles));
+    }, ErrorBoundary(VideoInfoController.assignOwnerToProjectFiles));
 
     fastify.put("/important/:videoFileId", {
         preHandler: AuthorizationMiddleware(["videos-full-access"])

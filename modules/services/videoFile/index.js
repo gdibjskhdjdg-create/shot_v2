@@ -1,12 +1,12 @@
 const ShotService = require("../shotList/Shot.service");
 const VideoFileService = require("./VideoFile.service")
-const VideoDetailService = require("../videoDetail/VideoDetail.service")
+const VideoInfoService = require("../videoInfo/VideoInfo.service")
 const ExportVideoService = require("./ExportVideo.service")
 const VideoTemplateService = require("./VideoTemplate.service")
 const RashService = require("./Rash.service");
 const VideoEditor_Service = require("./VideoEditor.service");
 
-const videoFileService = new VideoFileService(new ShotService(), new VideoDetailService());
+const videoFileService = new VideoFileService(new ShotService(), new VideoInfoService());
 const videoEditorService = new VideoEditor_Service(
     new ExportVideoService(),
     new VideoFileService(),

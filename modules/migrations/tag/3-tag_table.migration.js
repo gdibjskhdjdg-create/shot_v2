@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTable = require("../../_default/migrate");
-const TagSchema = require("./schema/Tag.schema");
+const TagSchema = require("../../models/tag/schema/Tag.schema");
 
 module.exports = {
     async up(queryInterface, Sequelize) {

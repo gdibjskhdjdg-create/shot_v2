@@ -5,7 +5,7 @@ const { ExportVideoFile, ExportVideoDetail, ExportRushLog } = require("../../_de
 const fs = require('fs')
 const Sequelize = require('sequelize');
 const VideoFileService = require('./VideoFile.service');
-const VideoDetailService = require('../videoDetail/VideoDetail.service');
+const VideoInfoService = require('../videoInfo/VideoInfo.service');
 const VideoTemplateService = require('./VideoTemplate.service')
 const ShotService = require('../shotList/Shot.service')
 const ShotScoreService = require('../shotList/ShotScore.service')
@@ -33,7 +33,7 @@ class ExportVideoService extends Service {
         this.shotService = new ShotService(this.videoFileService)
         this.shotScore = new ShotScoreService()
         this.shotExport = new ShotExportService(this.shotService, this.shotScore)
-        this.videoDetailService = new VideoDetailService()
+        this.VideoInfoService = new VideoInfoService()
     }
 
     async getFiles(query) {
@@ -125,9 +125,9 @@ class ExportVideoService extends Service {
 
         let videosItems = null
         if (isExcludeMode) {
-            ({ videoDetails: videosItems } = (await this.videoDetailService.specialVideoDetailList({ excludesId: videosId, ...query, page: 1, take: null })))
+            ({ videoDetails: videosItems } = (await this.VideoInfoService.specialList({ excludesId: videosId, ...query, page: 1, take: null })))
         } else {
-            videosItems = await this.videoDetailService.getByVideoIds(videosId)
+            videosItems = await this.VideoInfoService.getByVideoIds(videosId)
         }
 
         for (const videoDetail of videosItems) {

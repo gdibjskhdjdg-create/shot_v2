@@ -10,7 +10,7 @@ const kill = require('tree-kill');
 require("./init/EventListener.js");
 const { exec, spawn } = require("child_process");
 const path = require("path");
-const { videoDetailService } = require("./modules/services/videoDetail/index.js");
+const { VideoInfoService } = require("./modules/services/videoInfo/index.js");
 
 /* Time to check the queue again */
 let timeId = null;
@@ -29,9 +29,9 @@ const RefreshTime = 5000;
 
 async function clearPreviousPendingProcess() {
     try {
-        const firstPending = await videoDetailService.checkFirstPendingForAI(false)
+        const firstPending = await VideoInfoService.checkFirstPendingForAI(false)
         if (firstPending) {
-            await videoDetailService.updateAITagStatus(firstPending.videoFileId, 'queue')
+            await VideoInfoService.updateAITagStatus(firstPending.videoFileId, 'queue')
         }
     } catch (error) {
         console.log('clear previous pending error', error)
@@ -40,7 +40,7 @@ async function clearPreviousPendingProcess() {
 
 async function run() {
 
-    const detail = await videoDetailService.checkFirstQueueForAI()
+    const detail = await VideoInfoService.checkFirstQueueForAI()
     let detailId = detail?.videoFileId;
 
     try {
@@ -53,7 +53,7 @@ async function run() {
 
             if (!fs.existsSync(videoPath)) {
                 console.log('Video path does not exist:', videoPath);
-                await videoDetailService.updateAITagStatus(detailId, 'error');
+                await VideoInfoService.updateAITagStatus(detailId, 'error');
                 refresh()
                 return;
             }
@@ -63,7 +63,7 @@ async function run() {
 
             console.log('Storing tags in:', outputPath);
             await storeTagsOfScript(detailId, outputPath);
-            await videoDetailService.updateAITagStatus(detailId, 'complete');
+            await VideoInfoService.updateAITagStatus(detailId, 'complete');
             detailId = null
 
             console.log('Store tags completed');
@@ -71,7 +71,7 @@ async function run() {
     } catch (error) {
         if (detailId) {
             console.error(4444444444444, 'Error in run function:', error);
-            await videoDetailService.updateAITagStatus(detailId, 'error');
+            await VideoInfoService.updateAITagStatus(detailId, 'error');
         }
     }
     refresh()
@@ -142,7 +142,7 @@ async function executeTagAIScript(detailId, title, videoPath, afterStart = () =>
         let resolved = false;
 
         afterStart(child.pid, startTime);
-        await videoDetailService.updateAITagStatus(detailId, 'pending');
+        await VideoInfoService.updateAITagStatus(detailId, 'pending');
 
         child.stdout.on('data', (data) => {
             console.log(111111111111111, data);
@@ -207,7 +207,7 @@ async function storeTagsOfScript(videoDetailId, jsonPath) {
         let json = fs.readFileSync(fullPath, 'utf8');
         json = JSON.parse(json)
         const tags = Object.keys(json);
-        await videoDetailService.updateAITags(videoDetailId, tags);
+        await VideoInfoService.updateAITags(videoDetailId, tags);
     } catch (error) {
         console.error('Error storing tags:', error);
         throw error;

@@ -4,7 +4,7 @@ const projectRoute = require("../modules/routes/project");
 const ownerRoute = require("../modules/routes/owner");
 const shotListRoute = require("../modules/routes/shotList");
 const videoFileRoute = require("../modules/routes/videoFile");
-const videoDetailRoute = require("../modules/routes/videoDetail");
+const videoInfoRoute = require("../modules/routes/videoInfo");
 const languageRoute = require("../modules/routes/language");
 const exportImportRoute = require("../modules/routes/exportImport");
 /* ------------------------------ prefix: /api ------------------------------ */
@@ -20,7 +20,7 @@ async function apiRoutes(fastify, opts) {
     fastify.register(shotListRoute, { prefix: '/shotList' });
     fastify.register(ownerRoute, { prefix: '/owner' });
     fastify.register(videoFileRoute, { prefix: '/videoFile' });
-    fastify.register(videoDetailRoute, { prefix: '/videoDetail' });
+    fastify.register(videoInfoRoute, { prefix: '/videoDetail' });
 
     // register other routes similarly
 }

@@ -5,7 +5,7 @@ const { videoFileService } = require("../../services/videoFile/index");
 const VideoFileResponse = require('../../dto/videoFile/VideoFile.response');
 const VideoFileListQuery = require('../../dto/videoFile/VideoFileList.query');
 const ErrorResult = require('../../../helper/error.tool');
-const VideoDetailResponse = require('../../dto/videoDetail/VideoDetail.response');
+const VideoInfoResponse = require('../../dto/videoInfo/VideoInfo.response');
 
 const fetchVideoFileList = async (req, res) => {
     const filters = VideoFileListQuery.create({
@@ -48,12 +48,12 @@ const fetchVideoFileListCanBeShot = async (req, res) => {
         filters.userId = user.id;
     }
 
-    const { videoFiles, count } = await videoFileService.getVideoDetailList(filters);
+    const { videoFiles, count } = await videoFileService.getVideoInfoList(filters);
 
-    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoInfoResponse.create(videoFiles), count });
 }
 
-const fetchInitCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchInitCheckListCanBeShot = async (req, res) => {
     const filters = VideoFileListQuery.create({
         page: 1,
         take: 10,
@@ -70,12 +70,12 @@ const fetchInitCheckVideoFileListCanBeShot = async (req, res) => {
     if (hasNotFullAccess) {
         filters.userId = user.id;
     }
-    const { videoFiles, count } = await videoFileService.getInitVideoDetailList(filters);
+    const { videoFiles, count } = await videoFileService.getInitVideoInfoList(filters);
 
-    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoInfoResponse.create(videoFiles), count });
 }
 
-const fetchEditorCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEditorCheckListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -85,12 +85,12 @@ const fetchEditorCheckVideoFileListCanBeShot = async (req, res) => {
         ...req.query
     });
 
-    const { videoFiles, count } = await videoFileService.getEditorVideoDetailList(filters);
+    const { videoFiles, count } = await videoFileService.getEditorVideoInfoList(filters);
 
-    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoInfoResponse.create(videoFiles), count });
 }
 
-const fetchEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEqualizingCheckListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -100,12 +100,12 @@ const fetchEqualizingCheckVideoFileListCanBeShot = async (req, res) => {
         ...req.query
     });
 
-    const { videoFiles, count } = await videoFileService.getEqualizingVideoDetailList(filters);
+    const { videoFiles, count } = await videoFileService.getEqualizingVideoInfoList(filters);
 
-    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoInfoResponse.create(videoFiles), count });
 }
 
-const fetchEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
+const fetchEqualizedCheckListCanBeShot = async (req, res) => {
 
     const filters = VideoFileListQuery.create({
         page: 1,
@@ -115,9 +115,9 @@ const fetchEqualizedCheckVideoFileListCanBeShot = async (req, res) => {
         ...req.query
     });
 
-    const { videoFiles, count } = await videoFileService.getEqualizedVideoDetailList(filters);
+    const { videoFiles, count } = await videoFileService.getEqualizedVideoInfoList(filters);
 
-    return ResponseDTO.success(res, { videoFiles: VideoDetailResponse.create(videoFiles), count });
+    return ResponseDTO.success(res, { videoFiles: VideoInfoResponse.create(videoFiles), count });
 }
 
 // get video file of path ******************
@@ -235,7 +235,7 @@ const fetchInitVideoFileOfPath = async (req, res) => {
         filters.userId = req.user.id;
     }
 
-    const videoFiles = await videoFileService.getInitVideoDetailFolder(filters);
+    const videoFiles = await videoFileService.getInitVideoInfoFolder(filters);
 
     return ResponseDTO.success(res, videoFiles);
 }
@@ -250,7 +250,7 @@ const fetchCleaningVideoFileOfPath = async (req, res) => {
         userId: null
     }
 
-    const videoFiles = await videoFileService.getCleaningVideoDetailFolder(filters);
+    const videoFiles = await videoFileService.getCleaningVideoInfoFolder(filters);
 
     return ResponseDTO.success(res, videoFiles);
 }
@@ -265,18 +265,18 @@ const fetchCleanedVideoFileOfPath = async (req, res) => {
         userId: null
     }
 
-    const videoFiles = await videoFileService.getCleaningVideoDetailFolder(filters);
+    const videoFiles = await videoFileService.getCleaningVideoInfoFolder(filters);
 
     return ResponseDTO.success(res, videoFiles);
 }
 
-const fetchVideoFileDetail = async (req, res) => {
+const fetchDetail = async (req, res) => {
     const { videoFileId } = req.params;
     const videoFiles = await videoFileService.getVideoFileDetail(videoFileId);
     return ResponseDTO.success(res, videoFiles)
 }
 
-const fetchInitVideoFileDetail = async (req, res) => {
+const fetchInitDetail = async (req, res) => {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -287,7 +287,7 @@ const fetchInitVideoFileDetail = async (req, res) => {
     return ResponseDTO.success(res, videoFiles)
 }
 
-const fetchEditorVideoFileDetail = async (req, res) => {
+const fetchEditorDetail = async (req, res) => {
     const { videoFileId } = req.params;
     const filters = {}
     filters.shotStatus = ['editor', 'equalizing']
@@ -297,7 +297,7 @@ const fetchEditorVideoFileDetail = async (req, res) => {
     return ResponseDTO.success(res, videoFiles);
 }
 
-const fetchEqualizingVideoFileDetail = async (req, res) => {
+const fetchEqualizingDetail = async (req, res) => {
     const { videoFileId } = req.params;
 
     const filters = {}
@@ -455,10 +455,10 @@ const modifyFileInfo = async (req, res) => {
 module.exports = {
     fetchVideoFileList,
     fetchVideoFileListCanBeShot,
-    fetchInitCheckVideoFileListCanBeShot,
-    fetchEditorCheckVideoFileListCanBeShot,
-    fetchEqualizingCheckVideoFileListCanBeShot,
-    fetchEqualizedCheckVideoFileListCanBeShot,
+    fetchInitCheckListCanBeShot,
+    fetchEditorCheckListCanBeShot,
+    fetchEqualizingCheckListCanBeShot,
+    fetchEqualizedCheckListCanBeShot,
     fetchInitCheckVideoFileOfPath,
     fetchEditorVideoFileOfPath,
     fetchEqualizingVideoFileOfPath,
@@ -466,10 +466,10 @@ module.exports = {
     fetchInitVideoFileOfPath,
     fetchCleaningVideoFileOfPath,
     fetchCleanedVideoFileOfPath,
-    fetchVideoFileDetail,
-    fetchInitVideoFileDetail,
-    fetchEditorVideoFileDetail,
-    fetchEqualizingVideoFileDetail,
+    fetchDetail,
+    fetchInitDetail,
+    fetchEditorDetail,
+    fetchEqualizingDetail,
     fetchVideoFileLog,
     markImportantEncodeVideo,
     reassignProjectVideoFileByUser,

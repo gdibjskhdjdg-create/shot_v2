@@ -1,7 +1,7 @@
 'use strict';
 
 const CreateTable = require("../../_default/migrate");
-const VideoFileSchema = require("../../routes/videoFile/schema/VideoFile.schema");
+const VideoFileSchema = require("../../models/videoFile/schema/VideoFile.schema");
 
 module.exports = {
     async up(queryInterface, Sequelize) {

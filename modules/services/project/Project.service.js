@@ -17,10 +17,6 @@ const { videoFileService } = require('../../services/videoFile/index');
 const UserService = require("../../services/user/User.service");
 
 const { secondToTimeFormat, sizeToFormat, generateRandomCode } = require('../../../helper/general.tool');
-const { VideoDetailStatus_Enum } = require('../../models/videoDetail/enum/VideoDetail.enum');
-const GalleryParser = require('../../../helper/galleryParser.tool');
-const KeywordService = require('../keyword/Keyword.service');
-const { encryptFile, decryptFile } = require('../../../helper/fileEncryption.tool');
 
 class ProjectService extends Service {
 
@@ -28,15 +24,15 @@ class ProjectService extends Service {
         ShotLogService = () => { },
         ShotService = () => { },
         EqualizerService = () => { },
-        VideoDetailLogService = () => { },
-        VideoDetailService = () => { }
+        VideoInfoLogService = () => { },
+        VideoInfoService = () => { }
     ) {
         super(Project);
         this.shotLogService = ShotLogService;
         this.shotService = ShotService;
         this.equalizerService = EqualizerService;
-        this.videoDetailLogService = VideoDetailLogService;
-        this.videoDetailService = VideoDetailService;
+        this.VideoInfoLogService = VideoInfoLogService;
+        this.VideoInfoService = VideoInfoService;
 
         // this.folderToStore = "shotDetailExport"
         this.folderToStore = "excel"
@@ -245,10 +241,10 @@ class ProjectService extends Service {
             videoFiles.forEach(file => {
                 videoItems.size += (+file.size)
                 videoItems.durations += (+file.duration)
-                if (file?.videoDetail?.status === VideoDetailStatus_Enum.init.value) videoItems.initCount++;
-                else if (file?.videoDetail?.status === VideoDetailStatus_Enum.cleaning.value) videoItems.cleaningCount++;
-                else if (file?.videoDetail?.status === VideoDetailStatus_Enum.accept.value) videoItems.acceptCount++;
-                else if (file?.videoDetail?.status === VideoDetailStatus_Enum.reject.value) videoItems.rejectCount++;
+                if (file?.videoDetail?.status === VideoInfoStatus_Enum.init.value) videoItems.initCount++;
+                else if (file?.videoDetail?.status === VideoInfoStatus_Enum.cleaning.value) videoItems.cleaningCount++;
+                else if (file?.videoDetail?.status === VideoInfoStatus_Enum.accept.value) videoItems.acceptCount++;
+                else if (file?.videoDetail?.status === VideoInfoStatus_Enum.reject.value) videoItems.rejectCount++;
             });
 
             shots.forEach(shot => {

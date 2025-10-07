@@ -11,7 +11,7 @@ class UserListResponse extends BaseResponse {
         this.lastName = this.setValue(["lastName", 'string']);
         this.fullName = this.setValue(["fullName", 'string']);
         this.phone = this.setValue(["phone", 'string']);
-        this.permission = this.validate(["permission", 'string']);
+        this.permission = this.setValue(["permission", 'string']);
         this.isActive = data.isActive > 0 //this.validate(["isActive", 'boolean']);
         this.createdAt = this.setValue(["createdAt", 'string']);
         this.roles = data.role.map(item => { return { id: item.id, name: item.name } })

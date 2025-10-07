@@ -17,12 +17,12 @@ class ShotLogService extends Service {
 
     constructor(
         ProjectService = () => { },
-        VideoDetailLogService = () => { }
+        VideoInfoLogService = () => { }
     ) {
         super(ShotLog);
 
         this.projectService = ProjectService;
-        this.videoDetailLogService = VideoDetailLogService;
+        this.VideoInfoLogService = VideoInfoLogService;
 
         this.equalizerService = new EqualizerService();
 
@@ -52,7 +52,7 @@ class ShotLogService extends Service {
 
         // const videosId = shotLogs.map(x => x.videoFileId)
         // // ***************************** changes
-        // const videoDetailLogs = (await this.videoDetailLogService.getVideoDetailLogList(videosId, { projectId, userId })).rows
+        // const videoDetailLogs = (await this.VideoInfoLogService.getLogList(videosId, { projectId, userId })).rows
         // // *****************************
 
         const result = [];
@@ -86,7 +86,7 @@ class ShotLogService extends Service {
         }
 
 
-        const videoDetailLogs = await this.videoDetailLogService.getVideoDetailLogs({
+        const videoDetailLogs = await this.VideoInfoLogService.getLogs({
             projectId,
             userId,
             fromTime: time,
@@ -483,7 +483,7 @@ class ShotLogService extends Service {
         const videoFileAsObject = {};
 
         const shotLogs = await this.getShotLogs({ projectId, userId, fromTime, toTime, isProjectBase })
-        const videoDetailLogs = await this.videoDetailLogService.getVideoDetailLogs({ projectId, userId, fromTime, toTime });
+        const videoDetailLogs = await this.VideoInfoLogService.getLogs({ projectId, userId, fromTime, toTime });
 
         const videosId = [...(new Set([...shotLogs.map(x => x.videoFileId), ...videoDetailLogs.map(x => x.videoFileId)]))];
         const videoFiles = await videoFileService.getByIds(videosId, ["id", "size", "duration"]);
