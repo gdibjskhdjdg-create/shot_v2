@@ -623,7 +623,7 @@ class VideoDetailImportFile_Service extends Service {
                 });
                 uniqueVideoFiles[i].id = db.id;
 
-                emitter.emit('createVideoFromImportExcelVideoInfo', db.toJSON())
+                emitter.emit('createVideoFromImportExcelShot', db.toJSON())
 
             }
         }
